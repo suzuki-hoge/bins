@@ -38,25 +38,38 @@ pub fn draw(frame: &mut Frame<CrosstermBackend<Stdout>>, app: &mut App) {
         // empty input
         app.lines
             .iter()
-            .map(|line| ListItem::new(Spans::from(Span::raw(line))))
+            .enumerate()
+            .map(|(i, line)| {
+                ListItem::new(Spans::from(Span::styled(
+                    line,
+                    Style::default().bg(if app.cursor == i {
+                        Color::Cyan
+                    } else {
+                        Color::White
+                    }),
+                )))
+            })
             .collect()
     } else {
         // find matched
         app.lines
             .iter()
             .flat_map(|line| MatchedString::matched_only(&app.input.input, line))
-            .map(|ms| {
+            .enumerate()
+            .map(|(i, ms)| {
                 let content: Vec<Spans> = vec![Spans::from(
                     ms.chars
                         .into_iter()
                         .map(|mc| {
                             Span::styled(
                                 mc.value,
-                                Style::default().fg(if mc.matched {
-                                    Color::Red
-                                } else {
-                                    Color::Black
-                                }),
+                                Style::default()
+                                    .fg(if mc.matched { Color::Red } else { Color::Black })
+                                    .bg(if app.cursor == i {
+                                        Color::Cyan
+                                    } else {
+                                        Color::White
+                                    }),
                             )
                         })
                         .collect_vec(),

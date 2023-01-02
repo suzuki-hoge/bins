@@ -11,6 +11,7 @@ pub struct MatchedChars {
 
 impl MatchedString {
     pub fn matched_only(word: &str, line: &str) -> Option<Self> {
+        let word = word.replace(" ", "");
         let mut line = line.to_string();
         let mut chars: Vec<MatchedChars> = vec![];
         let case_sensitive = word.chars().any(|c| c != c.to_ascii_lowercase());
@@ -103,7 +104,6 @@ mod tests {
     #[test]
     fn test_ok_inside() {
         let act = MatchedString::matched_only("bcd", "abcde");
-
         let exp = exp(vec![
             ("a", false),
             ("b", true),
@@ -118,7 +118,6 @@ mod tests {
     #[test]
     fn test_ok_case_insensitive() {
         let act = MatchedString::matched_only("abc", "ABCDE");
-
         let exp = exp(vec![("A", true), ("B", true), ("C", true), ("DE", false)]);
 
         assert_eq!(act, exp);
@@ -127,8 +126,31 @@ mod tests {
     #[test]
     fn test_ok_case_sensitive() {
         let act = MatchedString::matched_only("Abc", "Abcde");
-
         let exp = exp(vec![("A", true), ("b", true), ("c", true), ("de", false)]);
+
+        assert_eq!(act, exp);
+    }
+
+    #[test]
+    fn test_ok_empty() {
+        let act = MatchedString::matched_only("", "abcde");
+        let exp = exp(vec![("abcde", false)]);
+
+        assert_eq!(act, exp);
+    }
+
+    #[test]
+    fn test_ok_space_only() {
+        let act = MatchedString::matched_only(" ", "abcde");
+        let exp = exp(vec![("abcde", false)]);
+
+        assert_eq!(act, exp);
+    }
+
+    #[test]
+    fn test_ok_include_space() {
+        let act = MatchedString::matched_only("a b", "abcde");
+        let exp = exp(vec![("a", true), ("b", true), ("cde", false)]);
 
         assert_eq!(act, exp);
     }

@@ -27,6 +27,7 @@ pub fn run(terminal: &mut Terminal<CrosstermBackend<Stdout>>) -> io::Result<Stri
         if let Event::Key(e) = event::read()? {
             match e.modifiers {
                 KeyModifiers::CONTROL => match e.code {
+                    // horizontal moving
                     KeyCode::Char('b') => {
                         app.input.left();
                     }
@@ -39,6 +40,16 @@ pub fn run(terminal: &mut Terminal<CrosstermBackend<Stdout>>) -> io::Result<Stri
                     KeyCode::Char('e') => {
                         app.input.end();
                     }
+
+                    // vertical moving
+                    KeyCode::Char('n') => {
+                        app.down();
+                    }
+                    KeyCode::Char('p') => {
+                        app.up();
+                    }
+
+                    // editing
                     KeyCode::Char('k') => {
                         app.input.cut();
                     }
@@ -46,17 +57,30 @@ pub fn run(terminal: &mut Terminal<CrosstermBackend<Stdout>>) -> io::Result<Stri
                     _ => {}
                 },
                 _ => match e.code {
+                    // horizontal moving
                     KeyCode::Left => {
                         app.input.left();
                     }
                     KeyCode::Right => {
                         app.input.right();
                     }
+
+                    // vertical moving
+                    KeyCode::Down => {
+                        app.down();
+                    }
+                    KeyCode::Up => {
+                        app.up();
+                    }
+
+                    // editing
                     KeyCode::Backspace => {
                         app.input.remove();
+                        app.refresh();
                     }
                     KeyCode::Char(c) => {
                         app.input.insert(c);
+                        app.refresh();
                     }
                     _ => {}
                 },

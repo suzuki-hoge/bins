@@ -36,7 +36,7 @@ pub fn draw(frame: &mut Frame<CrosstermBackend<Stdout>>, app: &mut App) {
 
     let items: Vec<ListItem> = if app.input.input.is_empty() {
         // empty input
-        app.lines
+        app.origin_lines
             .iter()
             .enumerate()
             .map(|(i, line)| {
@@ -52,7 +52,7 @@ pub fn draw(frame: &mut Frame<CrosstermBackend<Stdout>>, app: &mut App) {
             .collect()
     } else {
         // find matched
-        app.lines
+        app.origin_lines
             .iter()
             .flat_map(|line| MatchedString::matched_only(&app.input.input, line))
             .enumerate()

@@ -8,9 +8,9 @@ use crossterm::{
 };
 use tui::{backend::CrosstermBackend, Terminal};
 
-pub fn crossterm_launcher<F>(runner: F) -> io::Result<String>
+pub fn crossterm_launcher<Runner, Result>(runner: Runner) -> io::Result<Result>
 where
-    F: Fn(&mut Terminal<CrosstermBackend<Stdout>>) -> io::Result<String>,
+    Runner: Fn(&mut Terminal<CrosstermBackend<Stdout>>) -> io::Result<Result>,
 {
     enable_raw_mode()?;
     let mut stdout = io::stdout();

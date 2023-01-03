@@ -36,7 +36,7 @@ impl MatchedString {
 
         if !line.is_empty() {
             chars.push(MatchedChars {
-                value: line.to_string(),
+                value: line,
                 matched: false,
             });
         }
@@ -60,7 +60,7 @@ impl MatchedString {
                 ));
             }
         }
-        return None;
+        None
     }
 }
 

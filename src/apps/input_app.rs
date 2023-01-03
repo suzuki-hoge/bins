@@ -20,7 +20,7 @@ impl InputApp {
     }
 
     pub fn remove(&mut self) {
-        if self.input.len() != 0 {
+        if !self.input.is_empty() {
             self.input.remove(self.cursor - 1);
             self.cursor -= 1;
         }

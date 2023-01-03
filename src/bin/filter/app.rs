@@ -1,5 +1,5 @@
-use bins::apps::input_app::InputApp;
-use bins::apps::matched_string::MatchedString;
+use bins::libs::app::input_app::InputApp;
+use bins::libs::common::matched_string::MatchedString;
 
 #[derive(Debug)]
 pub struct App {
@@ -15,10 +15,7 @@ impl App {
         Self {
             input: InputApp::init(),
             origin_lines: lines.clone(),
-            matched_lines: lines
-                .iter()
-                .map(|line| MatchedString::matched_only("", line))
-                .collect(),
+            matched_lines: lines.iter().map(|line| MatchedString::matched_only("", line)).collect(),
             fixed_lines: vec![],
             cursor: 0,
         }
@@ -41,23 +38,15 @@ impl App {
     // action
 
     pub fn refresh(&mut self) {
-        self.matched_lines = self
-            .origin_lines
-            .iter()
-            .map(|line| MatchedString::matched_only(&self.input.input, line))
-            .collect();
+        self.matched_lines =
+            self.origin_lines.iter().map(|line| MatchedString::matched_only(&self.input.input, line)).collect();
         self.cursor = 0;
     }
 
     pub fn fix(&mut self) {
         let index = self.find_index();
 
-        let line = self.matched_lines[index]
-            .as_ref()
-            .unwrap()
-            .chars
-            .iter()
-            .fold("".to_string(), |acc, mc| format!("{}{}", acc, mc.value));
+        let line = self.matched_lines[index].clone().unwrap().origin;
         self.fixed_lines.push(line);
         self.origin_lines.remove(index);
         self.matched_lines.remove(index);
@@ -91,12 +80,8 @@ mod tests {
 
     #[test]
     fn fix() {
-        let mut app = App::init(
-            vec!["youtube", "github", "instagram", "twitter"]
-                .iter()
-                .map(|s| s.to_string())
-                .collect(),
-        );
+        let mut app =
+            App::init(vec!["youtube", "github", "instagram", "twitter"].iter().map(|s| s.to_string()).collect());
 
         // input char
 

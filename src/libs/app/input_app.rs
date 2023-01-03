@@ -6,10 +6,7 @@ pub struct InputApp {
 
 impl InputApp {
     pub fn init() -> Self {
-        Self {
-            input: "".to_string(),
-            cursor: 0,
-        }
+        Self { input: "".to_string(), cursor: 0 }
     }
 
     // edit
@@ -58,7 +55,7 @@ impl InputApp {
 
 #[cfg(test)]
 mod tests {
-    use crate::apps::input_app::InputApp;
+    use crate::libs::app::input_app::InputApp;
 
     #[test]
     fn edit() {

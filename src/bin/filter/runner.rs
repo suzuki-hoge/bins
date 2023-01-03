@@ -3,32 +3,26 @@ extern crate bins;
 use std::io;
 use std::io::Stdout;
 
+use app::App;
 use crossterm::event;
 use crossterm::event::{Event, KeyCode, KeyModifiers};
 use tui::backend::CrosstermBackend;
 use tui::Terminal;
+use ui::draw;
 
 use crate::app;
 use crate::ui;
 
 pub fn run(terminal: &mut Terminal<CrosstermBackend<Stdout>>) -> io::Result<Vec<String>> {
-    let mut app = app::App::init(
-        vec![
-            "youtube",
-            "github",
-            "twitter",
-            "facebook",
-            "instagram",
-            "slack",
-            "chatwork",
-        ]
-        .iter()
-        .map(|s| s.to_string())
-        .collect(),
+    let mut app = App::init(
+        vec!["youtube", "github", "twitter", "facebook", "instagram", "slack", "chatwork"]
+            .iter()
+            .map(|s| s.to_string())
+            .collect(),
     );
 
     loop {
-        terminal.draw(|frame| ui::draw(frame, &mut app))?;
+        terminal.draw(|frame| draw(frame, &mut app))?;
 
         if let Event::Key(e) = event::read()? {
             match e.modifiers {

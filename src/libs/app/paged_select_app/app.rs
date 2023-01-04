@@ -39,7 +39,7 @@ impl<Item, MatchedItem> PagedSelectApp<Item, MatchedItem> {
     }
 
     pub fn up(&mut self) {
-        if !self.is_head_of_all() {
+        if !self.matched.is_empty() && !self.is_head_of_all() {
             self.active.up(self.matched.get_item_numbers());
 
             if self.page.is_out_of_page(self.active.get_item_index()) {
@@ -49,7 +49,7 @@ impl<Item, MatchedItem> PagedSelectApp<Item, MatchedItem> {
     }
 
     pub fn down(&mut self) {
-        if !self.is_last_of_all() {
+        if !self.matched.is_empty() && !self.is_last_of_all() {
             self.active.down(self.matched.get_item_numbers());
 
             if self.page.is_out_of_page(self.active.get_item_index()) {
@@ -65,11 +65,16 @@ impl<Item, MatchedItem> PagedSelectApp<Item, MatchedItem> {
         self.matched.refresh(&self.all_items, matcher);
         self.page.turn_top();
         self.page.refresh(self.matched.get_item_numbers());
-        self.active.page_top(self.page.get_head_index_in_page(), self.matched.get_item_numbers());
+        if !self.matched.is_empty() {
+            self.active.page_top(self.page.get_head_index_in_page(), self.matched.get_item_numbers());
+        }
     }
 
-    pub fn pop_item(&mut self) -> Item {
-        let is_last_one_of_all = self.matched.is_last_number(self.active.get_item_number());
+    pub fn pop_item(&mut self) -> Option<Item> {
+        if self.matched.is_empty() {
+            return None;
+        }
+        let is_last_one_of_matched = self.matched.is_last_number(self.active.get_item_number());
 
         self.matched.remove(self.active.get_item_number());
 
@@ -77,13 +82,15 @@ impl<Item, MatchedItem> PagedSelectApp<Item, MatchedItem> {
 
         let item = self.all_items.remove(self.active.get_item_number()).unwrap();
 
-        if is_last_one_of_all {
+        if self.matched.is_empty() {
+            return Some(item);
+        } else if is_last_one_of_matched {
             self.active.up(self.matched.get_item_numbers());
         } else {
             self.active.refresh(self.matched.get_item_numbers());
         }
 
-        item
+        Some(item)
     }
 
     fn is_head_of_all(&self) -> bool {

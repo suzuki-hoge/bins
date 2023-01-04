@@ -28,8 +28,7 @@ impl App {
     }
 
     pub fn fix(&mut self) {
-        let item = self.paged_select_app.pop_item();
-        self.fixed_items.push(item);
+        self.paged_select_app.pop_item().iter().for_each(|item| self.fixed_items.push(item.clone()));
     }
 }
 

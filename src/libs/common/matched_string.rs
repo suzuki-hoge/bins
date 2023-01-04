@@ -12,7 +12,7 @@ pub struct Part {
 
 impl MatchedString {
     pub fn matched_only(word: &str, origin: &str) -> Option<Self> {
-        let word = word.replace(" ", "");
+        let word = word.replace(' ', "");
         let mut line = origin.to_string();
         let mut parts: Vec<Part> = vec![];
         let case_sensitive = word.chars().any(|c| c != c.to_ascii_lowercase());
@@ -42,7 +42,7 @@ impl MatchedString {
         for i in 0..s.len() {
             let c_in_s = s.chars().nth(i).unwrap();
             if (case_sensitive && sensitive(c, c_in_s)) || (!case_sensitive && insensitive(c, c_in_s)) {
-                return Some(((&s[..i]).to_string(), c_in_s.to_string(), (&s[i + 1..]).to_string()));
+                return Some((s[..i].to_string(), c_in_s.to_string(), s[i + 1..].to_string()));
             }
         }
         None

@@ -5,7 +5,7 @@ use tui::text::{Span, Spans};
 
 pub fn matched_string_spans(ms: MatchedString, is_highlight: bool) -> Vec<Spans<'static>> {
     let spans = ms.parts.iter().map(|p| Span::styled(p.value.clone(), style(p, is_highlight))).collect_vec();
-    return vec![Spans::from(spans)];
+    vec![Spans::from(spans)]
 }
 
 fn style(p: &Part, is_highlight: bool) -> Style {

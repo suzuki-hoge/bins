@@ -20,6 +20,10 @@ impl<MatchedItem> Matched<MatchedItem> {
         &self.item_numbers
     }
 
+    pub fn is_empty(&self) -> bool {
+        self.item_numbers.is_empty()
+    }
+
     pub fn is_head_number(&self, item_number: &usize) -> bool {
         &self.item_numbers[0] == item_number
     }
@@ -47,8 +51,7 @@ impl<MatchedItem> Matched<MatchedItem> {
     }
 
     pub fn remove(&mut self, target_item_number: &usize) {
-        self.item_numbers =
-            self.item_numbers.iter().filter(|&item_number| item_number != target_item_number).copied().collect();
+        self.item_numbers.retain(|item_number| item_number != target_item_number);
         self.items.remove(target_item_number);
     }
 }

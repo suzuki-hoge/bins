@@ -4,6 +4,7 @@ use std::io;
 use std::io::Stdout;
 
 use app::App;
+use bins::libs::util::tmp_log::tmp_log;
 use crossterm::event;
 use crossterm::event::{Event, KeyCode, KeyModifiers};
 use tui::backend::CrosstermBackend;
@@ -14,12 +15,8 @@ use crate::app;
 use crate::ui;
 
 pub fn run(terminal: &mut Terminal<CrosstermBackend<Stdout>>) -> io::Result<Vec<String>> {
-    let mut app = App::init(
-        vec!["youtube", "github", "twitter", "facebook", "instagram", "slack", "chatwork"]
-            .iter()
-            .map(|s| s.to_string())
-            .collect(),
-    );
+    let mut app = App::init(('a'..='z').cycle().take(26).map(|s| s.to_string()).collect());
+    tmp_log(&app);
 
     loop {
         terminal.draw(|frame| draw(frame, &mut app))?;
@@ -29,17 +26,17 @@ pub fn run(terminal: &mut Terminal<CrosstermBackend<Stdout>>) -> io::Result<Vec<
                 KeyModifiers::CONTROL => {
                     match e.code {
                         // horizontal moving
-                        KeyCode::Char('b') => app.input.left(),
-                        KeyCode::Char('f') => app.input.right(),
-                        KeyCode::Char('a') => app.input.top(),
-                        KeyCode::Char('e') => app.input.end(),
+                        KeyCode::Char('b') => app.input_app.left(),
+                        KeyCode::Char('f') => app.input_app.right(),
+                        KeyCode::Char('a') => app.input_app.top(),
+                        KeyCode::Char('e') => app.input_app.end(),
 
                         // vertical moving
-                        KeyCode::Char('n') => app.down(),
-                        KeyCode::Char('p') => app.up(),
+                        KeyCode::Char('n') => app.paged_select_app.down(),
+                        KeyCode::Char('p') => app.paged_select_app.up(),
 
                         // editing
-                        KeyCode::Char('k') => app.input.cut(),
+                        KeyCode::Char('k') => app.input_app.cut(),
                         KeyCode::Char('c') => return Ok(vec!["".to_string()]),
 
                         // action
@@ -50,12 +47,12 @@ pub fn run(terminal: &mut Terminal<CrosstermBackend<Stdout>>) -> io::Result<Vec<
                 _ => {
                     match e.code {
                         // horizontal moving
-                        KeyCode::Left => app.input.left(),
-                        KeyCode::Right => app.input.right(),
+                        KeyCode::Left => app.input_app.left(),
+                        KeyCode::Right => app.input_app.right(),
 
                         // vertical moving
-                        KeyCode::Down => app.down(),
-                        KeyCode::Up => app.up(),
+                        KeyCode::Down => app.paged_select_app.down(),
+                        KeyCode::Up => app.paged_select_app.up(),
 
                         // action
                         KeyCode::Char(' ') => app.fix(),
@@ -66,11 +63,11 @@ pub fn run(terminal: &mut Terminal<CrosstermBackend<Stdout>>) -> io::Result<Vec<
 
                         // editing
                         KeyCode::Char(c) => {
-                            app.input.insert(c);
+                            app.input_app.insert(c);
                             app.refresh();
                         }
                         KeyCode::Backspace => {
-                            app.input.remove();
+                            app.input_app.remove();
                             app.refresh();
                         }
 

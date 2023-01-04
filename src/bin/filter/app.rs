@@ -1,76 +1,35 @@
 use bins::libs::app::input_app::InputApp;
+use bins::libs::app::paged_select_app::PagedSelectApp;
 use bins::libs::common::matched_string::MatchedString;
 
 #[derive(Debug)]
 pub struct App {
-    pub input: InputApp,
-    pub origin_lines: Vec<String>,
-    pub matched_lines: Vec<Option<MatchedString>>, // same length as origin_lines
-    pub fixed_lines: Vec<String>,
-    pub cursor: usize,
+    pub input_app: InputApp,
+    pub paged_select_app: PagedSelectApp<String, MatchedString>,
+    fixed_items: Vec<String>,
 }
 
 impl App {
-    pub fn init(lines: Vec<String>) -> Self {
-        Self {
-            input: InputApp::init(),
-            origin_lines: lines.clone(),
-            matched_lines: lines.iter().map(|line| MatchedString::matched_only("", line)).collect(),
-            fixed_lines: vec![],
-            cursor: 0,
-        }
+    pub fn init(items: Vec<String>) -> Self {
+        let mut s =
+            Self { input_app: InputApp::init(), paged_select_app: PagedSelectApp::init(items), fixed_items: vec![] };
+        s.paged_select_app.re_match(|item| MatchedString::matched_only("", &item));
+        s.paged_select_app.re_page();
+        s
     }
-
-    // cursor
-
-    pub fn down(&mut self) {
-        if self.cursor != self.matched_lines.len() - 1 {
-            self.cursor += 1;
-        }
-    }
-
-    pub fn up(&mut self) {
-        if self.cursor != 0 {
-            self.cursor -= 1;
-        }
-    }
-
-    // action
 
     pub fn refresh(&mut self) {
-        self.matched_lines =
-            self.origin_lines.iter().map(|line| MatchedString::matched_only(&self.input.input, line)).collect();
-        self.cursor = 0;
+        self.paged_select_app.re_match(|item| MatchedString::matched_only(&self.input_app.input, &item));
+        self.paged_select_app.re_render();
     }
 
     pub fn fix(&mut self) {
-        let index = self.find_index();
-
-        let line = self.matched_lines[index].clone().unwrap().origin;
-        self.fixed_lines.push(line);
-        self.origin_lines.remove(index);
-        self.matched_lines.remove(index);
-
-        if self.cursor == self.matched_lines.len() {
-            self.up();
-        }
-    }
-
-    fn find_index(&self) -> usize {
-        let mut found = 0;
-        for i in 0..self.matched_lines.len() {
-            if self.matched_lines[i].is_some() {
-                found += 1;
-            }
-            if found == self.cursor + 1 {
-                return i;
-            }
-        }
-        panic!("n/a");
+        let item = self.paged_select_app.pop_item();
+        self.fixed_items.push(item);
     }
 
     pub fn finish(self) -> Vec<String> {
-        self.fixed_lines
+        self.fixed_items
     }
 }
 
@@ -82,10 +41,12 @@ mod tests {
     fn fix() {
         let mut app =
             App::init(vec!["youtube", "github", "instagram", "twitter"].iter().map(|s| s.to_string()).collect());
+        app.set_per_page(20);
+        println!("{:?}", (&app));
 
         // input char
 
-        app.input.insert('e');
+        app.input_app.insert('e');
         app.refresh();
 
         assert!(app.matched_lines[0].is_some());
@@ -105,7 +66,7 @@ mod tests {
 
         // delete
 
-        app.input.remove();
+        app.input_app.remove();
         app.refresh();
 
         // fix
@@ -115,5 +76,19 @@ mod tests {
         assert!(app.matched_lines[0].is_some());
         assert!(app.matched_lines[1].is_some());
         assert_eq!(app.fixed_lines, vec!["twitter", "youtube"]);
+    }
+
+    #[test]
+    fn page() {
+        let mut app = App::init(
+            vec!["+a", "+b", "-c", "+d", "+e", "-f", "+g", "+h", "-i", "+j"].iter().map(|s| s.to_string()).collect(),
+        );
+        app.set_per_page(20);
+        app.input_app.insert('+');
+        app.refresh();
+        // &app.matched_lines.iter().for_each(|ml| println!("{:?}", ml));
+        println!("{:?}", (&app.origin_lines2));
+        println!("{:?}", (&app.matched_lines2));
+        println!("{:?}", (&app.matched_line_numbers));
     }
 }

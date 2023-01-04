@@ -4,7 +4,6 @@ use std::io;
 use std::io::Stdout;
 
 use app::App;
-use bins::libs::util::tmp_log::tmp_log;
 use crossterm::event;
 use crossterm::event::{Event, KeyCode, KeyModifiers};
 use tui::backend::CrosstermBackend;
@@ -16,7 +15,6 @@ use crate::ui;
 
 pub fn run(terminal: &mut Terminal<CrosstermBackend<Stdout>>) -> io::Result<Vec<String>> {
     let mut app = App::init(('a'..='z').cycle().take(26).map(|s| s.to_string()).collect());
-    tmp_log(&app);
 
     loop {
         terminal.draw(|frame| draw(frame, &mut app))?;

@@ -20,7 +20,6 @@ pub fn draw(frame: &mut Frame<CrosstermBackend<Stdout>>, app: &mut App) {
         .constraints([Constraint::Length(1), Constraint::Min(1)])
         .split(frame.size());
     frame.set_cursor(frame.size().x + (PROMPT.len() + app.input_app.cursor) as u16, frame.size().y);
-    app.paged_select_app.set_per_page(layout[1].height);
 
     // input area
 
@@ -33,8 +32,8 @@ pub fn draw(frame: &mut Frame<CrosstermBackend<Stdout>>, app: &mut App) {
         .paged_select_app
         .get_matched_items_in_page()
         .iter()
-        .map(|(item_number, item)| {
-            ListItem::new(matched_string_spans(item.clone(), app.paged_select_app.is_active_item_number(*item_number)))
+        .map(|&(item_number, item)| {
+            ListItem::new(matched_string_spans(item.clone(), app.paged_select_app.is_active_item_number(item_number)))
         })
         .collect();
     let list = List::new(items);

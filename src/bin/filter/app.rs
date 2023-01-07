@@ -10,11 +10,15 @@ pub struct App {
 }
 
 impl App {
-    pub fn init(items: Vec<String>) -> Self {
+    pub fn init(items: Vec<String>, per_page: u16) -> Self {
         let input_app = InputApp::init();
         Self {
             input_app,
-            paged_select_app: PagedSelectApp::init(items, |item| MatchedString::matched_only("", item)),
+            paged_select_app: PagedSelectApp::init(
+                items,
+                |item| MatchedString::matched_only("", item),
+                per_page as usize,
+            ),
             fixed_items: vec![],
         }
     }

@@ -12,9 +12,12 @@ use ui::draw;
 
 use crate::app;
 use crate::ui;
+use crate::ui::get_height;
 
-pub fn run(terminal: &mut Terminal<CrosstermBackend<Stdout>>) -> io::Result<Vec<String>> {
-    let mut app = App::init(('a'..='z').cycle().take(26).map(|s| s.to_string()).collect());
+pub fn run(terminal: &mut Terminal<CrosstermBackend<Stdout>>, lines: Vec<String>) -> io::Result<Vec<String>> {
+    let height = get_height(&terminal.get_frame());
+
+    let mut app = App::init(lines, height);
 
     loop {
         terminal.draw(|frame| draw(frame, &mut app))?;

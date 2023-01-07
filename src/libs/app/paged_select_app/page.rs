@@ -10,8 +10,8 @@ pub struct Page {
 }
 
 impl Page {
-    pub fn init() -> Self {
-        Self { page: 0, per_page: 20, head_index_in_page: 0, last_index_in_page: 0, item_numbers_in_page: vec![] }
+    pub fn init(per_page: usize) -> Self {
+        Self { page: 0, per_page, head_index_in_page: 0, last_index_in_page: 0, item_numbers_in_page: vec![] }
     }
 
     pub fn get_item_numbers_in_page(&self) -> &Vec<usize> {

@@ -9,8 +9,8 @@ mod runner;
 mod ui;
 
 fn main() {
-    match crossterm_launcher(runner::run) {
-        Ok(vs) => println!("{}", vs.iter().join("\n")),
-        Err(e) => println!("{}", e),
+    match crossterm_launcher(|terminal| runner::run(terminal, vec!["abc".to_string(), "def".to_string()])) {
+        Ok(values) => println!("{}", values.iter().join("\n")),
+        Err(e) => println!("process error: {}", e),
     }
 }

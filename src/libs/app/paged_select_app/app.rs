@@ -15,12 +15,12 @@ pub struct PagedSelectApp<Item, MatchedItem> {
 }
 
 impl<Item, MatchedItem> PagedSelectApp<Item, MatchedItem> {
-    pub fn init<Matcher>(items: Vec<Item>, matcher: Matcher) -> Self
+    pub fn init<Matcher>(items: Vec<Item>, matcher: Matcher, per_page: usize) -> Self
     where
         Matcher: Fn(&Item) -> Option<MatchedItem>,
     {
         let all_items = items.into_iter().enumerate().collect();
-        let mut s = Self { all_items, matched: Matched::init(), active: Active::init(), page: Page::init() };
+        let mut s = Self { all_items, matched: Matched::init(), active: Active::init(), page: Page::init(per_page) };
         s.matched.refresh(&s.all_items, matcher);
         s.page.refresh(s.matched.get_item_numbers());
         s

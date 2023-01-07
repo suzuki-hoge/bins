@@ -1,5 +1,3 @@
-
-
 #[derive(Debug, Eq, PartialEq, Clone)]
 pub struct MatchedString {
     pub origin: String,

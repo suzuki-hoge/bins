@@ -8,7 +8,6 @@ use tui::Frame;
 
 use bins::libs::ui::matched_string_spans::matched_string_spans;
 
-
 use crate::app::App;
 
 const PROMPT: &str = "> ";

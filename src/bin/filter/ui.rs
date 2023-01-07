@@ -7,7 +7,7 @@ use tui::widgets::{List, ListItem, Paragraph};
 use tui::Frame;
 
 use bins::libs::ui::matched_string_spans::matched_string_spans;
-use bins::libs::util::tmp_log::tmp_log;
+
 
 use crate::app::App;
 

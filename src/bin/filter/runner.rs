@@ -40,9 +40,6 @@ pub fn run(terminal: &mut Terminal<CrosstermBackend<Stdout>>, lines: Vec<String>
             Key::Ctrl('n') => app.paged_select_app.down(),
             Key::Ctrl('p') => app.paged_select_app.up(),
 
-            // edit action
-            Key::Ctrl('k') => app.input_app.cut(),
-
             // exit
             Key::Ctrl('c') => return Ok(vec![]),
 
@@ -65,6 +62,10 @@ pub fn run(terminal: &mut Terminal<CrosstermBackend<Stdout>>, lines: Vec<String>
             }
             Key::Backspace => {
                 app.input_app.remove();
+                app.refresh();
+            }
+            Key::Ctrl('k') => {
+                app.input_app.cut();
                 app.refresh();
             }
 

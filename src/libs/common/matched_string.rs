@@ -1,3 +1,5 @@
+
+
 #[derive(Debug, Eq, PartialEq, Clone)]
 pub struct MatchedString {
     pub origin: String,
@@ -39,7 +41,7 @@ impl MatchedString {
     fn split(c: char, s: String, case_sensitive: bool) -> Option<(String, String, String)> {
         let sensitive = |c1: char, c2: char| c1 == c2;
         let insensitive = |c1: char, c2: char| c1 == c2.to_ascii_uppercase() || c1 == c2.to_ascii_lowercase();
-        for i in 0..s.len() {
+        for i in 0..s.chars().count() {
             let c_in_s = s.chars().nth(i).unwrap();
             if (case_sensitive && sensitive(c, c_in_s)) || (!case_sensitive && insensitive(c, c_in_s)) {
                 return Some((s[..i].to_string(), c_in_s.to_string(), s[i + 1..].to_string()));

@@ -1,5 +1,5 @@
 use crate::libs::common::matched_string::{MatchedString, Part};
-use crate::libs::util::tmp_log::tmp_log;
+
 use itertools::Itertools;
 use tui::style::{Color, Style};
 use tui::text::{Span, Spans};

@@ -1,10 +1,19 @@
 use crate::libs::common::matched_string::{MatchedString, Part};
+use crate::libs::util::tmp_log::tmp_log;
 use itertools::Itertools;
 use tui::style::{Color, Style};
 use tui::text::{Span, Spans};
 
-pub fn matched_string_spans(ms: MatchedString, is_highlight: bool) -> Vec<Spans<'static>> {
-    let spans = ms.parts.iter().map(|p| Span::styled(p.value.clone(), style(p, is_highlight))).collect_vec();
+pub fn matched_string_spans(ms: MatchedString, is_highlight: bool, max_width: u16) -> Vec<Spans<'static>> {
+    let mut spans = ms.parts.iter().map(|p| Span::styled(p.value.clone(), style(p, is_highlight))).collect_vec();
+
+    if ms.origin.len() < max_width as usize {
+        spans.push(Span::styled(
+            " ".repeat(max_width as usize - ms.origin.len()),
+            Style::default().bg(bg(is_highlight)),
+        ));
+    }
+
     vec![Spans::from(spans)]
 }
 

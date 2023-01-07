@@ -7,6 +7,7 @@ use tui::widgets::{List, ListItem, Paragraph};
 use tui::Frame;
 
 use bins::libs::ui::matched_string_spans::matched_string_spans;
+use bins::libs::util::tmp_log::tmp_log;
 
 use crate::app::App;
 
@@ -34,7 +35,11 @@ pub fn draw(frame: &mut Frame<CrosstermBackend<Stdout>>, app: &mut App) {
         .get_matched_items_in_page()
         .iter()
         .map(|&(item_number, item)| {
-            ListItem::new(matched_string_spans(item.clone(), app.paged_select_app.is_active_item_number(item_number)))
+            ListItem::new(matched_string_spans(
+                item.clone(),
+                app.paged_select_app.is_active_item_number(item_number),
+                layout[0].width,
+            ))
         })
         .collect();
     let list = List::new(items);

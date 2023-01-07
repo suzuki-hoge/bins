@@ -1,7 +1,7 @@
 extern crate bins;
 
+use std::fs::File;
 use std::io;
-use std::io::Stdout;
 
 use app::App;
 
@@ -16,7 +16,7 @@ use crate::app;
 use crate::ui;
 use crate::ui::get_height;
 
-pub fn run(terminal: &mut Terminal<CrosstermBackend<Stdout>>, lines: Vec<String>) -> io::Result<Vec<String>> {
+pub fn run(terminal: &mut Terminal<CrosstermBackend<File>>, lines: Vec<String>) -> io::Result<Vec<String>> {
     let height = get_height(&terminal.get_frame());
     let mut app = App::init(lines, height);
 

@@ -1,4 +1,4 @@
-use std::io::Stdout;
+use std::fs::File;
 
 use tui::backend::CrosstermBackend;
 use tui::layout::{Constraint, Direction, Layout, Rect};
@@ -12,11 +12,11 @@ use crate::app::App;
 
 const PROMPT: &str = "> ";
 
-pub fn get_height(frame: &Frame<CrosstermBackend<Stdout>>) -> u16 {
+pub fn get_height(frame: &Frame<CrosstermBackend<File>>) -> u16 {
     mk_layout(frame)[1].height
 }
 
-pub fn draw(frame: &mut Frame<CrosstermBackend<Stdout>>, app: &mut App) {
+pub fn draw(frame: &mut Frame<CrosstermBackend<File>>, app: &mut App) {
     // layout
 
     let layout = mk_layout(frame);
@@ -45,7 +45,7 @@ pub fn draw(frame: &mut Frame<CrosstermBackend<Stdout>>, app: &mut App) {
     frame.render_widget(list, layout[1]);
 }
 
-fn mk_layout(frame: &Frame<CrosstermBackend<Stdout>>) -> Vec<Rect> {
+fn mk_layout(frame: &Frame<CrosstermBackend<File>>) -> Vec<Rect> {
     Layout::default()
         .direction(Direction::Vertical)
         .constraints([Constraint::Length(1), Constraint::Min(1)])

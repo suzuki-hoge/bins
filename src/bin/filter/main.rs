@@ -1,5 +1,6 @@
 extern crate bins;
 
+use bins::libs::io::input::get_piped_stdin;
 use itertools::Itertools;
 
 use bins::libs::launcher::crossterm_launcher::crossterm_launcher;
@@ -9,8 +10,8 @@ mod runner;
 mod ui;
 
 fn main() {
-    match crossterm_launcher(|terminal| runner::run(terminal, vec!["abc".to_string(), "def".to_string()])) {
+    match crossterm_launcher(|terminal| runner::run(terminal, get_piped_stdin()?)) {
         Ok(values) => println!("{}", values.iter().join("\n")),
-        Err(e) => println!("process error: {}", e),
+        Err(e) => println!("{}", e),
     }
 }

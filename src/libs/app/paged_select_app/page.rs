@@ -2,47 +2,67 @@ use itertools::Itertools;
 
 #[derive(Debug)]
 pub struct Page {
-    page: usize,
     per_page: usize,
     head_index_in_page: usize,
     last_index_in_page: usize,
     item_numbers_in_page: Vec<usize>,
+    active_item_number: usize,
+    active_item_index: usize,
 }
 
 impl Page {
     pub fn init(per_page: usize) -> Self {
-        Self { page: 0, per_page, head_index_in_page: 0, last_index_in_page: 0, item_numbers_in_page: vec![] }
+        Self {
+            per_page,
+            head_index_in_page: 0,
+            last_index_in_page: per_page,
+            item_numbers_in_page: vec![],
+            active_item_number: 0,
+            active_item_index: 0,
+        }
     }
 
     pub fn get_item_numbers_in_page(&self) -> &Vec<usize> {
         &self.item_numbers_in_page
     }
 
-    pub fn get_head_index_in_page(&self) -> &usize {
-        &self.head_index_in_page
+    pub fn get_active_item_number(&self) -> &usize {
+        &self.active_item_number
     }
 
-    pub fn is_out_of_page(&self, item_index: &usize) -> bool {
-        item_index < &self.head_index_in_page || &self.last_index_in_page < item_index
+    pub fn page_top(&mut self, item_numbers: &[usize]) {
+        self.active_item_index = 0;
+        self.head_index_in_page = 0;
+        self.last_index_in_page = self.head_index_in_page + self.per_page;
+        self.refresh(item_numbers);
+        self.refresh2(item_numbers);
     }
 
-    pub fn turn_top(&mut self) {
-        self.page = 0;
+    pub fn up(&mut self, item_numbers: &[usize]) {
+        if self.active_item_index == self.head_index_in_page {
+            self.head_index_in_page -= 1;
+            self.last_index_in_page = self.head_index_in_page + self.per_page;
+        }
+        self.active_item_index -= 1;
+        self.refresh(item_numbers);
+        self.refresh2(item_numbers);
     }
 
-    pub fn turn_prev(&mut self, matched_item_numbers: &[usize]) {
-        self.page -= 1;
-        self.refresh(matched_item_numbers);
+    pub fn down(&mut self, item_numbers: &[usize]) {
+        if self.active_item_index == self.last_index_in_page - 1 {
+            self.head_index_in_page += 1;
+            self.last_index_in_page = self.head_index_in_page + self.per_page;
+        }
+        self.active_item_index += 1;
+        self.refresh(item_numbers);
+        self.refresh2(item_numbers);
     }
 
-    pub fn turn_next(&mut self, matched_item_numbers: &[usize]) {
-        self.page += 1;
-        self.refresh(matched_item_numbers);
+    fn refresh(&mut self, item_numbers: &[usize]) {
+        self.active_item_number = item_numbers[self.active_item_index];
     }
 
-    pub fn refresh(&mut self, matched_item_numbers: &[usize]) {
-        self.last_index_in_page = self.per_page * (self.page + 1) - 1;
-        self.head_index_in_page = self.last_index_in_page + 1 - self.per_page;
+    pub fn refresh2(&mut self, matched_item_numbers: &[usize]) {
         self.item_numbers_in_page = matched_item_numbers
             .iter()
             .enumerate()

@@ -35,10 +35,10 @@ pub fn run(terminal: &mut Terminal<CrosstermBackend<File>>, lines: Vec<String>) 
             Key::Ctrl('e') => app.input_app.end(),
 
             // vertical move
-            Key::Down => app.paged_select_app.down(),
-            Key::Up => app.paged_select_app.up(),
-            Key::Ctrl('n') => app.paged_select_app.down(),
-            Key::Ctrl('p') => app.paged_select_app.up(),
+            Key::Down => app.scrolling_select_app.down(),
+            Key::Up => app.scrolling_select_app.up(),
+            Key::Ctrl('n') => app.scrolling_select_app.down(),
+            Key::Ctrl('p') => app.scrolling_select_app.up(),
 
             // exit
             Key::Ctrl('c') => return Ok(vec![]),

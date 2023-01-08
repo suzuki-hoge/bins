@@ -30,13 +30,13 @@ pub fn draw(frame: &mut Frame<CrosstermBackend<File>>, app: &mut App) {
     // lines area
 
     let items: Vec<ListItem> = app
-        .paged_select_app
+        .scrolling_select_app
         .get_matched_items_in_page()
         .iter()
         .map(|&(item_number, item)| {
             ListItem::new(matched_string_spans(
                 item.clone(),
-                app.paged_select_app.is_active_item_number(item_number),
+                app.scrolling_select_app.is_active_item_number(item_number),
                 layout[0].width,
             ))
         })

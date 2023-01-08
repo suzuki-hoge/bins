@@ -1,26 +1,32 @@
 use std::collections::HashMap;
 use std::fmt::Debug;
 
+use crate::libs::matcher::string_matcher::CheckedString;
+
 use itertools::Itertools;
+use rayon::prelude::*;
+
+// xxx_number: index for all_items ( means item id )
+// xxx_index: index for page
 
 #[derive(Debug)]
-pub struct ScrollingSelectApp<Item, MatchedItem> {
-    all_items: HashMap<usize, Item>,
-
-    matched_items: HashMap<usize, MatchedItem>,
+pub struct ScrollingSelectApp {
+    all_items: HashMap<usize, CheckedString>,
+    matched_items: HashMap<usize, CheckedString>,
     matched_item_numbers: Vec<usize>,
-
     head_index_in_page: usize,
     last_index_in_page: usize,
     active_item_index: usize,
 }
 
-impl<Item, MatchedItem> ScrollingSelectApp<Item, MatchedItem> {
-    pub fn init<Matcher>(items: Vec<Item>, matcher: Matcher, per_page: usize) -> Self
-    where
-        Matcher: Fn(&Item) -> Option<MatchedItem>,
-    {
-        let all_items = items.into_iter().enumerate().collect();
+impl ScrollingSelectApp {
+    pub fn init(lines: Vec<String>, per_page: usize) -> Self {
+        let all_items = lines
+            .into_par_iter()
+            .enumerate()
+            .map(|(item_number, line)| (item_number, CheckedString::init(line)))
+            .collect();
+
         let mut s = Self {
             all_items,
             matched_items: HashMap::new(),
@@ -29,11 +35,11 @@ impl<Item, MatchedItem> ScrollingSelectApp<Item, MatchedItem> {
             last_index_in_page: per_page,
             active_item_index: 0,
         };
-        s.re_match(matcher);
+        s.re_match(&[]);
         s
     }
 
-    pub fn get_matched_items_in_page(&self) -> Vec<(&usize, &MatchedItem)> {
+    pub fn get_matched_items_in_page(&self) -> Vec<(&usize, &CheckedString)> {
         self.matched_item_numbers
             .iter()
             .enumerate()
@@ -66,25 +72,22 @@ impl<Item, MatchedItem> ScrollingSelectApp<Item, MatchedItem> {
         }
     }
 
-    pub fn refresh<Matcher>(&mut self, matcher: Matcher)
-    where
-        Matcher: Fn(&Item) -> Option<MatchedItem>,
-    {
-        self.re_match(matcher);
+    pub fn refresh(&mut self, words: &[&str]) {
+        self.re_match(words);
 
         self.head_index_in_page -= self.head_index_in_page;
         self.last_index_in_page -= self.head_index_in_page;
         self.active_item_index = 0;
     }
 
-    pub fn pop_item(&mut self) -> Option<Item> {
+    pub fn pop_item(&mut self) -> Option<CheckedString> {
         if let Some(active_item_number) = self.get_active_item_number() {
-            let item = self.all_items.remove(&active_item_number).unwrap();
-            self.matched_item_numbers.retain(|&item_number| item_number != active_item_number);
-            self.matched_items.remove(&active_item_number);
+            self.all_items.remove(&active_item_number);
+            self.matched_item_numbers.retain(|&item_index| item_index != active_item_number);
+            let item = self.matched_items.remove(&active_item_number);
 
             if self.matched_item_numbers.is_empty() {
-                return Some(item);
+                return item;
             } else if self.active_item_index != 0
                 && self.matched_item_numbers.last() == self.matched_item_numbers.get(self.active_item_index - 1)
             {
@@ -93,7 +96,7 @@ impl<Item, MatchedItem> ScrollingSelectApp<Item, MatchedItem> {
                 // do nothing
             }
 
-            Some(item)
+            item
         } else {
             None
         }
@@ -101,25 +104,36 @@ impl<Item, MatchedItem> ScrollingSelectApp<Item, MatchedItem> {
 
     // match
 
-    fn get_matched_item<'a>(&'a self, target_item_number: &'a usize) -> (&'a usize, &'a MatchedItem) {
+    fn get_matched_item<'a>(&'a self, target_item_number: &'a usize) -> (&'a usize, &'a CheckedString) {
         (target_item_number, self.matched_items.get(target_item_number).unwrap())
     }
 
-    fn re_match<Matcher>(&mut self, matcher: Matcher)
-    where
-        Matcher: Fn(&Item) -> Option<MatchedItem>,
-    {
-        self.matched_item_numbers = vec![];
+    fn re_match(&mut self, words: &[&str]) {
+        let lower_words = words.iter().map(|word| word.to_lowercase()).filter(|word| !word.is_empty()).collect_vec();
+
         self.matched_items = HashMap::new();
+        self.matched_item_numbers = vec![];
 
-        for item_number in self.all_items.keys() {
-            let matched_item = matcher(self.all_items.get(item_number).unwrap());
-
-            matched_item.into_iter().for_each(|item| {
-                self.matched_item_numbers.push(*item_number);
-                self.matched_items.insert(*item_number, item);
+        let matched_items_with_number: Vec<(usize, CheckedString)> = self
+            .all_items
+            .par_iter()
+            .flat_map(|(item_number, item)| {
+                let checked_item = item.clone().re_match(&lower_words);
+                if checked_item.is_matched() {
+                    vec![(*item_number, checked_item)]
+                } else {
+                    vec![]
+                }
             })
-        }
+            .collect();
+
+        let matched_item_numbers = matched_items_with_number.par_iter().map(|(item_number, _)| *item_number).collect();
+        self.matched_item_numbers = matched_item_numbers;
+        self.matched_item_numbers.sort_unstable();
+
+        let matched_items = matched_items_with_number.into_par_iter().map(|(a, b)| (a, b)).collect();
+        self.matched_items = matched_items;
+
         self.matched_item_numbers.sort_unstable();
     }
 

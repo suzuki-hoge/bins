@@ -6,7 +6,7 @@ use tui::layout::{Constraint, Direction, Layout, Rect};
 use tui::widgets::{List, ListItem, Paragraph};
 use tui::Frame;
 
-use bins::libs::ui::matched_string_spans::matched_string_spans;
+use bins::libs::ui::spans::checked_string_spans;
 
 use crate::app::App;
 
@@ -34,7 +34,7 @@ pub fn draw(frame: &mut Frame<CrosstermBackend<File>>, app: &mut App) {
         .get_matched_items_in_page()
         .iter()
         .map(|&(item_number, item)| {
-            ListItem::new(matched_string_spans(
+            ListItem::new(checked_string_spans(
                 item.clone(),
                 app.scrolling_select_app.is_active_item_number(item_number),
                 layout[0].width,

@@ -50,10 +50,10 @@ pub fn run(terminal: &mut Terminal<CrosstermBackend<File>>, lines: Vec<String>) 
             }
 
             // fix one
-            Key::Char(' ') => app.fix(),
+            Key::Ctrl('u') => app.fix(),
 
             // finish
-            Key::Ctrl(' ') => return Ok(app.finish()),
+            Key::Ctrl('o') => return Ok(app.finish()),
 
             // input
             Key::Char(c) => {

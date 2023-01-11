@@ -1,16 +1,15 @@
-use bins::libs::app::input_app::InputApp;
-use bins::libs::app::scrolling_select_app::ScrollingSelectApp;
-
+use crate::libs::app::input_app::InputApp;
+use crate::libs::app::scrolling_select_app::ScrollingSelectApp;
 use itertools::Itertools;
 
 #[derive(Debug)]
-pub struct App {
+pub struct MultiFixApp {
     pub input_app: InputApp,
     pub scrolling_select_app: ScrollingSelectApp,
     fixed_strings: Vec<String>,
 }
 
-impl App {
+impl MultiFixApp {
     pub fn init(items: Vec<String>, per_page: u16) -> Self {
         let input_app = InputApp::init();
         Self {

@@ -3,12 +3,11 @@ use std::fs::File;
 use tui::backend::CrosstermBackend;
 use tui::layout::{Constraint, Direction, Layout, Rect};
 
+use bins::libs::app::multi_fix_app::MultiFixApp;
 use tui::widgets::{List, ListItem, Paragraph};
 use tui::Frame;
 
 use bins::libs::ui::spans::checked_string_spans;
-
-use crate::app::App;
 
 const PROMPT: &str = "> ";
 
@@ -16,7 +15,7 @@ pub fn get_height(frame: &Frame<CrosstermBackend<File>>) -> u16 {
     mk_layout(frame)[1].height
 }
 
-pub fn draw(frame: &mut Frame<CrosstermBackend<File>>, app: &mut App) {
+pub fn draw(frame: &mut Frame<CrosstermBackend<File>>, app: &mut MultiFixApp) {
     // layout
 
     let layout = mk_layout(frame);

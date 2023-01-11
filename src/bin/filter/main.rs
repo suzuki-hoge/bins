@@ -5,7 +5,6 @@ use itertools::Itertools;
 
 use bins::libs::launcher::crossterm_launcher::crossterm_launcher;
 
-mod app;
 mod runner;
 mod ui;
 

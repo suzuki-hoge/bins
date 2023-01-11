@@ -5,6 +5,9 @@ build:
 filter:
 	@cargo run --bin filter
 
+l:
+	@cargo run --bin command-launcher
+
 test:
 	@cargo test
 

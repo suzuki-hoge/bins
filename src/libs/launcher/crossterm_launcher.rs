@@ -8,9 +8,9 @@ use crossterm::{
 use termion::get_tty;
 use tui::{backend::CrosstermBackend, Terminal};
 
-pub fn crossterm_launcher<Runner, Result>(runner: Runner) -> io::Result<Result>
+pub fn launch<Runner, Items>(runner: Runner) -> io::Result<Items>
 where
-    Runner: Fn(&mut Terminal<CrosstermBackend<File>>) -> io::Result<Result>,
+    Runner: Fn(&mut Terminal<CrosstermBackend<File>>) -> io::Result<Items>,
 {
     enable_raw_mode()?;
     let mut tty = get_tty()?;

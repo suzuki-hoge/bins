@@ -36,8 +36,8 @@ where
         }
     }
 
-    pub fn get_origin_string(&self) -> String {
-        self.origin_string.clone()
+    pub fn get_origin_item(&self) -> Item {
+        self.origin_item.clone()
     }
 
     pub fn is_matched(&self) -> bool {

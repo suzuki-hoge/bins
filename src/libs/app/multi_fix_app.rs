@@ -10,7 +10,7 @@ where
 {
     pub input_app: InputApp,
     pub scrolling_select_app: ScrollingSelectApp<Item>,
-    fixed_strings: Vec<String>,
+    fixed_items: Vec<Item>,
 }
 
 impl<Item> MultiFixApp<Item>
@@ -22,12 +22,12 @@ where
         Self {
             input_app,
             scrolling_select_app: ScrollingSelectApp::init(items, per_page as usize),
-            fixed_strings: vec![],
+            fixed_items: vec![],
         }
     }
 
-    pub fn finish(self) -> Vec<String> {
-        self.fixed_strings
+    pub fn finish(&self) -> Vec<Item> {
+        self.fixed_items.clone()
     }
 
     pub fn refresh(&mut self) {
@@ -35,6 +35,6 @@ where
     }
 
     pub fn fix(&mut self) {
-        self.scrolling_select_app.pop_item().iter().for_each(|item| self.fixed_strings.push(item.get_origin_string()));
+        self.scrolling_select_app.pop_item().iter().for_each(|item| self.fixed_items.push(item.get_origin_item()));
     }
 }

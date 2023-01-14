@@ -1,6 +1,6 @@
 use bins::libs::item::previewable_item::PreviewableItem;
 
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Eq, PartialEq, Debug)]
 pub struct ParsedCommand {
     contents: Vec<ParsedContent>,
 }
@@ -19,7 +19,7 @@ impl ParsedCommand {
     }
 }
 
-#[derive(Debug, Eq, PartialEq, Clone)]
+#[derive(Eq, PartialEq, Clone, Debug)]
 pub struct ParsedContent {
     key: String,
     bodies: Vec<String>,

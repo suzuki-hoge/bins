@@ -5,6 +5,7 @@ use std::io;
 
 use bins::libs::app::multi_fix_app::MultiFixApp;
 use bins::libs::key::input_filter_dispatcher::dispatch;
+use bins::libs::matcher::string_matcher::Mode;
 use tui::backend::CrosstermBackend;
 use tui::Terminal;
 use ui::draw;
@@ -14,7 +15,7 @@ use crate::ui::get_height;
 
 pub fn run(terminal: &mut Terminal<CrosstermBackend<File>>, items: Vec<String>) -> io::Result<Vec<String>> {
     let height = get_height(&terminal.get_frame());
-    let mut app = MultiFixApp::init(items, height);
+    let mut app = MultiFixApp::init(items, height, Mode::ORIGIN);
 
     terminal.draw(|frame| draw(frame, &mut app))?;
 

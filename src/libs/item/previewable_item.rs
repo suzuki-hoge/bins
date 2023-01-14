@@ -1,4 +1,6 @@
-pub trait PreviewableItem: Sized + Send + Sync + Eq + PartialEq + Clone {
+use std::fmt::Debug;
+
+pub trait PreviewableItem: Sized + Send + Sync + Eq + PartialEq + Clone + Debug {
     fn get_origin(&self) -> String;
     fn get_preview(&self) -> Vec<String>;
 }

@@ -8,6 +8,7 @@ use tui::Terminal;
 
 use bins::libs::app::multi_fix_app::MultiFixApp;
 use bins::libs::key::input_filter_dispatcher::dispatch;
+use bins::libs::matcher::string_matcher::Mode;
 
 use crate::command::parsed_command::ParsedContent;
 use crate::ui::{draw, get_height};
@@ -17,7 +18,7 @@ pub fn run(
     items: Vec<ParsedContent>,
 ) -> io::Result<Vec<ParsedContent>> {
     let height = get_height(&terminal.get_frame());
-    let mut app = MultiFixApp::init(items, height);
+    let mut app = MultiFixApp::init(items, height, Mode::BOTH);
 
     terminal.draw(|frame| draw(frame, &mut app))?;
 

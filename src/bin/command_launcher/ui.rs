@@ -9,8 +9,7 @@ use tui::Frame;
 
 use crate::ParsedContent;
 use bins::libs::app::multi_fix_app::MultiFixApp;
-use bins::libs::item::previewable_item::PreviewableItem;
-use bins::libs::ui::spans::checked_string_spans;
+use bins::libs::ui::spans::{checked_string_origin_spans, checked_string_preview_spans};
 
 const PROMPT: &str = "> ";
 
@@ -41,12 +40,13 @@ pub fn draw(frame: &mut Frame<CrosstermBackend<File>>, app: &mut MultiFixApp<Par
         .get_matched_items_in_page()
         .iter()
         .map(|&(item_number, item)| {
-            ListItem::new(checked_string_spans(
+            checked_string_origin_spans(
                 item.clone(),
                 app.scrolling_select_app.is_active_item_number(item_number),
                 sub_layout[0].width,
-            ))
+            )
         })
+        .map(ListItem::new)
         .collect();
     let block = Block::default().borders(Borders::ALL).border_type(BorderType::Rounded);
     let list = List::new(items).block(block);
@@ -54,9 +54,10 @@ pub fn draw(frame: &mut Frame<CrosstermBackend<File>>, app: &mut MultiFixApp<Par
 
     // preview area
 
-    let items = app
+    let items: Vec<ListItem> = app
+        .scrolling_select_app
         .get_active_item()
-        .map(|item| item.get_preview().iter().map(|line| ListItem::new(line.clone())).collect_vec())
+        .map(|item| checked_string_preview_spans(item).into_iter().map(ListItem::new).collect_vec())
         .unwrap_or_default();
     let block = Block::default().borders(Borders::ALL).border_type(BorderType::Rounded);
     let list = List::new(items).block(block);

@@ -1,6 +1,7 @@
 use crate::libs::app::input_app::InputApp;
 use crate::libs::app::scrolling_select_app::ScrollingSelectApp;
 use crate::libs::item::previewable_item::PreviewableItem;
+use crate::libs::matcher::string_matcher::Mode;
 use itertools::Itertools;
 
 #[derive(Debug)]
@@ -17,11 +18,11 @@ impl<Item> MultiFixApp<Item>
 where
     Item: PreviewableItem,
 {
-    pub fn init(items: Vec<Item>, per_page: u16) -> Self {
+    pub fn init(items: Vec<Item>, per_page: u16, mode: Mode) -> Self {
         let input_app = InputApp::init();
         Self {
             input_app,
-            scrolling_select_app: ScrollingSelectApp::init(items, per_page as usize),
+            scrolling_select_app: ScrollingSelectApp::init(items, per_page as usize, mode),
             fixed_items: vec![],
         }
     }
@@ -32,10 +33,6 @@ where
 
     pub fn refresh(&mut self) {
         self.scrolling_select_app.refresh(&self.input_app.input.split(' ').collect_vec());
-    }
-
-    pub fn get_active_item(&self) -> Option<Item> {
-        self.scrolling_select_app.get_active_item()
     }
 
     pub fn fix(&mut self) {

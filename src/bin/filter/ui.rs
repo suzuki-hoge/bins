@@ -7,7 +7,7 @@ use bins::libs::app::multi_fix_app::MultiFixApp;
 use tui::widgets::{List, ListItem, Paragraph};
 use tui::Frame;
 
-use bins::libs::ui::spans::checked_string_spans;
+use bins::libs::ui::spans::checked_string_origin_spans;
 
 const PROMPT: &str = "> ";
 
@@ -33,12 +33,13 @@ pub fn draw(frame: &mut Frame<CrosstermBackend<File>>, app: &mut MultiFixApp<Str
         .get_matched_items_in_page()
         .iter()
         .map(|&(item_number, item)| {
-            ListItem::new(checked_string_spans(
+            checked_string_origin_spans(
                 item.clone(),
                 app.scrolling_select_app.is_active_item_number(item_number),
                 layout[1].width,
-            ))
+            )
         })
+        .map(ListItem::new)
         .collect();
     let list = List::new(items);
     frame.render_widget(list, layout[1]);

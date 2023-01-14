@@ -1,19 +1,21 @@
+use itertools::Itertools;
 use std::fs::File;
 
 use tui::backend::CrosstermBackend;
 use tui::layout::{Constraint, Direction, Layout, Rect};
 
-use tui::widgets::{List, ListItem, Paragraph};
+use tui::widgets::{Block, BorderType, Borders, List, ListItem, Paragraph};
 use tui::Frame;
 
 use crate::ParsedContent;
 use bins::libs::app::multi_fix_app::MultiFixApp;
+use bins::libs::item::previewable_item::PreviewableItem;
 use bins::libs::ui::spans::checked_string_spans;
 
 const PROMPT: &str = "> ";
 
 pub fn get_height(frame: &Frame<CrosstermBackend<File>>) -> u16 {
-    mk_layout(frame)[1].height
+    mk_layout(frame)[1].height - 2 // top border + bottom border
 }
 
 pub fn draw(frame: &mut Frame<CrosstermBackend<File>>, app: &mut MultiFixApp<ParsedContent>) {
@@ -21,6 +23,11 @@ pub fn draw(frame: &mut Frame<CrosstermBackend<File>>, app: &mut MultiFixApp<Par
 
     let layout = mk_layout(frame);
     frame.set_cursor(frame.size().x + (PROMPT.len() + app.input_app.cursor) as u16, frame.size().y);
+
+    let sub_layout = Layout::default()
+        .direction(Direction::Horizontal)
+        .constraints([Constraint::Percentage(30), Constraint::Percentage(70)])
+        .split(layout[1]);
 
     // input area
 
@@ -37,12 +44,23 @@ pub fn draw(frame: &mut Frame<CrosstermBackend<File>>, app: &mut MultiFixApp<Par
             ListItem::new(checked_string_spans(
                 item.clone(),
                 app.scrolling_select_app.is_active_item_number(item_number),
-                layout[0].width,
+                sub_layout[0].width,
             ))
         })
         .collect();
-    let list = List::new(items);
-    frame.render_widget(list, layout[1]);
+    let block = Block::default().borders(Borders::ALL).border_type(BorderType::Rounded);
+    let list = List::new(items).block(block);
+    frame.render_widget(list, sub_layout[0]);
+
+    // preview area
+
+    let items = app
+        .get_active_item()
+        .map(|item| item.get_preview().iter().map(|line| ListItem::new(line.clone())).collect_vec())
+        .unwrap_or_default();
+    let block = Block::default().borders(Borders::ALL).border_type(BorderType::Rounded);
+    let list = List::new(items).block(block);
+    frame.render_widget(list, sub_layout[1]);
 }
 
 fn mk_layout(frame: &Frame<CrosstermBackend<File>>) -> Vec<Rect> {

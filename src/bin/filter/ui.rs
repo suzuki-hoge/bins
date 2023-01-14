@@ -36,7 +36,7 @@ pub fn draw(frame: &mut Frame<CrosstermBackend<File>>, app: &mut MultiFixApp<Str
             ListItem::new(checked_string_spans(
                 item.clone(),
                 app.scrolling_select_app.is_active_item_number(item_number),
-                layout[0].width,
+                layout[1].width,
             ))
         })
         .collect();

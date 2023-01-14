@@ -87,6 +87,14 @@ where
         self.active_item_index = 0;
     }
 
+    pub fn get_active_item(&self) -> Option<Item> {
+        if let Some(active_item_number) = self.get_active_item_number() {
+            self.matched_items.get(&active_item_number).map(|item| item.get_origin_item())
+        } else {
+            None
+        }
+    }
+
     pub fn pop_item(&mut self) -> Option<CheckedString<Item>> {
         if let Some(active_item_number) = self.get_active_item_number() {
             self.all_items.remove(&active_item_number);

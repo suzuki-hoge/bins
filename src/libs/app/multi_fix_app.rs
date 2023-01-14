@@ -34,6 +34,10 @@ where
         self.scrolling_select_app.refresh(&self.input_app.input.split(' ').collect_vec());
     }
 
+    pub fn get_active_item(&self) -> Option<Item> {
+        self.scrolling_select_app.get_active_item()
+    }
+
     pub fn fix(&mut self) {
         self.scrolling_select_app.pop_item().iter().for_each(|item| self.fixed_items.push(item.get_origin_item()));
     }

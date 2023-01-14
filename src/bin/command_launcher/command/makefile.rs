@@ -79,9 +79,9 @@ mod tests {
 
         let sut = parse_makefile(path.to_string());
         let contents = vec![
-            ParsedContent::new("up".to_string(), vec!["container up -d".to_string()]),
-            ParsedContent::new("down".to_string(), vec!["container down".to_string()]),
-            ParsedContent::new("test".to_string(), vec!["clear cache".to_string(), "run test".to_string()]),
+            ParsedContent::new("make up".to_string(), vec!["container up -d".to_string()]),
+            ParsedContent::new("make down".to_string(), vec!["container down".to_string()]),
+            ParsedContent::new("make test".to_string(), vec!["clear cache".to_string(), "run test".to_string()]),
         ];
 
         assert_eq!(sut, ParsedCommand::new(contents));

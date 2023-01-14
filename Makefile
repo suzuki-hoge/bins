@@ -2,11 +2,11 @@ build:
 	@cargo clean
 	@cargo build --release
 
-filter:
-	@cargo run --bin filter
+bf:
+	@cargo run --bin bf
 
-l:
-	@cargo run --bin command-launcher
+bcl:
+	@cargo run --bin bcl
 
 test:
 	@cargo test
@@ -15,4 +15,3 @@ fix:
 	@cargo +nightly fmt
 	@cargo fix --allow-dirty --allow-staged
 	@cargo clippy --fix --allow-dirty --allow-staged
-

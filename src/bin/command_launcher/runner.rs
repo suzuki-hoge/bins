@@ -2,19 +2,17 @@ extern crate bins;
 
 use std::fs::File;
 use std::io;
-
-use bins::libs::app::multi_fix_app::MultiFixApp;
 use termion::event::Key;
 use termion::get_tty;
 use termion::input::TermRead;
+
+use crate::command::parsed_command::ParsedContent;
+use crate::ui::{draw, get_height};
+use bins::libs::app::multi_fix_app::MultiFixApp;
 use tui::backend::CrosstermBackend;
 use tui::Terminal;
-use ui::draw;
 
-use crate::ui;
-use crate::ui::get_height;
-
-pub fn run(terminal: &mut Terminal<CrosstermBackend<File>>, items: Vec<String>) -> io::Result<Vec<String>> {
+pub fn run(terminal: &mut Terminal<CrosstermBackend<File>>, items: Vec<ParsedContent>) -> io::Result<Vec<String>> {
     let height = get_height(&terminal.get_frame());
     let mut app = MultiFixApp::init(items, height);
 

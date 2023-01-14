@@ -8,10 +8,16 @@ edition = "2021"
 [dependencies]
 itertools = "0.10.5"
 rayon = "1.6.1"
+regex = "1.7.1"
+trim-margin = "0.1.0"
 tui = "0.19.0"
 crossterm = "0.25.0"
 termion = "2.0.1"
 
 [[bin]]
-name = "filter"
+name = "bf"
 path = "src/bin/filter/main.rs"
+
+[[bin]]
+name = "bcl"
+path = "src/bin/command_launcher/main.rs"

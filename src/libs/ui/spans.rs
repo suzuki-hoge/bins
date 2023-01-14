@@ -1,9 +1,13 @@
+use crate::libs::item::previewable_item::PreviewableItem;
 use crate::libs::matcher::string_matcher::CheckedString;
 use itertools::Itertools;
 use tui::style::{Color, Style};
 use tui::text::{Span, Spans};
 
-pub fn checked_string_spans(cs: CheckedString, is_active: bool, max_width: u16) -> Vec<Spans<'static>> {
+pub fn checked_string_spans<Item>(cs: CheckedString<Item>, is_active: bool, max_width: u16) -> Vec<Spans<'static>>
+where
+    Item: PreviewableItem,
+{
     let spans = cs
         .get_string_parts(max_width as usize)
         .into_iter()

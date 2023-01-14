@@ -1,3 +1,4 @@
+use crate::libs::item::previewable_item::PreviewableItem;
 use itertools::Itertools;
 
 type Start = usize;
@@ -5,23 +6,38 @@ type End = usize;
 type Highlight = bool;
 
 #[derive(Debug, Eq, PartialEq, Clone)]
-pub struct CheckedString {
-    origin: String,
+pub struct CheckedString<Item>
+where
+    Item: PreviewableItem,
+{
+    origin_item: Item,
+    origin_string: String,
     lower_origin: String,
     origin_len: usize,
     matched: bool,
     ranges: Vec<(Start, End, Highlight)>,
 }
 
-impl CheckedString {
-    pub fn init(origin: String) -> CheckedString {
-        let lower_origin = origin.to_lowercase();
-        let origin_len = origin.len();
-        CheckedString { origin, lower_origin, origin_len, matched: true, ranges: vec![(0, origin_len, false)] }
+impl<Item> CheckedString<Item>
+where
+    Item: PreviewableItem,
+{
+    pub fn init(origin_item: Item) -> CheckedString<Item> {
+        let origin_string = origin_item.get_origin();
+        let lower_origin = origin_string.to_lowercase();
+        let origin_len = origin_string.len();
+        CheckedString {
+            origin_item,
+            origin_string,
+            lower_origin,
+            origin_len,
+            matched: true,
+            ranges: vec![(0, origin_len, false)],
+        }
     }
 
-    pub fn get_origin(&self) -> String {
-        self.origin.clone()
+    pub fn get_origin_string(&self) -> String {
+        self.origin_string.clone()
     }
 
     pub fn is_matched(&self) -> bool {
@@ -32,7 +48,7 @@ impl CheckedString {
         let mut string_parts = self
             .ranges
             .iter()
-            .map(|&(start, end, highlight)| (self.origin[start..end].to_string(), highlight))
+            .map(|&(start, end, highlight)| (self.origin_string[start..end].to_string(), highlight))
             .collect_vec();
 
         if self.origin_len < max_width {
@@ -100,12 +116,14 @@ impl CheckedString {
     }
 }
 
+unsafe impl<Item> Send for CheckedString<Item> where Item: PreviewableItem {}
+
 #[cfg(test)]
 mod tests {
     use crate::libs::matcher::string_matcher::CheckedString;
     use itertools::Itertools;
 
-    fn init(s: &str) -> CheckedString {
+    fn init(s: &str) -> CheckedString<String> {
         CheckedString::init(s.to_string())
     }
 

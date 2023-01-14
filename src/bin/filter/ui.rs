@@ -15,7 +15,7 @@ pub fn get_height(frame: &Frame<CrosstermBackend<File>>) -> u16 {
     mk_layout(frame)[1].height
 }
 
-pub fn draw(frame: &mut Frame<CrosstermBackend<File>>, app: &mut MultiFixApp) {
+pub fn draw(frame: &mut Frame<CrosstermBackend<File>>, app: &mut MultiFixApp<String>) {
     // layout
 
     let layout = mk_layout(frame);

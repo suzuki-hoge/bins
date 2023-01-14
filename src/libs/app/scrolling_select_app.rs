@@ -3,6 +3,7 @@ use std::fmt::Debug;
 
 use crate::libs::matcher::string_matcher::CheckedString;
 
+use crate::libs::item::previewable_item::PreviewableItem;
 use itertools::Itertools;
 use rayon::prelude::*;
 
@@ -10,21 +11,27 @@ use rayon::prelude::*;
 // xxx_index: index for page
 
 #[derive(Debug)]
-pub struct ScrollingSelectApp {
-    all_items: HashMap<usize, CheckedString>,
-    matched_items: HashMap<usize, CheckedString>,
+pub struct ScrollingSelectApp<Item>
+where
+    Item: PreviewableItem,
+{
+    all_items: HashMap<usize, CheckedString<Item>>,
+    matched_items: HashMap<usize, CheckedString<Item>>,
     matched_item_numbers: Vec<usize>,
     head_index_in_page: usize,
     last_index_in_page: usize,
     active_item_index: usize,
 }
 
-impl ScrollingSelectApp {
-    pub fn init(lines: Vec<String>, per_page: usize) -> Self {
-        let all_items = lines
+impl<Item> ScrollingSelectApp<Item>
+where
+    Item: PreviewableItem,
+{
+    pub fn init(items: Vec<Item>, per_page: usize) -> Self {
+        let all_items = items
             .into_par_iter()
             .enumerate()
-            .map(|(item_number, line)| (item_number, CheckedString::init(line)))
+            .map(|(item_number, item)| (item_number, CheckedString::init(item)))
             .collect();
 
         let mut s = Self {
@@ -39,7 +46,7 @@ impl ScrollingSelectApp {
         s
     }
 
-    pub fn get_matched_items_in_page(&self) -> Vec<(&usize, &CheckedString)> {
+    pub fn get_matched_items_in_page(&self) -> Vec<(&usize, &CheckedString<Item>)> {
         self.matched_item_numbers
             .iter()
             .enumerate()
@@ -80,7 +87,7 @@ impl ScrollingSelectApp {
         self.active_item_index = 0;
     }
 
-    pub fn pop_item(&mut self) -> Option<CheckedString> {
+    pub fn pop_item(&mut self) -> Option<CheckedString<Item>> {
         if let Some(active_item_number) = self.get_active_item_number() {
             self.all_items.remove(&active_item_number);
             self.matched_item_numbers.retain(|&item_index| item_index != active_item_number);
@@ -104,7 +111,7 @@ impl ScrollingSelectApp {
 
     // match
 
-    fn get_matched_item<'a>(&'a self, target_item_number: &'a usize) -> (&'a usize, &'a CheckedString) {
+    fn get_matched_item<'a>(&'a self, target_item_number: &'a usize) -> (&'a usize, &'a CheckedString<Item>) {
         (target_item_number, self.matched_items.get(target_item_number).unwrap())
     }
 
@@ -114,7 +121,7 @@ impl ScrollingSelectApp {
         self.matched_items = HashMap::new();
         self.matched_item_numbers = vec![];
 
-        let matched_items_with_number: Vec<(usize, CheckedString)> = self
+        let matched_items_with_number: Vec<(usize, CheckedString<Item>)> = self
             .all_items
             .par_iter()
             .flat_map(|(item_number, item)| {

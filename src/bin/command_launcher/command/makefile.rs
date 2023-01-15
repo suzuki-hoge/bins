@@ -1,12 +1,16 @@
 use crate::command::parsed_command::{ParsedCommand, ParsedContent};
 use regex::Regex;
-use std::fs;
+use std::{fs, io};
 
-pub fn parse_makefile(path: String) -> ParsedCommand {
-    match fs::read_to_string(path) {
+pub fn parse_makefile(dir_path: String) -> ParsedCommand {
+    match read_file(dir_path) {
         Ok(lines) => parse(lines),
         Err(_) => ParsedCommand::empty(),
     }
+}
+
+fn read_file(dir_path: String) -> io::Result<String> {
+    fs::read_to_string(format!("{}/Makefile", dir_path))
 }
 
 fn parse(lines: String) -> ParsedCommand {
@@ -49,7 +53,7 @@ mod tests {
     use crate::{parse_makefile, ParsedContent};
     use trim_margin::MarginTrimmable;
 
-    fn setup(path: &str) {
+    fn setup(dir_path: &str) {
         let raw = "
             |up:
             |	container up -d
@@ -64,20 +68,21 @@ mod tests {
         .trim_margin()
         .unwrap();
 
-        File::create(path).unwrap().write_all(raw.as_bytes()).unwrap();
+        let _ = fs::create_dir_all(dir_path);
+        let _ = File::create(format!("{}/Makefile", dir_path)).unwrap().write_all(raw.as_bytes());
     }
 
-    fn cleanup(path: &str) {
-        let _ = fs::remove_file(path);
+    fn cleanup(dir_path: &str) {
+        let _ = fs::remove_dir_all(dir_path);
     }
 
     #[test]
     fn found() {
-        let path = "/tmp/Makefile";
+        let dir_path = "target/command-launcher/test-pj/makefile-found";
 
-        setup(path);
+        setup(dir_path);
 
-        let sut = parse_makefile(path.to_string());
+        let sut = parse_makefile(dir_path.to_string());
         let contents = vec![
             ParsedContent::new("make up".to_string(), vec!["container up -d".to_string()]),
             ParsedContent::new("make down".to_string(), vec!["container down".to_string()]),
@@ -86,16 +91,14 @@ mod tests {
 
         assert_eq!(sut, ParsedCommand::new(contents));
 
-        cleanup(path);
+        cleanup(dir_path);
     }
 
     #[test]
     fn notfound() {
-        let path = "/tmp/Makefile";
+        let dir_path = "target/command-launcher/test-pj/makefile-notfound";
 
-        cleanup(path);
-
-        let sut = parse_makefile(path.to_string());
+        let sut = parse_makefile(dir_path.to_string());
 
         assert_eq!(sut, ParsedCommand::empty());
     }

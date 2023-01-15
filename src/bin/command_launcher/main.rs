@@ -1,6 +1,7 @@
 extern crate bins;
 
 use crate::command::makefile::parse_makefile;
+use crate::command::package_json::parse_package_json;
 use crate::command::parsed_command::ParsedContent;
 use bins::libs::io::writer::output_or_exit;
 use bins::libs::item::previewable_item::PreviewableItem;
@@ -12,7 +13,8 @@ mod runner;
 mod ui;
 
 fn main() {
-    let commands = vec![parse_makefile("/tmp/Makefile".to_string())];
+    let dir_path = "/tmp";
+    let commands = vec![parse_makefile(dir_path.to_string()), parse_package_json(dir_path.to_string())];
 
     let contents = commands.iter().flat_map(|command| command.get_items()).collect_vec();
 

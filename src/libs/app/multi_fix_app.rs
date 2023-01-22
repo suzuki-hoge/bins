@@ -1,13 +1,13 @@
 use crate::libs::app::input_app::InputApp;
 use crate::libs::app::scrolling_select_app::ScrollingSelectApp;
-use crate::libs::item::previewable_item::PreviewableItem;
+use crate::libs::item::display_item::DisplayItem;
 use crate::libs::matcher::string_matcher::Mode;
 use itertools::Itertools;
 
 #[derive(Debug)]
 pub struct MultiFixApp<Item>
 where
-    Item: PreviewableItem,
+    Item: DisplayItem,
 {
     pub input_app: InputApp,
     pub scrolling_select_app: ScrollingSelectApp<Item>,
@@ -16,7 +16,7 @@ where
 
 impl<Item> MultiFixApp<Item>
 where
-    Item: PreviewableItem,
+    Item: DisplayItem,
 {
     pub fn init(items: Vec<Item>, per_page: u16, mode: Mode) -> Self {
         let input_app = InputApp::init();

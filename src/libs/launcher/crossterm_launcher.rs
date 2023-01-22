@@ -1,5 +1,4 @@
 use std::fs::File;
-use std::io;
 
 use crossterm::{
     execute,
@@ -8,9 +7,9 @@ use crossterm::{
 use termion::get_tty;
 use tui::{backend::CrosstermBackend, Terminal};
 
-pub fn launch<Runner, Items>(runner: Runner) -> io::Result<Items>
+pub fn launch<Runner, Items>(runner: Runner) -> anyhow::Result<Items>
 where
-    Runner: Fn(&mut Terminal<CrosstermBackend<File>>) -> io::Result<Items>,
+    Runner: Fn(&mut Terminal<CrosstermBackend<File>>) -> anyhow::Result<Items>,
 {
     enable_raw_mode()?;
     let mut tty = get_tty()?;

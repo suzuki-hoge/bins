@@ -5,8 +5,8 @@ build:
 bf:
 	@cargo run --bin bf
 
-bcl:
-	@cargo run --bin bcl
+bb:
+	@cargo run --bin bb
 
 test:
 	@cargo test

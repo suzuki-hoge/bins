@@ -7,7 +7,7 @@ use tui::layout::{Constraint, Direction, Layout, Rect};
 use tui::widgets::{Block, BorderType, Borders, List, ListItem, Paragraph};
 use tui::Frame;
 
-use crate::ParsedContent;
+use crate::command::parsed_command::Command;
 use bins::libs::app::multi_fix_app::MultiFixApp;
 use bins::libs::ui::spans::{checked_string_origin_spans, checked_string_preview_spans};
 
@@ -17,7 +17,7 @@ pub fn get_height(frame: &Frame<CrosstermBackend<File>>) -> u16 {
     mk_layout(frame)[1].height - 2 // top border + bottom border
 }
 
-pub fn draw(frame: &mut Frame<CrosstermBackend<File>>, app: &mut MultiFixApp<ParsedContent>) {
+pub fn draw(frame: &mut Frame<CrosstermBackend<File>>, app: &mut MultiFixApp<Command>) {
     // layout
 
     let layout = mk_layout(frame);

@@ -3,7 +3,7 @@ use std::fmt::Debug;
 
 use crate::libs::matcher::string_matcher::{CheckedString, Mode};
 
-use crate::libs::item::previewable_item::PreviewableItem;
+use crate::libs::item::display_item::DisplayItem;
 use itertools::Itertools;
 use rayon::prelude::*;
 
@@ -13,7 +13,7 @@ use rayon::prelude::*;
 #[derive(Debug)]
 pub struct ScrollingSelectApp<Item>
 where
-    Item: PreviewableItem,
+    Item: DisplayItem,
 {
     all_items: HashMap<usize, CheckedString<Item>>,
     matched_items: HashMap<usize, CheckedString<Item>>,
@@ -26,7 +26,7 @@ where
 
 impl<Item> ScrollingSelectApp<Item>
 where
-    Item: PreviewableItem,
+    Item: DisplayItem,
 {
     pub fn init(items: Vec<Item>, per_page: usize, mode: Mode) -> Self {
         let all_items = items

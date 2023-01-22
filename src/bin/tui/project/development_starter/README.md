@@ -1,4 +1,4 @@
-# Development Launcher ( bd )
+# Development Starter ( bd )
 
 Start ***d***evelopment.
 

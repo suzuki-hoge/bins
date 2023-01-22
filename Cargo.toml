@@ -15,6 +15,8 @@ trim-margin = "0.1.0"
 tui = "0.19.0"
 crossterm = "0.25.0"
 termion = "2.0.1"
+anyhow = "1.0.68"
+thiserror = "1.0.38"
 
 [[bin]]
 name = "document-gatherer"
@@ -25,5 +27,5 @@ name = "bf"
 path = "src/bin/tui/misc/filter/main.rs"
 
 [[bin]]
-name = "bcl"
-path = "src/bin/tui/project/command_launcher/main.rs"
+name = "bb"
+path = "src/bin/tui/project/build_tool_launcher/main.rs"

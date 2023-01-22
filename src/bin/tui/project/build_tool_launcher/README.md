@@ -1,4 +1,4 @@
-# Build Command Launcher ( bb )
+# Build Tool Launcher ( bb )
 
 Parse ***b***uild file, and run selected line(s).
 

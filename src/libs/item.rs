@@ -1,1 +1,1 @@
-pub mod previewable_item;
+pub mod display_item;

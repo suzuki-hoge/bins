@@ -1,1 +1,1 @@
-pub mod input_filter_dispatcher;
+pub mod dispatcher;

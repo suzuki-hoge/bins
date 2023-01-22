@@ -1,9 +1,10 @@
+use anyhow::ensure;
 use crossterm::tty::IsTty;
 use itertools::Itertools;
-use std::io::{stdin, Error, ErrorKind, Result};
+use std::io::stdin;
 use std::process::Command;
 
-pub fn get_piped_stdin_or_dummy() -> Result<Vec<String>> {
+pub fn get_piped_stdin_or_dummy() -> anyhow::Result<Vec<String>> {
     if stdin().is_tty() {
         dummy()
     } else {
@@ -11,17 +12,15 @@ pub fn get_piped_stdin_or_dummy() -> Result<Vec<String>> {
     }
 }
 
-fn dummy() -> Result<Vec<String>> {
+fn dummy() -> anyhow::Result<Vec<String>> {
     let o = Command::new("ps").args(["aux"]).output()?;
     Ok(String::from_utf8_lossy(&o.stdout).split('\n').into_iter().map(|s| s.to_string()).collect_vec())
 }
 
-fn get_piped_stdin() -> Result<Vec<String>> {
+fn get_piped_stdin() -> anyhow::Result<Vec<String>> {
     let stdin = stdin();
 
-    if stdin.is_tty() {
-        return Err(Error::new(ErrorKind::Other, "no piped stdin."));
-    }
+    ensure!(!stdin.is_tty(), "no piped stdin.");
 
     let mut lines = vec![];
     loop {

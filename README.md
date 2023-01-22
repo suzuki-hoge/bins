@@ -4,8 +4,8 @@ My commands.
 ## Command list
 ### tui
 #### project
-- [bb: Build Command Launcher](src/bin/tui/project/command_launcher)
-- [bd: Development Launcher](src/bin/tui/project/project_launcher)
+- [bb: Build Tool Launcher](src/bin/tui/project/build_tool_launcher)
+- [bd: Development Starter](src/bin/tui/project/development_starter)
 #### git
 - [bgb: Git Branch Dispatcher](src/bin/tui/git/git_branch_dispatcher)
 - [bgs: Git Status Dispatcher](src/bin/tui/git/git_status_dispatcher)

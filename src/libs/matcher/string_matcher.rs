@@ -1,4 +1,4 @@
-use crate::libs::item::previewable_item::PreviewableItem;
+use crate::libs::item::display_item::DisplayItem;
 use itertools::Itertools;
 
 type Start = usize;
@@ -8,7 +8,7 @@ type Highlight = bool;
 #[derive(Eq, PartialEq, Clone, Debug)]
 pub struct CheckedString<Item>
 where
-    Item: PreviewableItem,
+    Item: DisplayItem,
 {
     origin_item: Item,
 
@@ -26,14 +26,14 @@ where
 
 impl<Item> CheckedString<Item>
 where
-    Item: PreviewableItem,
+    Item: DisplayItem,
 {
     pub fn init(origin_item: Item) -> CheckedString<Item> {
-        let origin_string = origin_item.get_origin();
+        let origin_string = origin_item.get_pane1();
         let lower_origin = origin_string.to_lowercase();
         let origin_len = origin_string.len();
 
-        let preview_strings = origin_item.get_preview();
+        let preview_strings = origin_item.get_pane2();
         let preview_lower_strings = preview_strings.iter().map(|s| s.to_lowercase()).collect_vec();
         CheckedString {
             origin_item,

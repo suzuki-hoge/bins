@@ -17,9 +17,13 @@ crossterm = "0.25.0"
 termion = "2.0.1"
 
 [[bin]]
+name = "document-gatherer"
+path = "src/bin/document_gatherer.rs"
+
+[[bin]]
 name = "bf"
-path = "src/bin/filter/main.rs"
+path = "src/bin/tui/misc/filter/main.rs"
 
 [[bin]]
 name = "bcl"
-path = "src/bin/command_launcher/main.rs"
+path = "src/bin/tui/project/command_launcher/main.rs"

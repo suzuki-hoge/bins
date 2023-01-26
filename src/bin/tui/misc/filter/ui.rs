@@ -19,11 +19,11 @@ pub fn draw(frame: &mut Frame<CrosstermBackend<File>>, app: &mut MultiFixApp<Str
     // layout
 
     let layout = mk_layout(frame);
-    frame.set_cursor(frame.size().x + (PROMPT.len() + app.input_app.cursor) as u16, frame.size().y);
+    frame.set_cursor(frame.size().x + (PROMPT.len() + app.filter_input_app.cursor) as u16, frame.size().y);
 
     // input area
 
-    let paragraph = Paragraph::new(format!("{}{}", PROMPT, &app.input_app.input));
+    let paragraph = Paragraph::new(format!("{}{}", PROMPT, &app.filter_input_app.input));
     frame.render_widget(paragraph, layout[0]);
 
     // lines area

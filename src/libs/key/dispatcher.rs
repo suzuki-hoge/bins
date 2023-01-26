@@ -2,7 +2,6 @@ use termion::event::Key;
 
 use crate::libs::app::multi_fix_app::MultiFixApp;
 use crate::libs::item::display_item::DisplayItem;
-use crate::libs::key::dispatcher::Mode::{Insert, Normal};
 
 pub const HORIZONTAL_MOVE_KEYS: [Key; 4] = [Key::Left, Key::Right, Key::Ctrl('a'), Key::Ctrl('e')];
 
@@ -11,10 +10,10 @@ where
     Item: DisplayItem,
 {
     match key {
-        Key::Left => app.input_app.left(),
-        Key::Right => app.input_app.right(),
-        Key::Ctrl('a') => app.input_app.top(),
-        Key::Ctrl('e') => app.input_app.end(),
+        Key::Left => app.filter_input_app.left(),
+        Key::Right => app.filter_input_app.right(),
+        Key::Ctrl('a') => app.filter_input_app.top(),
+        Key::Ctrl('e') => app.filter_input_app.end(),
         _ => unreachable!(),
     }
 }
@@ -35,20 +34,21 @@ where
 }
 
 #[derive(Eq, PartialEq)]
-pub enum Mode {
-    Normal,
-    Insert,
+pub enum CommandMode {
+    Active,
+    Inactive,
 }
 
-pub const MODE_CHANGE_KEYS: [Key; 2] = [Key::Esc, Key::Char('i')];
+pub const CHANGE_COMMAND_MODE_KEYS: [Key; 1] = [Key::Esc];
 
-pub fn mode_change<Item>(_: &mut MultiFixApp<Item>, key: Key) -> Mode
+pub const CURSOR_MODE_CHANGE_KEYS: [Key; 1] = [Key::Char('\t')];
+
+pub fn change_cursor_mode<Item>(app: &mut MultiFixApp<Item>, key: Key) -> bool
 where
     Item: DisplayItem,
 {
     match key {
-        Key::Esc => Normal,
-        Key::Char('i') => Insert,
+        Key::Char('\t') => app.switch_cursor_mode(),
         _ => unreachable!(),
     }
 }
@@ -70,18 +70,9 @@ where
     Item: DisplayItem,
 {
     match key {
-        Key::Char(c) => {
-            app.input_app.insert(c);
-            app.refresh();
-        }
-        Key::Backspace => {
-            app.input_app.remove();
-            app.refresh();
-        }
-        Key::Ctrl('k') => {
-            app.input_app.cut();
-            app.refresh();
-        }
+        Key::Char(c) => app.insert(c),
+        Key::Backspace => app.remove(),
+        Key::Ctrl('k') => app.cut(),
         _ => {}
     }
 }

@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::fmt::Debug;
 
-use crate::libs::matcher::string_matcher::{CheckedString, Mode};
+use crate::libs::matcher::string_matcher::{CheckedString, MatchMode};
 
 use crate::libs::item::display_item::DisplayItem;
 use itertools::Itertools;
@@ -21,14 +21,14 @@ where
     head_index_in_page: usize,
     last_index_in_page: usize,
     active_item_index: usize,
-    mode: Mode,
+    match_mode: MatchMode,
 }
 
 impl<Item> ScrollingSelectApp<Item>
 where
     Item: DisplayItem,
 {
-    pub fn init(items: Vec<Item>, per_page: usize, mode: Mode) -> Self {
+    pub fn init(items: Vec<Item>, per_page: usize, match_mode: MatchMode) -> Self {
         let all_items = items
             .into_par_iter()
             .enumerate()
@@ -42,7 +42,7 @@ where
             head_index_in_page: 0,
             last_index_in_page: per_page,
             active_item_index: 0,
-            mode,
+            match_mode,
         };
         s.re_match(&[]);
         s
@@ -135,8 +135,8 @@ where
             .all_items
             .par_iter()
             .flat_map(|(item_number, item)| {
-                let checked_item = item.clone().re_match(&lower_words, self.mode);
-                if checked_item.is_matched(self.mode) {
+                let checked_item = item.clone().re_match(&lower_words, self.match_mode);
+                if checked_item.is_matched(self.match_mode) {
                     vec![(*item_number, checked_item)]
                 } else {
                     vec![]

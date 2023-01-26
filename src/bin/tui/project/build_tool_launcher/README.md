@@ -28,15 +28,15 @@ $ bb
 
 ### Keys
 
-| key     | description                                                                           | constraint      |
-|---------|---------------------------------------------------------------------------------------|-----------------|
-| C-Space | Fix current line.<br>The selected line disappears, and you can continue to select.    | input area only |
-| C-f     | ***F***inish selection, then run selected line(s).                                    | input area only |
-| C-Enter | Fix current line, then run selected line(s).<br> ( `Enter` equals `C-Space` & `C-f` ) | input area only |
-| C-n     | Create ***n***ew empty your own build command.<br>It appears on pane 1.               | input area only |
-| C-d     | ***D***elete your own build command.<br>It disappears on pane 1.                      | input area only |
-| C-s     | ***S***ave your own build command.                                                    | pane 2 only     |
-| Tab     | Jump cursor alternately between input area and pane 2.                                ||
+| key     | description                                                                        | constraint      |
+|---------|------------------------------------------------------------------------------------|-----------------|
+| C-Space | Fix current line.<br>The selected line disappears, and you can continue to select. | input area only |
+| C-f     | ***F***inish selection, then run selected line(s).                                 | input area only |
+| C-Enter | ***F***inish selection, then run selected line(s).nter` equals `C-Space` & `C-f` ) | input area only |
+| ESC n   | ***F***inish selection, then run selected line(s).appears on pane 1.               | input area only |
+| ESC d   | ***F***inish selection, then run selected line(s). on pane 1.                      | input area only |
+| ESC s   | ***F***inish selection, then run selected line(s).                                 | pane 2 only     |
+| Tab     | ***F***inish selection, then run selected line(s)..                                ||
 
 ## Struct
 

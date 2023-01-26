@@ -1,3 +1,5 @@
+use itertools::Itertools;
+
 #[derive(Debug)]
 pub struct InputApp {
     pub input: String,
@@ -7,6 +9,15 @@ pub struct InputApp {
 impl InputApp {
     pub fn init() -> Self {
         Self { input: "".to_string(), cursor: 0 }
+    }
+
+    pub fn set(&mut self, lines: Vec<String>) {
+        self.input = lines.join("\n");
+        self.cursor = self.input.len();
+    }
+
+    pub fn get(&self) -> Vec<String> {
+        self.input.split('\n').map(|s| s.to_string()).collect_vec()
     }
 
     // edit

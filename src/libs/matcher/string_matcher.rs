@@ -53,11 +53,11 @@ where
         self.origin_item.clone()
     }
 
-    pub fn is_matched(&self, mode: Mode) -> bool {
-        match mode {
-            Mode::ORIGIN => self.origin_matched,
-            Mode::PREVIEW => self.preview_matched,
-            Mode::BOTH => self.origin_matched || self.preview_matched,
+    pub fn is_matched(&self, match_mode: MatchMode) -> bool {
+        match match_mode {
+            MatchMode::ORIGIN => self.origin_matched,
+            MatchMode::PREVIEW => self.preview_matched,
+            MatchMode::BOTH => self.origin_matched || self.preview_matched,
         }
     }
 
@@ -88,11 +88,11 @@ where
             .collect_vec()
     }
 
-    pub fn re_match(self, lower_words: &[String], mode: Mode) -> Self {
-        match mode {
-            Mode::ORIGIN => self.re_origin_match(lower_words),
-            Mode::PREVIEW => self.re_preview_match(lower_words),
-            Mode::BOTH => self.re_origin_match(lower_words).re_preview_match(lower_words),
+    pub fn re_match(self, lower_words: &[String], match_mode: MatchMode) -> Self {
+        match match_mode {
+            MatchMode::ORIGIN => self.re_origin_match(lower_words),
+            MatchMode::PREVIEW => self.re_preview_match(lower_words),
+            MatchMode::BOTH => self.re_origin_match(lower_words).re_preview_match(lower_words),
         }
     }
 
@@ -204,7 +204,7 @@ where
 }
 
 #[derive(Eq, PartialEq, Copy, Clone, Debug)]
-pub enum Mode {
+pub enum MatchMode {
     ORIGIN,
     PREVIEW,
     BOTH,

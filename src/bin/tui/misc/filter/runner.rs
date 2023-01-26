@@ -10,7 +10,7 @@ use bins::libs::app::multi_fix_app::MultiFixApp;
 use bins::libs::key::dispatcher::{
     edit, exit, horizontal_move, vertical_move, EXIT_KEYS, HORIZONTAL_MOVE_KEYS, VERTICAL_MOVE_KEYS,
 };
-use bins::libs::matcher::string_matcher::Mode;
+use bins::libs::matcher::string_matcher::MatchMode;
 use tui::backend::CrosstermBackend;
 use tui::Terminal;
 use ui::draw;
@@ -20,7 +20,7 @@ use crate::ui::get_height;
 
 pub fn run(terminal: &mut Terminal<CrosstermBackend<File>>, items: Vec<String>) -> anyhow::Result<Vec<String>> {
     let height = get_height(&terminal.get_frame());
-    let mut app = MultiFixApp::init(items, height, Mode::ORIGIN);
+    let mut app = MultiFixApp::init(items, height, MatchMode::ORIGIN);
 
     terminal.draw(|frame| draw(frame, &mut app))?;
 

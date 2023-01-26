@@ -13,6 +13,6 @@ use bins::libs::io::writer::output_or_exit;
 fn main() -> anyhow::Result<()> {
     match launch(|terminal| runner::run(terminal, get_piped_stdin_or_dummy()?)) {
         Ok(items) => output_or_exit(items.iter().join("\n")),
-        Err(e) => output_or_exit(e),
+        Err(e) => output_or_exit(format!("echo {}", e)),
     }
 }

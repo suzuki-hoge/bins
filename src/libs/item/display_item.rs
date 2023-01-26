@@ -4,6 +4,8 @@ pub trait DisplayItem: Sized + Send + Sync + Eq + PartialEq + Clone + Debug {
     fn get_pane1(&self) -> String;
 
     fn get_pane2(&self) -> Vec<String>;
+
+    fn is_editable(&self) -> bool;
 }
 
 impl DisplayItem for String {
@@ -13,5 +15,9 @@ impl DisplayItem for String {
 
     fn get_pane2(&self) -> Vec<String> {
         vec![]
+    }
+
+    fn is_editable(&self) -> bool {
+        false
     }
 }

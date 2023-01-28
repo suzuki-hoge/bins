@@ -77,7 +77,7 @@ $ bgh
   - base branch
   - local branches
 
-### PR
+### Compare
 
 - https://github.com/{owner}/{repo}/compare/{base-branch}...{current-branch}
 
@@ -85,7 +85,7 @@ $ bgh
 
 - https://github.com/{owner}/{repo}/wiki
 
-### File
+### Blob
 
 - https://github.com/{owner}/{repo}/blob/{branch}/{path}
   - current branch

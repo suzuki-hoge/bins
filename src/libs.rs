@@ -1,4 +1,5 @@
 pub mod app;
+pub mod git;
 pub mod io;
 pub mod item;
 pub mod key;

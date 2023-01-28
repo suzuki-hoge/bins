@@ -30,3 +30,7 @@ path = "src/bin/tui/misc/filter/main.rs"
 [[bin]]
 name = "bb"
 path = "src/bin/tui/project/build_tool_launcher/main.rs"
+
+[[bin]]
+name = "bgh"
+path = "src/bin/tui/git/github_launcher/main.rs"

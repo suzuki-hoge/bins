@@ -21,3 +21,7 @@ bf:
 
 bb:
 	@cargo run --bin bb
+
+bgh:
+	@cargo run --bin bgh
+

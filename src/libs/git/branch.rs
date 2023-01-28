@@ -6,10 +6,23 @@ use std::process::Command;
 pub struct GitBranch {
     pub current: String,
     pub base: String,
+    other_locals: Vec<String>,
+}
+
+impl GitBranch {
+    pub fn get_all(&self) -> Vec<String> {
+        vec![
+            vec![self.current.clone(), self.base.clone()].into_iter().unique().collect_vec(),
+            self.other_locals.clone(),
+        ]
+        .into_iter()
+        .flatten()
+        .collect_vec()
+    }
 }
 
 pub fn get_git_branch() -> anyhow::Result<GitBranch> {
-    Ok(GitBranch { current: get_current()?, base: get_base()? })
+    Ok(GitBranch { current: get_current()?, base: get_base()?, other_locals: get_locals()? })
 }
 
 fn get_current() -> anyhow::Result<String> {
@@ -38,6 +51,19 @@ fn parse_base(output: String) -> anyhow::Result<String> {
     } else {
         Ok(lines[0].split('[').collect_vec()[1].split(']').collect_vec()[0].to_string())
     }
+}
+
+fn get_locals() -> anyhow::Result<Vec<String>> {
+    let current = get_current()?;
+    let base = get_base()?;
+
+    let o = Command::new("git").args(["branch"]).output()?;
+    Ok(String::from_utf8_lossy(&o.stdout)
+        .split('\n')
+        .filter(|s| !s.is_empty())
+        .map(|s| s[2..].to_string())
+        .filter(|s| s != &current || s != &base)
+        .collect_vec())
 }
 
 #[cfg(test)]

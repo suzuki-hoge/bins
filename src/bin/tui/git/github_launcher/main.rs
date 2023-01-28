@@ -2,6 +2,7 @@ extern crate bins;
 
 use bins::libs::git::branch::{get_git_branch, GitBranch};
 use bins::libs::git::config::{get_git_config, GitConfig};
+use bins::libs::git::file::get_git_paths;
 use itertools::Itertools;
 use std::env::current_dir;
 
@@ -20,6 +21,7 @@ fn main() -> anyhow::Result<()> {
         get_commits(&git_config, &git_branch),
         get_compare(&git_config, &git_branch),
         get_wiki(&git_config),
+        get_find(&git_config, &git_branch),
         get_blob(&git_config, &git_branch),
     ]
     .into_iter()
@@ -43,11 +45,19 @@ fn get_issues(config: &GitConfig) -> Vec<String> {
 }
 
 fn get_tree(config: &GitConfig, branch: &GitBranch) -> Vec<String> {
-    vec![format!("{}/{}/{}/tree/{}", HOST, config.owner, config.repo, branch.current)]
+    branch
+        .get_all()
+        .iter()
+        .map(|branch| format!("{}/{}/{}/tree/{}", HOST, config.owner, config.repo, branch))
+        .collect_vec()
 }
 
 fn get_commits(config: &GitConfig, branch: &GitBranch) -> Vec<String> {
-    vec![format!("{}/{}/{}/commits/{}", HOST, config.owner, config.repo, branch.current)]
+    branch
+        .get_all()
+        .iter()
+        .map(|branch| format!("{}/{}/{}/commits/{}", HOST, config.owner, config.repo, branch))
+        .collect_vec()
 }
 
 fn get_compare(config: &GitConfig, branch: &GitBranch) -> Vec<String> {
@@ -58,6 +68,21 @@ fn get_wiki(config: &GitConfig) -> Vec<String> {
     vec![format!("{}/{}/{}/wiki", HOST, config.owner, config.repo)]
 }
 
+fn get_find(config: &GitConfig, branch: &GitBranch) -> Vec<String> {
+    branch
+        .get_all()
+        .iter()
+        .map(|branch| format!("{}/{}/{}/find/{}", HOST, config.owner, config.repo, branch))
+        .collect_vec()
+}
+
 fn get_blob(config: &GitConfig, branch: &GitBranch) -> Vec<String> {
-    vec![format!("{}/{}/{}/blob/{}", HOST, config.owner, config.repo, branch.current)]
+    let paths = get_git_paths();
+    branch
+        .get_all()
+        .iter()
+        .flat_map(|branch| {
+            paths.iter().map(move |path| format!("{}/{}/{}/blob/{}/{}", HOST, config.owner, config.repo, branch, path))
+        })
+        .collect_vec()
 }

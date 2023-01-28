@@ -85,6 +85,13 @@ $ bgh
 
 - https://github.com/{owner}/{repo}/wiki
 
+### Find
+
+- https://github.com/{owner}/{repo}/find/{branch}
+  - current branch
+  - base branch
+  - local branches
+
 ### Blob
 
 - https://github.com/{owner}/{repo}/blob/{branch}/{path}

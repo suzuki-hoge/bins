@@ -26,10 +26,9 @@ fn main() -> anyhow::Result<()> {
     if args.len() == 1 {
         select(&home, &dir_path)
     } else if args.len() == 2 {
-        if args[1] == "-p" {
-            push(&home, &dir_path)
-        } else {
-            selected(&home, &dir_path, args[1].to_string())
+        match args[1].as_str() {
+            "-p" => push(&home, &dir_path),
+            s => selected(&home, &dir_path, s.to_string()),
         }
     } else {
         output_or_exit("echo invalid args")

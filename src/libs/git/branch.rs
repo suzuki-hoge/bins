@@ -8,7 +8,7 @@ use std::process::Command;
 
 #[derive(Eq, PartialEq, Debug)]
 pub struct GitBranch {
-    current: String,
+    pub current: String,
     base: Option<String>,
     other_locals: Vec<String>,
 }

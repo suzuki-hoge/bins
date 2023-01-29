@@ -12,17 +12,26 @@ impl<'a> UrlItems<'a> {
         UrlItems { git_config, items: vec![] }
     }
 
-    pub fn add(&mut self, label: impl Into<String>, path: impl Into<String>) {
+    pub fn add(&mut self, label: impl Into<String>, path: impl Into<String>) -> &Self {
         self.items.push(UrlItem {
             owner: &self.git_config.owner,
             repo: &self.git_config.repo,
             label: label.into(),
             path: path.into(),
         });
+        self
     }
 
     pub fn get_items(&self) -> Vec<UrlItem> {
         self.items.clone()
+    }
+
+    pub fn get_raw(&self) -> String {
+        if self.items.len() == 1 {
+            self.items[0].get_raw()
+        } else {
+            unreachable!()
+        }
     }
 }
 

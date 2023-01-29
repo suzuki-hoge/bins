@@ -1,88 +1,84 @@
 extern crate bins;
 
 use bins::libs::git::branch::{get_git_branch, GitBranch};
-use bins::libs::git::config::{get_git_config, GitConfig};
+use bins::libs::git::config::get_git_config;
 use bins::libs::git::file::get_git_paths;
 use itertools::Itertools;
 use std::env::current_dir;
+use std::path::PathBuf;
 
+use crate::url_item::UrlItems;
 use bins::libs::io::writer::output_or_exit;
+use bins::libs::launcher::crossterm_launcher::launch;
+
+mod runner;
+mod ui;
+mod url_item;
 
 fn main() -> anyhow::Result<()> {
+    let home = PathBuf::from(std::env::var("HOME")?);
     let dir_path = current_dir()?;
 
-    let git_config = get_git_config(&dir_path)?;
-    let git_branch = get_git_branch()?;
+    let git_config = get_git_config()?;
+    let git_branch = get_git_branch(&home, &dir_path)?;
 
-    let lines = vec![
-        get_pulls(&git_config),
-        get_issues(&git_config),
-        get_tree(&git_config, &git_branch),
-        get_commits(&git_config, &git_branch),
-        get_compare(&git_config, &git_branch),
-        get_wiki(&git_config),
-        get_find(&git_config, &git_branch),
-        get_blob(&git_config, &git_branch),
-    ]
-    .into_iter()
-    .flatten()
-    .collect_vec();
-    output_or_exit(lines.join("\n"))
+    let mut url_items = UrlItems::create(&git_config);
+
+    gather_pulls(&mut url_items);
+    gather_issues(&mut url_items);
+    gather_tree(&mut url_items, &git_branch);
+    gather_commits(&mut url_items, &git_branch);
+    gather_compare(&mut url_items, &git_branch);
+    gather_wiki(&mut url_items);
+    gather_find(&mut url_items, &git_branch);
+    gather_blob(&mut url_items, &git_branch);
+
+    match launch(|terminal| runner::run(terminal, url_items.get_items())) {
+        Ok(items) => output_or_exit(items.iter().map(|item| item.get_raw()).join("\n")),
+        Err(e) => output_or_exit(format!("echo {}", e)),
+    }
 }
 
-const HOST: &str = "https://github.com";
-
-fn get_pulls(config: &GitConfig) -> Vec<String> {
-    vec![
-        format!("{}/{}/{}/pulls", HOST, config.owner, config.repo),
-        format!("{}/{}/{}/pulls/@me", HOST, config.owner, config.repo),
-        format!("{}/{}/{}/pulls?q=is:open+is:pr+-reviewed-by:@me+reviewed-by:@me", HOST, config.owner, config.repo),
-    ]
+fn gather_pulls(url_items: &mut UrlItems) {
+    url_items.add("pulls", "pulls");
+    url_items.add("my pulls", "pulls/@me");
+    url_items.add("review pulls", "pulls?q=is:open+is:pr+-reviewed-by:@me+reviewed-by:@me");
 }
 
-fn get_issues(config: &GitConfig) -> Vec<String> {
-    vec![format!("{}/{}/{}/issues", HOST, config.owner, config.repo)]
+fn gather_issues(url_items: &mut UrlItems) {
+    url_items.add("issues", "issues");
 }
 
-fn get_tree(config: &GitConfig, branch: &GitBranch) -> Vec<String> {
+fn gather_tree(url_items: &mut UrlItems, branch: &GitBranch) {
+    branch.get_all().iter().for_each(|branch| url_items.add(format!("files - {}", branch), format!("tree/{}", branch)));
+}
+
+fn gather_commits(url_items: &mut UrlItems, branch: &GitBranch) {
     branch
         .get_all()
         .iter()
-        .map(|branch| format!("{}/{}/{}/tree/{}", HOST, config.owner, config.repo, branch))
-        .collect_vec()
+        .for_each(|branch| url_items.add(format!("commits - {}", branch), format!("commits/{}", branch)));
 }
 
-fn get_commits(config: &GitConfig, branch: &GitBranch) -> Vec<String> {
-    branch
-        .get_all()
-        .iter()
-        .map(|branch| format!("{}/{}/{}/commits/{}", HOST, config.owner, config.repo, branch))
-        .collect_vec()
+fn gather_compare(url_items: &mut UrlItems, branch: &GitBranch) {
+    if let Some((base, current)) = branch.get_compare() {
+        url_items.add("pr", format!("compare/{}...{}", base, current));
+    }
 }
 
-fn get_compare(config: &GitConfig, branch: &GitBranch) -> Vec<String> {
-    vec![format!("{}/{}/{}/commits/{}...{}", HOST, config.owner, config.repo, branch.base, branch.current)]
+fn gather_wiki(url_items: &mut UrlItems) {
+    url_items.add("wiki", "wiki");
 }
 
-fn get_wiki(config: &GitConfig) -> Vec<String> {
-    vec![format!("{}/{}/{}/wiki", HOST, config.owner, config.repo)]
+fn gather_find(url_items: &mut UrlItems, branch: &GitBranch) {
+    branch.get_all().iter().for_each(|branch| url_items.add(format!("find - {}", branch), format!("find/{}", branch)));
 }
 
-fn get_find(config: &GitConfig, branch: &GitBranch) -> Vec<String> {
-    branch
-        .get_all()
-        .iter()
-        .map(|branch| format!("{}/{}/{}/find/{}", HOST, config.owner, config.repo, branch))
-        .collect_vec()
-}
-
-fn get_blob(config: &GitConfig, branch: &GitBranch) -> Vec<String> {
+fn gather_blob(url_items: &mut UrlItems, branch: &GitBranch) {
     let paths = get_git_paths();
-    branch
-        .get_all()
-        .iter()
-        .flat_map(|branch| {
-            paths.iter().map(move |path| format!("{}/{}/{}/blob/{}/{}", HOST, config.owner, config.repo, branch, path))
-        })
-        .collect_vec()
+    branch.get_all().iter().for_each(|branch| {
+        paths
+            .iter()
+            .for_each(|path| url_items.add(format!("{} - {}", path, branch), format!("blob/{}/{}", branch, path)))
+    });
 }

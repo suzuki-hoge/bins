@@ -10,7 +10,7 @@ use tui::widgets::{Block, BorderType, Borders, List, ListItem, Paragraph};
 use tui::Frame;
 
 use bins::libs::app::multi_fix_app::MultiFixApp;
-use bins::libs::ui::spans::{checked_string_origin_spans, checked_string_preview_spans};
+use bins::libs::ui::spans::{pane1_highlight_spans, pane2_highlight_spans};
 
 use crate::command::command_item::CommandItem;
 
@@ -56,7 +56,7 @@ pub fn draw(
         .get_matched_items_in_page()
         .iter()
         .map(|&(item_number, item)| {
-            checked_string_origin_spans(
+            pane1_highlight_spans(
                 item.clone(),
                 app.scrolling_select_app.is_active_item_number(item_number),
                 box_area[0].width,
@@ -74,7 +74,7 @@ pub fn draw(
         Filter => app
             .scrolling_select_app
             .get_active_item()
-            .map(|item| checked_string_preview_spans(item).into_iter().map(ListItem::new).collect_vec())
+            .map(|item| pane2_highlight_spans(item).into_iter().map(ListItem::new).collect_vec())
             .unwrap_or_default(),
         Edit => app.edit_input_app.get().into_iter().map(|line| ListItem::new(Spans::from(line))).collect_vec(),
     };

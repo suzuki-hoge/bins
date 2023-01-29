@@ -4,7 +4,7 @@ bins_dir=$(cd "$(dirname ${0})" && git rev-parse --show-toplevel)
 bin="$bins_dir/target/release/bgh"
 
 IFS=$'\n'
-for line in $($bin | bf)
+for line in $($bin)
 do
   open "$line"
 done

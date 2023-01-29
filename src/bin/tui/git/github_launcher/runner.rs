@@ -17,10 +17,14 @@ use ui::draw;
 
 use crate::ui;
 use crate::ui::get_height;
+use crate::url_item::UrlItem;
 
-pub fn run(terminal: &mut Terminal<CrosstermBackend<File>>, items: Vec<String>) -> anyhow::Result<Vec<String>> {
+pub fn run<'a>(
+    terminal: &mut Terminal<CrosstermBackend<File>>,
+    items: Vec<UrlItem<'a>>,
+) -> anyhow::Result<Vec<UrlItem<'a>>> {
     let height = get_height(&terminal.get_frame());
-    let mut app = MultiFixApp::init(items, height, MatchMode::PANE1);
+    let mut app = MultiFixApp::init(items, height, MatchMode::BOTH);
 
     terminal.draw(|frame| draw(frame, &mut app))?;
 

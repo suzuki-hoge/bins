@@ -4,16 +4,12 @@ use itertools::Itertools;
 use tui::style::{Color, Modifier, Style};
 use tui::text::{Span, Spans};
 
-pub fn checked_string_origin_spans<Item>(
-    cs: CheckedString<Item>,
-    is_active: bool,
-    max_width: u16,
-) -> Vec<Spans<'static>>
+pub fn pane1_highlight_spans<Item>(cs: CheckedString<Item>, is_active: bool, max_width: u16) -> Vec<Spans<'static>>
 where
     Item: DisplayItem,
 {
     let spans = cs
-        .get_origin_string_parts(max_width as usize)
+        .get_pane1_string_parts(max_width as usize)
         .into_iter()
         .map(|(s, highlight)| Span::styled(s, style(highlight, is_active)))
         .collect_vec();
@@ -21,11 +17,11 @@ where
     vec![Spans::from(spans)]
 }
 
-pub fn checked_string_preview_spans<Item>(cs: CheckedString<Item>) -> Vec<Vec<Spans<'static>>>
+pub fn pane2_highlight_spans<Item>(cs: CheckedString<Item>) -> Vec<Vec<Spans<'static>>>
 where
     Item: DisplayItem,
 {
-    cs.get_preview_string_parts_vec()
+    cs.get_pane2_string_parts_vec()
         .into_iter()
         .map(|parts| parts.into_iter().map(|(s, highlight)| Span::styled(s, style(highlight, false))).collect_vec())
         .map(|spans| vec![Spans::from(spans)])

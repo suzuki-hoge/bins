@@ -8,6 +8,7 @@ use itertools::Itertools;
 use bins::libs::io::writer::output_or_exit;
 use bins::libs::item::display_item::DisplayItem;
 use bins::libs::launcher::crossterm_launcher::launch;
+use bins::libs::project::project_mapper::parse_project_mapper;
 
 use crate::command::makefile::parse_makefile;
 use crate::command::package_json::parse_package_json;
@@ -27,7 +28,7 @@ fn main() -> anyhow::Result<()> {
         select(&home, &dir_path)
     } else if args.len() == 2 {
         match args[1].as_str() {
-            "-p" => push(&home, &dir_path),
+            "p" => push(&home, &dir_path),
             s => selected(&home, &dir_path, s.to_string()),
         }
     } else {
@@ -47,14 +48,14 @@ fn select(home: &Path, dir_path: &Path) -> anyhow::Result<()> {
 }
 
 fn selected(home: &Path, dir_path: &Path, arg: String) -> anyhow::Result<()> {
-    match parse_project_mapper_current_config(home, dir_path).get_lines(arg) {
+    match parse_project_mapper(home, dir_path).get_build_command_lines(arg) {
         Some(lines) => output_or_exit(lines.join("\n")),
         None => output_or_exit("echo no such command"),
     }
 }
 
 fn push(home: &Path, dir_path: &Path) -> anyhow::Result<()> {
-    if parse_project_mapper_current_config(home, dir_path).generate() {
+    if parse_project_mapper(home, dir_path).generate() {
         output_or_exit("echo generated")
     } else {
         output_or_exit("echo already generated")

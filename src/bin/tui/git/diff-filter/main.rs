@@ -5,7 +5,7 @@ use regex::Regex;
 use structopt::StructOpt;
 
 use bins::libs::launcher::crossterm_launcher::launch;
-use bins::libs::process::command::{get_command_out, print_command_out, run_command};
+use bins::libs::process::command::{get_command_out_lines, print_command_out, run_command};
 
 mod runner;
 mod ui;
@@ -43,7 +43,7 @@ fn select_status_lines(staged: bool) -> anyhow::Result<String> {
 }
 
 fn get_status_lines(staged: bool) -> anyhow::Result<Vec<String>> {
-    let lines = get_command_out("git status --short")?;
+    let lines = get_command_out_lines("git status --short")?;
     Ok(match staged {
         true => lines.into_iter().filter(|line| Regex::new(r"^[MARCD]").unwrap().is_match(line)).collect_vec(),
         false => lines.into_iter().filter(|line| Regex::new(r"^ [MARCD]").unwrap().is_match(line)).collect_vec(),

@@ -7,7 +7,7 @@ use itertools::Itertools;
 use structopt::StructOpt;
 
 use bins::libs::io::writer::output_or_exit;
-use bins::libs::process::command::get_command_out;
+use bins::libs::process::command::get_command_out_lines;
 
 #[derive(StructOpt)]
 struct Opt {
@@ -105,7 +105,7 @@ fn main() -> anyhow::Result<()> {
     let opt = Opt::from_args();
 
     let command = create_command(opt.count);
-    let lines = get_command_out(command)?;
+    let lines = get_command_out_lines(command)?;
     let logs = Logs::from_lines(lines);
 
     match opt.long {
@@ -164,9 +164,9 @@ mod tests {
             |\x1b[33m4a7ef5d\x1b[m [ 2023/02/03 11:15:39 ] \x1b[34mjohn-doe\x1b[m     Merge pull request #48 from feat/bar
             |\x1b[33ma7e013e\x1b[m [ 2023/02/02 15:42:10 ] \x1b[34mjohn-doe-bot\x1b[m auto fix format.
         "
-        .trim()
-        .trim_margin()
-        .unwrap();
+            .trim()
+            .trim_margin()
+            .unwrap();
 
         assert_eq!(logs.short(), short);
         assert_eq!(logs.long(), long);

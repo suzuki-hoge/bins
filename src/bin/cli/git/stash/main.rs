@@ -6,13 +6,13 @@ use bins::libs::process::command::print_command_out;
 
 #[derive(StructOpt)]
 struct Opt {
-    #[structopt(short = "l", long = "--list", conflicts_with_all(&["save", "pop"]), help = "show stash list ( default )")]
+    #[structopt(short = "l", long = "--list", conflicts_with_all(& ["save", "pop"]), help = "show stash list ( default )")]
     list: bool,
 
-    #[structopt(short = "s", long = "--save", conflicts_with_all(&["list", "pop"]), help = "stash")]
+    #[structopt(short = "s", long = "--save", conflicts_with_all(& ["list", "pop"]), help = "stash")]
     save: bool,
 
-    #[structopt(short = "p", long = "--pop", conflicts_with_all(&["list", "save"]), help = "pop")]
+    #[structopt(short = "p", long = "--pop", conflicts_with_all(& ["list", "save"]), help = "pop")]
     pop: bool,
 
     #[structopt(name = "message", help = "message for save")]

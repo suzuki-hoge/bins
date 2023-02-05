@@ -1,11 +1,8 @@
 extern crate bins;
 
-use std::env::current_dir;
-use std::path::PathBuf;
-
 use structopt::StructOpt;
 
-use bins::libs::git::branch::{get_git_branch, GitBranch};
+use bins::libs::git::branch::get_git_branch;
 use bins::libs::git::config::get_git_config;
 use bins::libs::io::writer::output_or_exit;
 use bins::libs::process::command::run_command;
@@ -20,9 +17,9 @@ fn main() -> anyhow::Result<()> {
     let opt = Opt::from_args();
 
     let git_config = get_git_config()?;
-    let branch = get_branch()?;
+    let branch = get_git_branch()?;
 
-    if let Some(base) = infer_base_branch(opt.destination, &branch) {
+    if let Some(base) = infer_base_branch(opt.destination, branch.base.as_deref()) {
         let command = create_command(&git_config.owner, &git_config.repo, &base, &branch.current);
         run_command(command)
     } else {
@@ -30,17 +27,10 @@ fn main() -> anyhow::Result<()> {
     }
 }
 
-fn get_branch() -> anyhow::Result<GitBranch> {
-    let home = PathBuf::from(std::env::var("HOME")?);
-    let dir_path = current_dir()?;
-
-    get_git_branch(&home, &dir_path)
-}
-
-fn infer_base_branch(destination: Option<String>, branch: &GitBranch) -> Option<String> {
-    match (destination, branch.base.clone()) {
+fn infer_base_branch(destination: Option<String>, base: Option<&str>) -> Option<String> {
+    match (destination, base) {
         (Some(destination), _) => Some(destination),
-        (None, Some(base)) => Some(base),
+        (None, Some(base)) => Some(base.to_string()),
         (None, None) => None,
     }
 }

@@ -4,18 +4,18 @@ use regex::Regex;
 use std::fs;
 use std::path::Path;
 
-pub fn parse_makefile(dir_path: &Path) -> Vec<CommandItem> {
-    match read_file(dir_path) {
-        Ok(lines) => parse(lines),
+pub fn parse_makefile(work_dir: &Path) -> Vec<CommandItem> {
+    match read_file(work_dir) {
+        Ok(lines) => create_command_items(lines),
         Err(_) => vec![],
     }
 }
 
-fn read_file(dir_path: &Path) -> anyhow::Result<String> {
-    fs::read_to_string(dir_path.join("Makefile")).context("no Makefile")
+fn read_file(work_dir: &Path) -> anyhow::Result<String> {
+    fs::read_to_string(work_dir.join("Makefile")).context("no Makefile")
 }
 
-fn parse(origin_lines: String) -> Vec<CommandItem> {
+fn create_command_items(origin_lines: String) -> Vec<CommandItem> {
     let label_regex = Regex::new(r"^[^\t]+.*").unwrap();
     let lines_regex = Regex::new(r"^\t").unwrap();
 
@@ -56,7 +56,7 @@ mod tests {
     use crate::parse_makefile;
     use trim_margin::MarginTrimmable;
 
-    fn setup(dir_path: &PathBuf) {
+    fn setup(work_dir: &PathBuf) {
         let raw = "
             |up:
             |	container up -d
@@ -71,38 +71,38 @@ mod tests {
         .trim_margin()
         .unwrap();
 
-        let _ = fs::create_dir_all(dir_path);
-        let _ = File::create(dir_path.join("Makefile")).unwrap().write_all(raw.as_bytes());
+        let _ = fs::create_dir_all(work_dir);
+        let _ = File::create(work_dir.join("Makefile")).unwrap().write_all(raw.as_bytes());
     }
 
-    fn cleanup(dir_path: &PathBuf) {
-        let _ = fs::remove_dir_all(dir_path);
+    fn cleanup(work_dir: &PathBuf) {
+        let _ = fs::remove_dir_all(work_dir);
     }
 
     #[test]
     fn found() {
-        let dir_path = PathBuf::from("target/build-tool-launcher/test-pj/makefile-found");
+        let work_dir = PathBuf::from("target/build-tool-launcher/test-pj/makefile-found");
 
-        setup(&dir_path);
+        setup(&work_dir);
 
-        let sut = parse_makefile(&dir_path);
+        let act = parse_makefile(&work_dir);
         let commands = vec![
             CommandItem::new("make up".to_string(), vec!["container up -d".to_string()]),
             CommandItem::new("make down".to_string(), vec!["container down".to_string()]),
             CommandItem::new("make test".to_string(), vec!["clear cache".to_string(), "run test".to_string()]),
         ];
 
-        assert_eq!(sut, commands);
+        assert_eq!(act, commands);
 
-        cleanup(&dir_path);
+        cleanup(&work_dir);
     }
 
     #[test]
     fn notfound() {
-        let dir_path = PathBuf::from("target/build-tool-launcher/test-pj/makefile-notfound");
+        let work_dir = PathBuf::from("target/build-tool-launcher/test-pj/makefile-notfound");
 
-        let sut = parse_makefile(&dir_path);
+        let act = parse_makefile(&work_dir);
 
-        assert_eq!(sut, vec![]);
+        assert_eq!(act, vec![]);
     }
 }

@@ -29,6 +29,7 @@ M  Cargo.toml
 ## gstf
 
 ***g***it ***st***atus with ***f***ilter selection.
+
 ```
 $ gstf
 ```

@@ -22,24 +22,24 @@ fn main() -> anyhow::Result<()> {
     let args = std::env::args().collect_vec();
 
     let home = PathBuf::from(std::env::var("HOME")?);
-    let dir_path = current_dir()?;
+    let work_dir = current_dir()?;
 
     if args.len() == 1 {
-        select(&home, &dir_path)
+        select(&home, &work_dir)
     } else if args.len() == 2 {
         match args[1].as_str() {
-            "-p" => push(&home, &dir_path),
-            s => selected(&home, &dir_path, s.to_string()),
+            "-p" => push(&home, &work_dir),
+            s => selected(&home, &work_dir, s.to_string()),
         }
     } else {
         output_or_exit("echo invalid args")
     }
 }
 
-fn select(home: &Path, dir_path: &Path) -> anyhow::Result<()> {
-    let project_mapper_current_config = parse_project_mapper_current_config(home, dir_path);
+fn select(home: &Path, work_dir: &Path) -> anyhow::Result<()> {
+    let project_mapper_current_config = parse_project_mapper_current_config(home, work_dir);
 
-    let commands = vec![parse_makefile(dir_path), parse_package_json(dir_path)].into_iter().flatten().collect_vec();
+    let commands = vec![parse_makefile(work_dir), parse_package_json(work_dir)].into_iter().flatten().collect_vec();
 
     match launch(|terminal| runner::run(terminal, project_mapper_current_config.clone(), commands.clone())) {
         Ok(items) => output_or_exit(items.iter().map(|item| item.get_pane1()).join("\n")),
@@ -47,15 +47,15 @@ fn select(home: &Path, dir_path: &Path) -> anyhow::Result<()> {
     }
 }
 
-fn selected(home: &Path, dir_path: &Path, arg: String) -> anyhow::Result<()> {
-    match parse_project_mapper(home, dir_path).get_build_command_lines(arg) {
+fn selected(home: &Path, work_dir: &Path, arg: String) -> anyhow::Result<()> {
+    match parse_project_mapper(home, work_dir).get_build_command_lines(arg) {
         Some(lines) => output_or_exit(lines.join("\n")),
         None => output_or_exit("echo no such command"),
     }
 }
 
-fn push(home: &Path, dir_path: &Path) -> anyhow::Result<()> {
-    if parse_project_mapper(home, dir_path).generate() {
+fn push(home: &Path, work_dir: &Path) -> anyhow::Result<()> {
+    if parse_project_mapper(home, work_dir).generate() {
         output_or_exit("echo generated")
     } else {
         output_or_exit("echo already generated")

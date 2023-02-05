@@ -4,7 +4,7 @@ use itertools::Itertools;
 use structopt::StructOpt;
 
 use bins::libs::git::config::get_git_config;
-use bins::libs::process::command::{get_command_out, run_command};
+use bins::libs::process::command::{get_command_out_lines, run_command};
 
 #[derive(StructOpt)]
 struct Opt {
@@ -20,7 +20,7 @@ fn main() -> anyhow::Result<()> {
     let git_config = get_git_config()?;
 
     let command = create_log_command(&opt.hash, &opt.base);
-    let logs = get_command_out(command)?;
+    let logs = get_command_out_lines(command)?;
 
     let number = &(logs[0].split(' ').collect_vec()[4])[1..];
 

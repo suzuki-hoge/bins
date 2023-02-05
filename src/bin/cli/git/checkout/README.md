@@ -1,6 +1,7 @@
 # Git Checkout ( gco / gcof )
 
 ## gco
+
 alias to ***g***it ***c***heck***o***ut.
 
 ```
@@ -37,6 +38,7 @@ $ gco -fbo issue-42           # git checkout -b feature/issue-42 origin/feature/
 ## gcof
 
 ***g***it ***c***heck***o***ut with ***f***ilter selection.
+
 ```
 $ gcof
 ```

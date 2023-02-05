@@ -1,8 +1,10 @@
 use std::path::Path;
 
-use crate::command::command_item::CommandItem;
-use bins::libs::project::project_mapper::{parse_project_mapper, ProjectMapper};
 use itertools::Itertools;
+
+use bins::libs::project::project_mapper::{parse_project_mapper, ProjectMapper};
+
+use crate::command::command_item::CommandItem;
 
 #[derive(Clone)]
 pub struct ProjectMapperCurrentConfig {
@@ -15,7 +17,7 @@ impl ProjectMapperCurrentConfig {
             .project
             .build_commands
             .iter()
-            .sorted()
+            .sorted_by_key(|build_command| build_command.label.clone())
             .map(|build_command| {
                 CommandItem::new_editable(format!("bb {}", build_command.label), build_command.lines.clone())
             })

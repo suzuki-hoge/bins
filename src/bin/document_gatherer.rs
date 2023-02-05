@@ -38,13 +38,18 @@ fn main() -> anyhow::Result<()> {
             |# Bins
             |My commands.
             |
+            |## Requirements
+            |```
+            |$ rustup install nightly
+            |```
+            |
             |## Command list
             |
         "
     .trim()
     .trim_margin()
     .unwrap();
-    write!(file, "{}", template)?;
+    write!(file, "{template}")?;
 
     process(&mut file, "tui", &["project", "git", "misc"])?;
     process(&mut file, "cli", &["git"])?;
@@ -55,12 +60,12 @@ fn main() -> anyhow::Result<()> {
 }
 
 fn process(file: &mut File, dir: &str, sub_dirs: &[&str]) -> anyhow::Result<()> {
-    writeln!(file, "### {}", dir)?;
+    writeln!(file, "### {dir}")?;
 
     for sub_dir in sub_dirs {
-        writeln!(file, "#### {}", sub_dir)?;
+        writeln!(file, "#### {sub_dir}")?;
 
-        for readme in search(format!("src/bin/{}/{}", dir, sub_dir))? {
+        for readme in search(format!("src/bin/{dir}/{sub_dir}"))? {
             writeln!(file, "{}", readme.to_line())?;
         }
     }

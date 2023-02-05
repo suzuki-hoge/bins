@@ -1,0 +1,22 @@
+bins_dir=$(cd "$(dirname "${0}")" && git rev-parse --show-toplevel)/target/release
+
+alias gad='$bins_dir/git-add'
+alias gadf='gstf git add'
+alias gbdf='git branch | bf | xargs git branch -D'
+alias gbh='$bins_dir/git-branch'
+alias gcl='$bins_dir/git-clean'
+alias gcm='$bins_dir/git-commit'
+alias gcma='$bins_dir/git-commit-amend'
+alias gco='$bins_dir/git-checkout'
+alias gcof='git branch | bf | cut -c3- | xargs git checkout'
+alias glg='$bins_dir/git-log'
+alias gpl='$bins_dir/git-pull'
+alias gpr='$bins_dir/git-pull-request'
+alias gprc='$bins_dir/git-pull-request-commit'
+alias gps='$bins_dir/git-push'
+alias grb='$bins_dir/git-rebase'
+alias grbc='$bins_dir/git-rebase-continue'
+alias gsh='$bins_dir/git-stash'
+alias gst='$bins_dir/git-status'
+alias gstf='git status --short | bf | cut -c4- | xargs'
+

@@ -1,0 +1,6 @@
+#!/bin/zsh
+
+bins_dir=$(cd "$(dirname "${0}")" && git rev-parse --show-toplevel)
+bin="$bins_dir/target/release/git-diff-filter"
+
+$bin $*

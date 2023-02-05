@@ -1,15 +1,17 @@
-use anyhow::Context;
-use itertools::Itertools;
-use serde::{Deserialize, Serialize};
-use std::fs::File;
+use std::fs;
+use std::fs::{File, OpenOptions};
 use std::io::BufReader;
 use std::path::Path;
 use std::process::Command;
 
+use anyhow::Context;
+use itertools::Itertools;
+use serde::{Deserialize, Serialize};
+
 #[derive(Eq, PartialEq, Debug)]
 pub struct GitBranch {
     pub current: String,
-    base: Option<String>,
+    pub base: Option<String>,
     other_locals: Vec<String>,
 }
 
@@ -33,9 +35,9 @@ struct Memo {
     current: String,
 }
 
-pub fn get_git_branch(yaml_dir_path: &Path, current_dir_path: &Path) -> anyhow::Result<GitBranch> {
+pub fn get_git_branch(bins_dir_path: &Path, current_dir_path: &Path) -> anyhow::Result<GitBranch> {
     let current = get_current()?;
-    let base = get_base(yaml_dir_path, current_dir_path, &current)?;
+    let base = get_base(bins_dir_path, current_dir_path, &current)?;
     let other_locals = get_other_locals(&current, base.as_ref())?;
     Ok(GitBranch { current, base, other_locals })
 }
@@ -45,9 +47,9 @@ fn get_current() -> anyhow::Result<String> {
     Ok(String::from_utf8_lossy(&o.stdout).trim().to_string())
 }
 
-fn get_base(yaml_dir_path: &Path, current_dir_path: &Path, current: &str) -> anyhow::Result<Option<String>> {
-    let current_dir_path = current_dir_path.display().to_string().replace('/', ".");
-    let path = yaml_dir_path.join(".bins-branch").join(format!("{}.yaml", current_dir_path)).display().to_string();
+fn get_base(bins_dir_path: &Path, current_dir_path: &Path, current: &str) -> anyhow::Result<Option<String>> {
+    let current_dir_dot = current_dir_path.display().to_string().replace('/', ".");
+    let path = bins_dir_path.join(".bins-branch").join(format!("{current_dir_dot}.yaml")).display().to_string();
 
     match read_file(&path) {
         Ok(branch_memos) => {
@@ -59,6 +61,33 @@ fn get_base(yaml_dir_path: &Path, current_dir_path: &Path, current: &str) -> any
         }
         Err(_) => Ok(None),
     }
+}
+
+pub fn memo_branch(bins_dir_path: &Path, current_dir_path: &Path, base: impl Into<String>, current: impl Into<String>) {
+    let base = base.into();
+    let current = current.into();
+
+    let current_dir_dot = current_dir_path.display().to_string().replace('/', ".");
+    let path = bins_dir_path.join(".bins-branch").join(format!("{current_dir_dot}.yaml")).display().to_string();
+
+    let new_memos = match read_file(&path) {
+        Ok(mut memos) => {
+            if memos.is_empty() {
+                vec![Memo { base, current }]
+            } else {
+                memos.push(Memo { base, current });
+                memos
+            }
+        }
+        Err(_) => {
+            vec![Memo { base, current }]
+        }
+    };
+
+    let _ = fs::remove_file(&path);
+    let _ = fs::create_dir_all(Path::new(&path).parent().unwrap());
+    let file = OpenOptions::new().write(true).create(true).open(&path).unwrap();
+    let _ = serde_yaml::to_writer(file, &new_memos);
 }
 
 fn read_file(path: &String) -> anyhow::Result<Vec<Memo>> {
@@ -79,12 +108,14 @@ fn get_other_locals(current: &str, base: Option<&String>) -> anyhow::Result<Vec<
 
 #[cfg(test)]
 mod tests {
-    use crate::libs::git::branch::get_base;
     use std::fs;
     use std::fs::File;
     use std::io::Write;
     use std::path::PathBuf;
+
     use trim_margin::MarginTrimmable;
+
+    use crate::libs::git::branch::{get_base, memo_branch};
 
     fn setup(dir_path: &PathBuf) {
         let raw = "
@@ -106,39 +137,51 @@ mod tests {
 
     #[test]
     fn found() {
-        let yaml_dir_path = PathBuf::from("target/git/test-pj/found");
+        let bins_dir_path = PathBuf::from("target/git/test-pj/found");
 
-        setup(&yaml_dir_path);
+        setup(&bins_dir_path);
 
         let current_dir_path = PathBuf::from("/path/front");
 
-        let act = get_base(&yaml_dir_path, &current_dir_path, "feat");
+        let act = get_base(&bins_dir_path, &current_dir_path, "feat");
         assert_eq!(act.unwrap(), Some("develop".to_string()));
 
-        cleanup(&yaml_dir_path);
+        memo_branch(&bins_dir_path, &current_dir_path, "feat", "sub-feat-2");
+
+        let act = get_base(&bins_dir_path, &current_dir_path, "sub-feat-2");
+        assert_eq!(act.unwrap().unwrap(), "feat".to_string());
+
+        cleanup(&bins_dir_path);
     }
 
     #[test]
     fn memo_line_notfound() {
-        let yaml_dir_path = PathBuf::from("target/git/test-pj/memo-line-notfound");
+        let bins_dir_path = PathBuf::from("target/git/test-pj/memo-line-notfound");
 
-        setup(&yaml_dir_path);
+        setup(&bins_dir_path);
 
         let current_dir_path = PathBuf::from("/path/front");
 
-        let act = get_base(&yaml_dir_path, &current_dir_path, "hotfix");
+        let act = get_base(&bins_dir_path, &current_dir_path, "hotfix");
         assert_eq!(act.unwrap(), None);
 
-        cleanup(&yaml_dir_path);
+        cleanup(&bins_dir_path);
     }
 
     #[test]
     fn memo_file_notfound() {
-        let yaml_dir_path = PathBuf::from("target/git/test-pj/memo-file-notfound");
+        let bins_dir_path = PathBuf::from("target/git/test-pj/memo-file-notfound");
 
         let current_dir_path = PathBuf::from("/path/front");
 
-        let act = get_base(&yaml_dir_path, &current_dir_path, "feat");
-        assert_eq!(act.unwrap(), None)
+        let act = get_base(&bins_dir_path, &current_dir_path, "feat");
+        assert_eq!(act.unwrap(), None);
+
+        memo_branch(&bins_dir_path, &current_dir_path, "feat", "sub-feat");
+
+        let act = get_base(&bins_dir_path, &current_dir_path, "sub-feat");
+        assert_eq!(act.unwrap().unwrap(), "feat".to_string());
+
+        cleanup(&bins_dir_path);
     }
 }

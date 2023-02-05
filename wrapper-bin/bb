@@ -1,10 +1,9 @@
 #!/bin/zsh
 
-bins_dir=$(cd "$(dirname ${0})" && git rev-parse --show-toplevel)
+bins_dir=$(cd "$(dirname "${0}")" && git rev-parse --show-toplevel)
 bin="$bins_dir/target/release/bb"
 
 IFS=$'\n'
-for line in $($bin "${@}")
-do
+for line in $($bin "${@}"); do
   eval "$line"
 done

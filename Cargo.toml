@@ -6,22 +6,88 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+anyhow = "1.0.68"
+crossterm = "0.26.0"
 itertools = "0.10.5"
+question = "0.2.2"
 rayon = "1.6.1"
 regex = "1.7.1"
 serde = { version = "1.0.152", features = ["derive"] }
 serde_json = "1.0.91"
 serde_yaml = "0.9.17"
+structopt = "0.3.26"
+termion = "2.0.1"
+thiserror = "1.0.38"
 trim-margin = "0.1.0"
 tui = "0.19.0"
-crossterm = "0.25.0"
-termion = "2.0.1"
-anyhow = "1.0.68"
-thiserror = "1.0.38"
 
 [[bin]]
-name = "document-gatherer"
-path = "src/bin/document_gatherer.rs"
+name = "git-add"
+path = "src/bin/cli/git/add/main.rs"
+
+[[bin]]
+name = "git-branch"
+path = "src/bin/cli/git/branch/main.rs"
+
+[[bin]]
+name = "git-checkout"
+path = "src/bin/cli/git/checkout/main.rs"
+
+[[bin]]
+name = "git-clean"
+path = "src/bin/cli/git/clean/main.rs"
+
+[[bin]]
+name = "git-commit"
+path = "src/bin/cli/git/commit/main.rs"
+
+[[bin]]
+name = "git-commit-amend"
+path = "src/bin/cli/git/commit_amend/main.rs"
+
+[[bin]]
+name = "git-log"
+path = "src/bin/cli/git/log/main.rs"
+
+[[bin]]
+name = "git-pull"
+path = "src/bin/cli/git/pull/main.rs"
+
+[[bin]]
+name = "git-pull-request"
+path = "src/bin/cli/git/pull_request/main.rs"
+
+[[bin]]
+name = "git-pull-request-commit"
+path = "src/bin/cli/git/pull_request_commit/main.rs"
+
+[[bin]]
+name = "git-push"
+path = "src/bin/cli/git/push/main.rs"
+
+[[bin]]
+name = "git-rebase"
+path = "src/bin/cli/git/rebase/main.rs"
+
+[[bin]]
+name = "git-rebase-continue"
+path = "src/bin/cli/git/rebase_continue/main.rs"
+
+[[bin]]
+name = "git-stash"
+path = "src/bin/cli/git/stash/main.rs"
+
+[[bin]]
+name = "git-status"
+path = "src/bin/cli/git/status/main.rs"
+
+[[bin]]
+name = "git-diff-filter"
+path = "src/bin/tui/git/diff-filter/main.rs"
+
+[[bin]]
+name = "bgh"
+path = "src/bin/tui/git/github_launcher/main.rs"
 
 [[bin]]
 name = "bf"
@@ -32,5 +98,6 @@ name = "bb"
 path = "src/bin/tui/project/build_tool_launcher/main.rs"
 
 [[bin]]
-name = "bgh"
-path = "src/bin/tui/git/github_launcher/main.rs"
+name = "document-gatherer"
+path = "src/bin/document_gatherer.rs"
+

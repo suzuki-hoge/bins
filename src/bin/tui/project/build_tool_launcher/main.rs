@@ -28,7 +28,7 @@ fn main() -> anyhow::Result<()> {
         select(&home, &dir_path)
     } else if args.len() == 2 {
         match args[1].as_str() {
-            "p" => push(&home, &dir_path),
+            "-p" => push(&home, &dir_path),
             s => selected(&home, &dir_path, s.to_string()),
         }
     } else {
@@ -43,7 +43,7 @@ fn select(home: &Path, dir_path: &Path) -> anyhow::Result<()> {
 
     match launch(|terminal| runner::run(terminal, project_mapper_current_config.clone(), commands.clone())) {
         Ok(items) => output_or_exit(items.iter().map(|item| item.get_pane1()).join("\n")),
-        Err(e) => output_or_exit(format!("echo {}", e)),
+        Err(e) => output_or_exit(format!("echo {e}")),
     }
 }
 

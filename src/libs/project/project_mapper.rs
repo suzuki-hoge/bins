@@ -78,7 +78,7 @@ pub struct BuildCommand {
 pub fn parse_project_mapper(yaml_dir_path: &Path, current_dir_path: &Path) -> ProjectMapper {
     let current_dir_path = current_dir_path.display().to_string().replace('/', ".");
     let path =
-        yaml_dir_path.join(".bins-project-mapper").join(format!("{}.yaml", current_dir_path)).display().to_string();
+        yaml_dir_path.join(".bins-project-mapper").join(format!("{current_dir_path}.yaml")).display().to_string();
 
     match read_file(&path) {
         Ok(yaml) => ProjectMapper { path, exists: true, project: yaml },
@@ -94,14 +94,15 @@ fn read_file(path: &String) -> anyhow::Result<Project, ()> {
 
 #[cfg(test)]
 mod tests {
-    use itertools::Itertools;
     use std::fs;
     use std::fs::File;
     use std::io::Write;
     use std::path::{Path, PathBuf};
 
-    use crate::libs::project::project_mapper::{parse_project_mapper, BuildCommand, Project};
+    use itertools::Itertools;
     use trim_margin::MarginTrimmable;
+
+    use crate::libs::project::project_mapper::{parse_project_mapper, BuildCommand, Project};
 
     fn setup(yaml_dir_path: &Path) {
         let raw = r#"
@@ -166,7 +167,7 @@ mod tests {
 
         // assert
 
-        let project = exp(vec!["react", "next"], vec![("down", "yarn stop"), ("up", "yarn build && yarn start")]);
+        let project = exp(vec!["react", "next"], vec![("up", "yarn build && yarn start"), ("down", "yarn stop")]);
         assert_eq!(sut.project, project);
 
         // delete

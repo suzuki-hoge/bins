@@ -29,7 +29,7 @@ fn get_piped_stdin() -> anyhow::Result<Vec<String>> {
         if line.is_empty() {
             return Ok(lines);
         } else {
-            lines.push(line.trim().to_string());
+            lines.push(line.trim_end().to_string());
         }
     }
 }

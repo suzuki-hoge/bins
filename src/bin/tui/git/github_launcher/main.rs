@@ -34,9 +34,9 @@ fn main() -> anyhow::Result<()> {
         let out = match args[1].as_str() {
             "p" => url_items.add("pulls", "pulls").get_raw(),
             "i" => url_items.add("issues", "issues").get_raw(),
-            "f" => url_items.add(format!("files - {}", current), format!("tree/{}", current)).get_raw(),
+            "f" => url_items.add(format!("files - {current}"), format!("tree/{current}")).get_raw(),
             "pr" => gather_compare(&mut url_items, &git_branch).get_raw(),
-            "t" => url_items.add(format!("find - {}", current), format!("find/{}", current)).get_raw(),
+            "t" => url_items.add(format!("find - {current}"), format!("find/{current}")).get_raw(),
             _ => "echo no such option".to_string(),
         };
         output_or_exit(out)
@@ -57,7 +57,7 @@ fn gather(git_branch: &GitBranch, mut url_items: UrlItems) -> anyhow::Result<()>
 
     match launch(|terminal| runner::run(terminal, url_items.get_items())) {
         Ok(items) => output_or_exit(items.iter().map(|item| item.get_raw()).join("\n")),
-        Err(e) => output_or_exit(format!("echo {}", e)),
+        Err(e) => output_or_exit(format!("echo {e}")),
     }
 }
 
@@ -73,19 +73,19 @@ fn gather_issues(url_items: &mut UrlItems) {
 
 fn gather_tree(url_items: &mut UrlItems, branch: &GitBranch) {
     for branch in branch.get_all() {
-        url_items.add(format!("files - {}", branch), format!("tree/{}", branch));
+        url_items.add(format!("files - {branch}"), format!("tree/{branch}"));
     }
 }
 
 fn gather_commits(url_items: &mut UrlItems, branch: &GitBranch) {
     for branch in branch.get_all() {
-        url_items.add(format!("commits - {}", branch), format!("commits/{}", branch));
+        url_items.add(format!("commits - {branch}"), format!("commits/{branch}"));
     }
 }
 
 fn gather_compare<'a>(url_items: &'a mut UrlItems, branch: &GitBranch) -> &'a UrlItems<'a> {
     if let Some((base, current)) = branch.get_compare() {
-        url_items.add("pr", format!("compare/{}...{}", base, current));
+        url_items.add("pr", format!("compare/{base}...{current}"));
     }
     url_items
 }
@@ -96,7 +96,7 @@ fn gather_wiki(url_items: &mut UrlItems) {
 
 fn gather_find(url_items: &mut UrlItems, branch: &GitBranch) {
     for branch in branch.get_all() {
-        url_items.add(format!("find - {}", branch), format!("find/{}", branch));
+        url_items.add(format!("find - {branch}"), format!("find/{branch}"));
     }
 }
 
@@ -104,7 +104,7 @@ fn gather_blob(url_items: &mut UrlItems, branch: &GitBranch) {
     let paths = get_git_paths();
     for path in paths {
         for branch in branch.get_all() {
-            url_items.add(format!("{} - {}", path, branch), format!("blob/{}/{}", branch, path));
+            url_items.add(format!("{path} - {branch}"), format!("blob/{branch}/{path}"));
         }
     }
 }

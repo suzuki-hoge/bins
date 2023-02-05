@@ -56,4 +56,4 @@ $ bd
 
 | file                   | description                                       |
 |------------------------|---------------------------------------------------|
-| ~/.bins-project-mapper | If missing, fail launch. ( Check [Migration](#) ) |
+| ~/.bins-project-config | If missing, fail launch. ( Check [Migration](#) ) |

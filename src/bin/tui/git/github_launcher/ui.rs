@@ -54,8 +54,8 @@ pub fn draw(frame: &mut Frame<CrosstermBackend<File>>, app: &mut MultiFixApp<Url
 
     let items: Vec<ListItem> = app
         .scrolling_select_app
-        .get_active_item()
-        .map(|item| pane2_highlight_spans(item).into_iter().map(ListItem::new).collect_vec())
+        .get_active_checked_string()
+        .map(|cs| pane2_highlight_spans(cs).into_iter().map(ListItem::new).collect_vec())
         .unwrap_or_default();
     let block = Block::default().borders(Borders::ALL).border_type(BorderType::Rounded);
     let list = List::new(items).block(block);

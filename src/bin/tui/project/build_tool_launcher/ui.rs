@@ -73,8 +73,8 @@ pub fn draw(
     let items: Vec<ListItem> = match &app.cursor_mode {
         Filter => app
             .scrolling_select_app
-            .get_active_item()
-            .map(|item| pane2_highlight_spans(item).into_iter().map(ListItem::new).collect_vec())
+            .get_active_checked_string()
+            .map(|cs| pane2_highlight_spans(cs).into_iter().map(ListItem::new).collect_vec())
             .unwrap_or_default(),
         Edit => app.edit_input_app.get().into_iter().map(|line| ListItem::new(Spans::from(line))).collect_vec(),
     };

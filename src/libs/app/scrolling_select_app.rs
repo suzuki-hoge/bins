@@ -89,12 +89,16 @@ where
         self.active_item_index = 0;
     }
 
-    pub fn get_active_item(&self) -> Option<CheckedString<Item>> {
+    pub fn get_active_checked_string(&self) -> Option<CheckedString<Item>> {
         if let Some(active_item_number) = self.get_active_item_number() {
             self.matched_items.get(&active_item_number).cloned()
         } else {
             None
         }
+    }
+
+    pub fn get_active_item(&self) -> Option<Item> {
+        self.get_active_checked_string().map(|cs| cs.get_origin_item())
     }
 
     pub fn pop_item(&mut self) -> Option<CheckedString<Item>> {

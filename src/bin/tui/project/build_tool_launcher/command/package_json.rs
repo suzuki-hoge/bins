@@ -4,6 +4,7 @@ use bins::libs::io::reader::read_deserializable;
 use itertools::Itertools;
 use serde::Deserialize;
 use std::collections::HashMap;
+use std::env::current_dir;
 
 use std::path::Path;
 
@@ -34,10 +35,16 @@ impl Tool {
     }
 }
 
-pub fn parse_package_json(work_dir: &Path) -> Vec<CommandItem> {
+pub fn parse_package_json() -> anyhow::Result<Vec<CommandItem>> {
+    let work_dir = current_dir()?;
+
+    _parse_package_json(&work_dir)
+}
+
+fn _parse_package_json(work_dir: &Path) -> anyhow::Result<Vec<CommandItem>> {
     match read_deserializable(&work_dir.join("package.json")) {
-        Ok(json) => create_command_items(json, find_tool(work_dir)),
-        Err(_) => vec![],
+        Ok(json) => Ok(create_command_items(json, find_tool(work_dir))),
+        Err(_) => Ok(vec![]),
     }
 }
 
@@ -69,7 +76,7 @@ mod tests {
 
     use crate::command::command_item::CommandItem;
     use crate::command::package_json::Tool::{Npm, Yarn};
-    use crate::command::package_json::{parse_package_json, Tool};
+    use crate::command::package_json::{Tool, _parse_package_json};
     use trim_margin::MarginTrimmable;
 
     fn setup(work_dir: &Path, tool: Tool) {
@@ -102,7 +109,7 @@ mod tests {
 
         setup(&work_dir, Npm);
 
-        let act = parse_package_json(&work_dir);
+        let act = _parse_package_json(&work_dir).unwrap();
         let commands = vec![
             CommandItem::new("npm run build".to_string(), vec!["next build && next export".to_string()]),
             CommandItem::new("npm run dev".to_string(), vec!["next dev".to_string()]),
@@ -120,7 +127,7 @@ mod tests {
 
         setup(&work_dir, Yarn);
 
-        let act = parse_package_json(&work_dir);
+        let act = _parse_package_json(&work_dir).unwrap();
         let commands = vec![
             CommandItem::new("yarn build".to_string(), vec!["next build && next export".to_string()]),
             CommandItem::new("yarn dev".to_string(), vec!["next dev".to_string()]),
@@ -136,7 +143,7 @@ mod tests {
     fn notfound() {
         let work_dir = PathBuf::from("target/build-tool-launcher/test-pj/package-json-notfound");
 
-        let act = parse_package_json(&work_dir);
+        let act = _parse_package_json(&work_dir).unwrap();
 
         assert_eq!(act, vec![]);
     }

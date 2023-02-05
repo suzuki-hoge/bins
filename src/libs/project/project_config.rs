@@ -1,20 +1,25 @@
-use std::cmp::{max, min};
-use std::fs;
-use std::fs::{File, OpenOptions};
-use std::io::BufReader;
-use std::path::Path;
+use std::env::current_dir;
+use std::path::{Path, PathBuf};
 
+use crate::libs::io::reader::read_deserializable;
+use crate::libs::io::writer::write_serializable;
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone)]
-pub struct ProjectMapper {
-    path: String,
-    exists: bool,
+pub struct ProjectConfig {
+    config_path: String,
+    work_dir_exists: bool,
     pub project: Project,
 }
 
-impl ProjectMapper {
+impl ProjectConfig {
+    pub fn update_tags(&mut self, tags: Vec<String>) {
+        self.project.tags = tags;
+
+        let _ = write_serializable(Path::new(&self.config_path), &self.project);
+    }
+
     pub fn get_build_command_lines(&self, label: String) -> Option<Vec<String>> {
         self.project
             .build_commands
@@ -27,23 +32,13 @@ impl ProjectMapper {
         self.update_build_command(label, Some(lines));
     }
 
-    pub fn delete_build_command(&mut self, label: String) -> bool {
-        self.update_build_command(label, None) == 1
+    pub fn delete_build_command(&mut self, label: String) {
+        self.update_build_command(label, None);
     }
 
-    pub fn generate(&mut self) -> bool {
-        if self.exists {
-            false
-        } else {
-            self.update_build_command("".to_string(), None);
-            true
-        }
-    }
-
-    fn update_build_command(&mut self, label: String, lines: Option<Vec<String>>) -> usize {
+    fn update_build_command(&mut self, label: String, lines: Option<Vec<String>>) {
         let label = label.replace("bb ", "");
 
-        let origin = self.project.build_commands.len();
         self.project.build_commands = self
             .project
             .build_commands
@@ -54,12 +49,17 @@ impl ProjectMapper {
         if let Some(lines) = lines {
             self.project.build_commands.push(BuildCommand { label, lines });
         }
-        let updated = self.project.build_commands.len();
 
-        let _ = fs::remove_file(&self.path);
-        let file = OpenOptions::new().write(true).create(true).open(&self.path).unwrap();
-        let _ = serde_yaml::to_writer(file, &self.project);
-        max(origin, updated) - min(origin, updated)
+        let _ = write_serializable(Path::new(&self.config_path), &self.project);
+    }
+
+    pub fn generate(&mut self) -> bool {
+        if self.work_dir_exists {
+            false
+        } else {
+            let _ = write_serializable(Path::new(&self.config_path), &self.project);
+            true
+        }
     }
 }
 
@@ -69,27 +69,35 @@ pub struct Project {
     pub build_commands: Vec<BuildCommand>,
 }
 
+impl Project {
+    fn empty() -> Self {
+        Self { tags: vec![], build_commands: vec![] }
+    }
+}
+
 #[derive(Serialize, Deserialize, Eq, PartialEq, Ord, PartialOrd, Clone, Debug)]
 pub struct BuildCommand {
     pub label: String,
     pub lines: Vec<String>,
 }
 
-pub fn parse_project_mapper(yaml_dir_path: &Path, current_dir_path: &Path) -> ProjectMapper {
-    let current_dir_path = current_dir_path.display().to_string().replace('/', ".");
-    let path =
-        yaml_dir_path.join(".bins-project-mapper").join(format!("{current_dir_path}.yaml")).display().to_string();
+pub fn parse_project_config() -> anyhow::Result<ProjectConfig> {
+    let bins_dir = PathBuf::from(std::env::var("HOME")?);
+    let work_dir = current_dir()?;
 
-    match read_file(&path) {
-        Ok(yaml) => ProjectMapper { path, exists: true, project: yaml },
-        Err(_) => ProjectMapper { path, exists: false, project: Project { tags: vec![], build_commands: vec![] } },
-    }
+    _parse_project_config(&bins_dir, &work_dir)
 }
 
-fn read_file(path: &String) -> anyhow::Result<Project, ()> {
-    let file = File::open(path).map_err(|_| ())?;
-    let reader = BufReader::new(file);
-    serde_yaml::from_reader(reader).map_err(|_| ())
+fn _parse_project_config(bins_dir: &Path, work_dir: &Path) -> anyhow::Result<ProjectConfig> {
+    let work_dir_dot = work_dir.display().to_string().replace('/', ".");
+    let yaml_path = bins_dir.join(".bins-project-config").join(format!("{work_dir_dot}.yaml"));
+
+    let config_path = yaml_path.display().to_string();
+
+    match read_deserializable(&yaml_path) {
+        Ok(yaml) => Ok(ProjectConfig { config_path, work_dir_exists: true, project: yaml }),
+        Err(_) => Ok(ProjectConfig { config_path, work_dir_exists: false, project: Project::empty() }),
+    }
 }
 
 #[cfg(test)]
@@ -99,12 +107,11 @@ mod tests {
     use std::io::Write;
     use std::path::{Path, PathBuf};
 
+    use crate::libs::project::project_config::{BuildCommand, Project, _parse_project_config};
     use itertools::Itertools;
     use trim_margin::MarginTrimmable;
 
-    use crate::libs::project::project_mapper::{parse_project_mapper, BuildCommand, Project};
-
-    fn setup(yaml_dir_path: &Path) {
+    fn setup(bins_dir: &Path) {
         let raw = r#"
             |tags: [react, next]
             |build_commands:
@@ -116,15 +123,15 @@ mod tests {
         .trim_margin()
         .unwrap();
 
-        let _ = fs::create_dir_all(yaml_dir_path);
-        let _ = fs::create_dir_all(yaml_dir_path.join(".bins-project-mapper"));
-        let _ = File::create(yaml_dir_path.join(".bins-project-mapper").join(".path.front.yaml"))
+        let _ = fs::create_dir_all(bins_dir);
+        let _ = fs::create_dir_all(bins_dir.join(".bins-project-config"));
+        let _ = File::create(bins_dir.join(".bins-project-config").join(".path.front.yaml"))
             .unwrap()
             .write_all(raw.as_bytes());
     }
 
-    fn cleanup(yaml_dir_path: &PathBuf) {
-        let _ = fs::remove_dir_all(yaml_dir_path);
+    fn cleanup(bins_dir: &PathBuf) {
+        let _ = fs::remove_dir_all(bins_dir);
     }
 
     fn exp(tags: Vec<&str>, commands: Vec<(&str, &str)>) -> Project {
@@ -141,15 +148,15 @@ mod tests {
     fn found() {
         // setup
 
-        let yaml_dir_path = PathBuf::from("target/build-tool-launcher/test-pj/project-mapper-found");
+        let bins_dir = PathBuf::from("target/build-tool-launcher/test-pj/project-config-found");
 
-        setup(&yaml_dir_path);
+        setup(&bins_dir);
 
-        let current_dir_path = PathBuf::from("/path/front");
+        let work_dir = PathBuf::from("/path/front");
 
         // read
 
-        let mut sut = parse_project_mapper(&yaml_dir_path, &current_dir_path);
+        let mut sut = _parse_project_config(&bins_dir, &work_dir).unwrap();
 
         // assert
 
@@ -161,10 +168,6 @@ mod tests {
         sut.upsert_build_command("bb up".to_string(), vec!["yarn build && yarn start".to_string()]);
         sut.upsert_build_command("bb down".to_string(), vec!["yarn stop".to_string()]);
 
-        // read
-
-        let mut sut = parse_project_mapper(&yaml_dir_path, &current_dir_path);
-
         // assert
 
         let project = exp(vec!["react", "next"], vec![("up", "yarn build && yarn start"), ("down", "yarn stop")]);
@@ -174,10 +177,6 @@ mod tests {
 
         sut.delete_build_command("bb up".to_string());
 
-        // read
-
-        let sut = parse_project_mapper(&yaml_dir_path, &current_dir_path);
-
         // assert
 
         let project = exp(vec!["react", "next"], vec![("down", "yarn stop")]);
@@ -185,16 +184,16 @@ mod tests {
 
         // clean
 
-        cleanup(&yaml_dir_path);
+        cleanup(&bins_dir);
     }
 
     #[test]
     fn notfound() {
-        let yaml_dir_path = PathBuf::from("target/build-tool-launcher/test-pj/project-mapper-notfound");
+        let bins_dir = PathBuf::from("target/build-tool-launcher/test-pj/project-config-notfound");
 
-        let current_dir_path = PathBuf::from("/path/front");
+        let work_dir = PathBuf::from("/path/front");
 
-        let sut = parse_project_mapper(&yaml_dir_path, &current_dir_path);
+        let sut = _parse_project_config(&bins_dir, &work_dir).unwrap();
 
         let project = exp(vec![], vec![]);
         assert_eq!(sut.project, project);

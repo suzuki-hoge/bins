@@ -54,4 +54,4 @@ $ bb
 | ./package.json         | If missing, skip parse.                           |
 | ./yarn.lock            | If found, run with `yarn`.                        |
 | ./package-lock.json    | If found it only, run with `npm`.                 |
-| ~/.bins-project-mapper | If missing, fail launch. ( Check [Migration](#) ) |
+| ~/.bins-project-config | If missing, fail launch. ( Check [Migration](#) ) |

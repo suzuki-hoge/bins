@@ -1,1 +1,1 @@
-pub mod project_mapper;
+pub mod project_config;

@@ -18,26 +18,28 @@ use bins::libs::key::dispatcher::{
     CURSOR_MODE_CHANGE_KEYS, EXIT_KEYS, HORIZONTAL_MOVE_KEYS, VERTICAL_MOVE_KEYS,
 };
 use bins::libs::matcher::string_matcher::MatchMode;
+use bins::libs::project::project_config::ProjectConfig;
 
 use crate::command::command_item::CommandItem;
-use crate::command::project_mapper::ProjectMapperCurrentConfig;
+use crate::command::project_config::get_command_items;
 use crate::ui::{draw, get_height};
 
 pub fn run(
     terminal: &mut Terminal<CrosstermBackend<File>>,
-    mut project_mapper_current_config: ProjectMapperCurrentConfig,
+    mut project_config: ProjectConfig,
     freezed_items: Vec<CommandItem>,
 ) -> anyhow::Result<Vec<CommandItem>> {
     let mut items = freezed_items.clone();
-    items.append(&mut project_mapper_current_config.get_commands());
+    items.append(get_command_items(&project_config).as_mut());
+
     let height = get_height(&terminal.get_frame());
     let mut app = MultiFixApp::init(items, height, MatchMode::BOTH);
 
     let mut message = Ok("");
     let mut command_mode = Inactive;
     let mut is_item_changed = false;
-    let cursor_mode = app.cursor_mode.clone();
 
+    let cursor_mode = app.cursor_mode.clone();
     terminal.draw(|frame| draw(frame, &mut app, get_guide(&command_mode, cursor_mode), message))?;
 
     for key in get_tty()?.keys() {
@@ -84,7 +86,7 @@ pub fn run(
                         let new_lines = vec![];
 
                         if Regex::new(r"^[a-z]+$").unwrap().is_match(&new_label) {
-                            project_mapper_current_config.upsert_build_command(new_label, new_lines);
+                            project_config.upsert_build_command(new_label, new_lines);
 
                             is_item_changed = true;
                             message = Ok("created");
@@ -96,9 +98,9 @@ pub fn run(
                     // save
                     key if key == Key::Char('s') && app.cursor_mode == Edit => {
                         if let Some(item) = app.scrolling_select_app.get_active_item() {
-                            let label = item.get_origin_item().get_pane1();
+                            let label = item.get_pane1();
                             let new_lines = app.edit_input_app.get();
-                            project_mapper_current_config.upsert_build_command(label, new_lines);
+                            project_config.upsert_build_command(label, new_lines);
 
                             is_item_changed = true;
                             message = Ok("saved");
@@ -108,14 +110,12 @@ pub fn run(
                     // delete
                     key if key == Key::Char('d') && app.cursor_mode == Filter => {
                         if let Some(item) = app.scrolling_select_app.get_active_item() {
-                            let label = item.get_origin_item().get_pane1();
-                            let deleted = project_mapper_current_config.delete_build_command(label);
+                            if item.is_editable() {
+                                let label = item.get_pane1();
+                                project_config.delete_build_command(label);
 
-                            if deleted {
                                 is_item_changed = true;
                                 message = Ok("deleted");
-                            } else {
-                                message = Err("can't delete");
                             }
                         }
                     }
@@ -127,12 +127,16 @@ pub fn run(
 
         if is_item_changed {
             let mut items = freezed_items.clone();
-            items.append(&mut project_mapper_current_config.get_commands().clone());
+            items.append(get_command_items(&project_config).as_mut());
+
             app = MultiFixApp::init(items, height, MatchMode::BOTH);
+
             command_mode = Inactive;
         }
+
         let cursor_mode = app.cursor_mode.clone();
         terminal.draw(|frame| draw(frame, &mut app, get_guide(&command_mode, cursor_mode), message))?;
+
         message = Ok("");
         is_item_changed = false;
     }

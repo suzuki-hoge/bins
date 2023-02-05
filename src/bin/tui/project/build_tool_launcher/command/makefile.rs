@@ -1,13 +1,20 @@
 use crate::command::command_item::CommandItem;
 use anyhow::Context;
 use regex::Regex;
+use std::env::current_dir;
 use std::fs;
 use std::path::Path;
 
-pub fn parse_makefile(work_dir: &Path) -> Vec<CommandItem> {
+pub fn parse_makefile() -> anyhow::Result<Vec<CommandItem>> {
+    let work_dir = current_dir()?;
+
+    _parse_makefile(&work_dir)
+}
+
+fn _parse_makefile(work_dir: &Path) -> anyhow::Result<Vec<CommandItem>> {
     match read_file(work_dir) {
-        Ok(lines) => create_command_items(lines),
-        Err(_) => vec![],
+        Ok(lines) => Ok(create_command_items(lines)),
+        Err(_) => Ok(vec![]),
     }
 }
 
@@ -53,7 +60,8 @@ mod tests {
     use std::path::PathBuf;
 
     use crate::command::command_item::CommandItem;
-    use crate::parse_makefile;
+    use crate::command::makefile::_parse_makefile;
+    
     use trim_margin::MarginTrimmable;
 
     fn setup(work_dir: &PathBuf) {
@@ -85,7 +93,7 @@ mod tests {
 
         setup(&work_dir);
 
-        let act = parse_makefile(&work_dir);
+        let act = _parse_makefile(&work_dir).unwrap();
         let commands = vec![
             CommandItem::new("make up".to_string(), vec!["container up -d".to_string()]),
             CommandItem::new("make down".to_string(), vec!["container down".to_string()]),
@@ -101,7 +109,7 @@ mod tests {
     fn notfound() {
         let work_dir = PathBuf::from("target/build-tool-launcher/test-pj/makefile-notfound");
 
-        let act = parse_makefile(&work_dir);
+        let act = _parse_makefile(&work_dir).unwrap();
 
         assert_eq!(act, vec![]);
     }

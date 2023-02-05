@@ -55,7 +55,7 @@ where
     pub fn switch_cursor_mode(&mut self) -> bool {
         match self.cursor_mode {
             Filter => {
-                let item = self.scrolling_select_app.get_active_item().map(|item| item.get_origin_item()).unwrap();
+                let item = self.scrolling_select_app.get_active_item().unwrap();
                 if !item.is_editable() {
                     false
                 } else {

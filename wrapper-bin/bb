@@ -1,9 +1,21 @@
 #!/bin/zsh
 
 bins_dir=$(cd "$(dirname "${0}")" && git rev-parse --show-toplevel)
-bin="$bins_dir/target/release/bb"
+bin="$bins_dir/target/release/build_tool_launcher"
 
-IFS=$'\n'
-for line in $($bin "${@}"); do
-  eval "$line"
-done
+if [ $# -eq 1 ]; then
+  if [ "$1" = "-h" ]; then
+    eval "$bin -h"
+    exit 0
+  fi
+fi
+
+eval "$(($bin "${@}") 2> >(stderr=$(cat);typeset -p stderr) > >(stdout=$(cat);typeset -p stdout))"
+
+if [ -n "$stdout" ]; then
+  for line in $stdout; do
+    eval "$line"
+  done
+else
+  echo $stderr
+fi

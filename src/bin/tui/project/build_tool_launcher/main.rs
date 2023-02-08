@@ -1,9 +1,9 @@
 extern crate bins;
 
 use itertools::Itertools;
+use structopt::StructOpt;
 
-use bins::libs::io::writer::output_or_exit;
-use bins::libs::item::display_item::DisplayItem;
+use bins::libs::io::writer::{stderr, stdout};
 use bins::libs::launcher::crossterm_launcher::launch;
 use bins::libs::project::project_config::parse_project_config;
 
@@ -14,43 +14,47 @@ mod command;
 mod runner;
 mod ui;
 
-fn main() -> anyhow::Result<()> {
-    let args = std::env::args().collect_vec();
+#[derive(StructOpt)]
+struct Opt {
+    #[structopt(short = "g", long = "--generate", help = "generate empty config")]
+    generate: bool,
 
-    if args.len() == 1 {
-        select()
-    } else if args.len() == 2 {
-        match args[1].as_str() {
-            "--generate" => generate(),
-            label => selected(label.to_string()),
-        }
-    } else {
-        output_or_exit("echo invalid args")
+    #[structopt(name = "command_name", help = "run specified command instantly")]
+    name: Option<String>,
+}
+
+fn main() -> anyhow::Result<()> {
+    let opt = Opt::from_args();
+
+    match (opt.generate, opt.name) {
+        (true, _) => generate(),
+        (false, Some(name)) => run_instantly(name),
+        (false, None) => launch_selector(),
     }
 }
 
-fn select() -> anyhow::Result<()> {
+fn launch_selector() -> anyhow::Result<()> {
     let project_config = parse_project_config()?;
 
     let command_items = vec![parse_makefile()?, parse_package_json()?].into_iter().flatten().collect_vec();
 
     match launch(|terminal| runner::run(terminal, project_config.clone(), command_items.clone())) {
-        Ok(items) => output_or_exit(items.iter().map(|item| item.get_pane2().join("\n")).join("\n")),
-        Err(e) => output_or_exit(format!("echo {e}")),
+        Ok(items) => stdout(items.iter().map(|item| item.get_runnable()).join("\n")),
+        Err(e) => stderr(e),
     }
 }
 
-fn selected(label: String) -> anyhow::Result<()> {
+fn run_instantly(label: String) -> anyhow::Result<()> {
     match parse_project_config()?.get_build_command_lines(label) {
-        Some(lines) => output_or_exit(lines.join("\n")),
-        None => output_or_exit("echo no such command"),
+        Some(lines) => stdout(lines.join("\n")),
+        None => stderr("no such command"),
     }
 }
 
 fn generate() -> anyhow::Result<()> {
     if parse_project_config()?.generate() {
-        output_or_exit("echo generated")
+        stdout("echo generated")
     } else {
-        output_or_exit("echo already generated")
+        stderr("already generated")
     }
 }

@@ -15,6 +15,13 @@ impl CommandItem {
     pub fn new_editable(label: String, lines: Vec<String>) -> Self {
         CommandItem { label, lines, is_editable: true }
     }
+
+    pub fn get_runnable(&self) -> String {
+        match self.is_editable {
+            true => self.get_pane2().join("\n"),
+            false => self.get_pane1(),
+        }
+    }
 }
 
 impl DisplayItem for CommandItem {

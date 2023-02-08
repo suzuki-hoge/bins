@@ -6,7 +6,15 @@ use futures::prelude::*;
 use itertools::Itertools;
 use tokio_util::codec::{FramedRead, LinesCodec};
 
-use crate::libs::io::writer::output_or_exit;
+use crate::libs::io::writer::stdout as print;
+
+pub async fn print_commands_out(ss: Vec<String>) -> anyhow::Result<()> {
+    for s in ss {
+        print_command_out(s).await?;
+    }
+
+    Ok(())
+}
 
 pub async fn print_command_out(s: impl Into<String>) -> anyhow::Result<()> {
     let s = s.into();
@@ -22,7 +30,7 @@ pub async fn print_command_out(s: impl Into<String>) -> anyhow::Result<()> {
     let mut reader = FramedRead::new(stdout, LinesCodec::new());
 
     while let Some(line) = reader.next().await {
-        let _ = output_or_exit(line.unwrap());
+        let _ = print(line.unwrap());
     }
 
     Ok(())

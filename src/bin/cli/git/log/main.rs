@@ -6,7 +6,7 @@ use std::string::ToString;
 use itertools::Itertools;
 use structopt::StructOpt;
 
-use bins::libs::io::writer::output_or_exit;
+use bins::libs::io::writer::stdout;
 use bins::libs::process::command::get_command_out_lines;
 
 #[derive(StructOpt)]
@@ -109,8 +109,8 @@ fn main() -> anyhow::Result<()> {
     let logs = Logs::from_lines(lines);
 
     match opt.long {
-        true => output_or_exit(logs.long()),
-        false => output_or_exit(logs.short()),
+        true => stdout(logs.long()),
+        false => stdout(logs.short()),
     }
 }
 

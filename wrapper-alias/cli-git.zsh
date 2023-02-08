@@ -19,4 +19,3 @@ alias grbc='$bins_dir/git-rebase-continue'
 alias gsh='$bins_dir/git-stash'
 alias gst='$bins_dir/git-status'
 alias gstf='git status --short | bf | cut -c4- | xargs'
-

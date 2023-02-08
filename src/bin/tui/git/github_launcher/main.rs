@@ -5,7 +5,7 @@ use bins::libs::git::config::get_git_config;
 use itertools::Itertools;
 
 use crate::url_item::UrlItems;
-use bins::libs::io::writer::output_or_exit;
+use bins::libs::io::writer::stdout;
 use bins::libs::launcher::crossterm_launcher::launch;
 use bins::libs::process::command::get_command_out_lines;
 
@@ -33,9 +33,9 @@ fn main() -> anyhow::Result<()> {
             "t" => url_items.add(format!("find - {current}"), format!("find/{current}")).get_raw(),
             _ => "echo no such option".to_string(),
         };
-        output_or_exit(out)
+        stdout(out)
     } else {
-        output_or_exit("echo invalid args")
+        stdout("echo invalid args")
     }
 }
 
@@ -50,8 +50,8 @@ fn gather(branch: &GitBranch, mut url_items: UrlItems) -> anyhow::Result<()> {
     gather_blob(&mut url_items, &branch.current, branch.base.as_deref())?;
 
     match launch(|terminal| runner::run(terminal, url_items.get_items())) {
-        Ok(items) => output_or_exit(items.iter().map(|item| item.get_raw()).join("\n")),
-        Err(e) => output_or_exit(format!("echo {e}")),
+        Ok(items) => stdout(items.iter().map(|item| item.get_raw()).join("\n")),
+        Err(e) => stdout(format!("echo {e}")),
     }
 }
 

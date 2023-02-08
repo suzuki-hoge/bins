@@ -4,7 +4,7 @@ use question::{Answer, Question};
 use structopt::StructOpt;
 
 use bins::libs::git::branch::get_git_branch;
-use bins::libs::io::writer::output_or_exit;
+use bins::libs::io::writer::stdout;
 use bins::libs::process::command::print_command_out;
 
 #[derive(StructOpt)]
@@ -20,10 +20,10 @@ async fn main() -> anyhow::Result<()> {
         let command = create_command(&base);
         match Question::new(&format!("{command} ? [y/n]")).confirm() {
             Answer::YES => print_command_out(command).await,
-            _ => output_or_exit("abort"),
+            _ => stdout("abort"),
         }
     } else {
-        output_or_exit("can't infer base branch")
+        stdout("can't infer base branch")
     }
 }
 

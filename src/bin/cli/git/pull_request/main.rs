@@ -4,7 +4,7 @@ use structopt::StructOpt;
 
 use bins::libs::git::branch::get_git_branch;
 use bins::libs::git::config::get_git_config;
-use bins::libs::io::writer::output_or_exit;
+use bins::libs::io::writer::stdout;
 use bins::libs::process::command::run_command;
 
 #[derive(StructOpt)]
@@ -23,7 +23,7 @@ fn main() -> anyhow::Result<()> {
         let command = create_command(&git_config.owner, &git_config.repo, &base, &branch.current);
         run_command(command)
     } else {
-        output_or_exit("can't infer base branch")
+        stdout("can't infer base branch")
     }
 }
 

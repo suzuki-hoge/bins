@@ -8,11 +8,11 @@ use bins::libs::launcher::crossterm_launcher::launch;
 mod runner;
 mod ui;
 
-use bins::libs::io::writer::output_or_exit;
+use bins::libs::io::writer::stdout;
 
 fn main() -> anyhow::Result<()> {
     match launch(|terminal| runner::run(terminal, get_piped_stdin_or_dummy()?)) {
-        Ok(items) => output_or_exit(items.iter().join("\n")),
-        Err(e) => output_or_exit(format!("echo {e}")),
+        Ok(items) => stdout(items.iter().join("\n")),
+        Err(e) => stdout(format!("echo {e}")),
     }
 }

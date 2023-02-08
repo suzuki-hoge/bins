@@ -97,7 +97,7 @@ name = "bf"
 path = "src/bin/tui/misc/filter/main.rs"
 
 [[bin]]
-name = "bb"
+name = "build_tool_launcher"
 path = "src/bin/tui/project/build_tool_launcher/main.rs"
 
 [[bin]]

@@ -1,16 +1,20 @@
 use serde::Serialize;
 use std::fmt::Display;
 use std::fs::{create_dir_all, remove_file, OpenOptions};
-use std::io::stdout;
 use std::io::Write;
 use std::path::Path;
 use std::process;
 
-pub fn output_or_exit<T: Display>(value: T) -> anyhow::Result<()> {
-    let r = writeln!(&mut stdout(), "{value}");
+pub fn stdout<T: Display>(value: T) -> anyhow::Result<()> {
+    let r = writeln!(&mut std::io::stdout(), "{value}");
     if r.is_err() {
         process::exit(0);
     }
+    Ok(())
+}
+
+pub fn stderr<T: Display>(value: T) -> anyhow::Result<()> {
+    eprintln!("{value}");
     Ok(())
 }
 

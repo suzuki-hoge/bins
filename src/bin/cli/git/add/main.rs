@@ -7,8 +7,9 @@ use bins::libs::process::command::print_command_out;
 #[derive(StructOpt)]
 struct Opt {}
 
-fn main() -> anyhow::Result<()> {
+#[tokio::main]
+async fn main() -> anyhow::Result<()> {
     let _ = &Opt::from_args();
 
-    print_command_out("git add .")
+    print_command_out("git add .").await
 }

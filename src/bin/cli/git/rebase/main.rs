@@ -10,7 +10,8 @@ use bins::libs::process::command::print_command_out;
 #[derive(StructOpt)]
 struct Opt {}
 
-fn main() -> anyhow::Result<()> {
+#[tokio::main]
+async fn main() -> anyhow::Result<()> {
     let _ = Opt::from_args();
 
     let branch = get_git_branch()?;
@@ -18,7 +19,7 @@ fn main() -> anyhow::Result<()> {
     if let Some(base) = branch.base {
         let command = create_command(&base);
         match Question::new(&format!("{command} ? [y/n]")).confirm() {
-            Answer::YES => print_command_out(command),
+            Answer::YES => print_command_out(command).await,
             _ => output_or_exit("abort"),
         }
     } else {

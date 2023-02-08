@@ -20,7 +20,8 @@ struct Opt {
     target: String,
 }
 
-fn main() -> anyhow::Result<()> {
+#[tokio::main]
+async fn main() -> anyhow::Result<()> {
     let opt = &Opt::from_args();
 
     let branch = get_git_branch()?;
@@ -29,7 +30,7 @@ fn main() -> anyhow::Result<()> {
 
     add_branch_memo(branch.current, target)?;
 
-    print_command_out(command)
+    print_command_out(command).await
 }
 
 fn create_target(prefix: Option<&str>, feature: bool, target: &str) -> String {

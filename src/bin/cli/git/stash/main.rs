@@ -19,9 +19,10 @@ struct Opt {
     message: Option<String>,
 }
 
-fn main() -> anyhow::Result<()> {
+#[tokio::main]
+async fn main() -> anyhow::Result<()> {
     let opt = Opt::from_args();
-    print_command_out(create_command(opt.list, opt.save, opt.pop, opt.message.as_deref()))
+    print_command_out(create_command(opt.list, opt.save, opt.pop, opt.message.as_deref())).await
 }
 
 fn create_command(list: bool, save: bool, pop: bool, message: Option<&str>) -> String {

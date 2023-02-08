@@ -19,16 +19,17 @@ struct Opt {
     all: bool,
 }
 
-fn main() -> anyhow::Result<()> {
+#[tokio::main]
+async fn main() -> anyhow::Result<()> {
     run_command("git config --global color.diff-filter always")?;
 
     let opt = Opt::from_args();
 
     let _ = match (opt.all, opt.staged) {
-        (true, true) => print_command_out("git diff --staged".to_string()),
-        (true, false) => print_command_out("git diff".to_string()),
-        (false, true) => print_command_out(format!("git diff --staged {}", select_status_lines(true)?)),
-        (false, false) => print_command_out(format!("git diff {}", select_status_lines(false)?)),
+        (true, true) => print_command_out("git diff --staged".to_string()).await,
+        (true, false) => print_command_out("git diff".to_string()).await,
+        (false, true) => print_command_out(format!("git diff --staged {}", select_status_lines(true)?)).await,
+        (false, false) => print_command_out(format!("git diff {}", select_status_lines(false)?)).await,
     };
 
     run_command("git config --global color.diff-filter auto")

@@ -11,13 +11,14 @@ struct Opt {
     force: bool,
 }
 
-fn main() -> anyhow::Result<()> {
+#[tokio::main]
+async fn main() -> anyhow::Result<()> {
     let opt = Opt::from_args();
 
     let branch = get_git_branch()?;
 
     let command = create_command(opt.force, &branch.current);
-    print_command_out(command)
+    print_command_out(command).await
 }
 
 fn create_command(force: bool, branch: &str) -> String {

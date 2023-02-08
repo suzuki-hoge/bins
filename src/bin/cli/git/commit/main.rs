@@ -10,11 +10,12 @@ struct Opt {
     message: String,
 }
 
-fn main() -> anyhow::Result<()> {
+#[tokio::main]
+async fn main() -> anyhow::Result<()> {
     let opt = Opt::from_args();
 
     let command = create_command(&opt.message);
-    print_command_out(command)
+    print_command_out(command).await
 }
 
 fn create_command(message: &str) -> String {

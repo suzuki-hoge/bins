@@ -10,13 +10,14 @@ struct Opt {
     all: bool,
 }
 
-fn main() -> anyhow::Result<()> {
+#[tokio::main]
+async fn main() -> anyhow::Result<()> {
     let opt = &Opt::from_args();
 
     run_command("git config --global color.branch always")?;
 
     let command = create_command(opt.all);
-    print_command_out(command)?;
+    print_command_out(command).await?;
 
     run_command("git config --global color.branch auto")
 }

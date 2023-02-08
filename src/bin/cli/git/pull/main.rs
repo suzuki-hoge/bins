@@ -8,13 +8,14 @@ use bins::libs::process::command::print_command_out;
 #[derive(StructOpt)]
 struct Opt {}
 
-fn main() -> anyhow::Result<()> {
+#[tokio::main]
+async fn main() -> anyhow::Result<()> {
     let _ = Opt::from_args();
 
     let branch = get_git_branch()?;
 
     let command = create_command(&branch.current);
-    print_command_out(command)
+    print_command_out(command).await
 }
 
 fn create_command(branch: &str) -> String {

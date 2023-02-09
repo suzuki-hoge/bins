@@ -1,42 +1,61 @@
 extern crate bins;
 
+use structopt::StructOpt;
+
 use bins::libs::git::branch::{get_git_branch, GitBranch};
 use bins::libs::git::config::get_git_config;
-use itertools::Itertools;
+use bins::libs::io::writer::stderr;
+use bins::libs::launcher::crossterm_launcher::launch;
+use bins::libs::process::command::{get_command_out_lines, run_command};
 
 use crate::url_item::UrlItems;
-use bins::libs::io::writer::stdout;
-use bins::libs::launcher::crossterm_launcher::launch;
-use bins::libs::process::command::get_command_out_lines;
 
 mod runner;
 mod ui;
 mod url_item;
 
+#[derive(StructOpt)]
+struct Opt {
+    #[structopt(short = "p", long = "--pulls", conflicts_with_all(& ["issues", "files", "tree"]), help = "open pulls page")]
+    pulls: bool,
+
+    #[structopt(short = "i", long = "--issues", conflicts_with_all(& ["pulls", "files", "tree"]), help = "open issues page")]
+    issues: bool,
+
+    #[structopt(short = "f", long = "--files", conflicts_with_all(& ["pulls", "issues", "tree"]), help = "open files page")]
+    files: bool,
+
+    #[structopt(short = "t", long = "--tree", conflicts_with_all(& ["pulls", "issues", "files"]), help = "open tree page")]
+    tree: bool,
+}
+
 fn main() -> anyhow::Result<()> {
-    let args = std::env::args().collect_vec();
+    let opt = Opt::from_args();
 
     let git_config = get_git_config()?;
     let git_branch = get_git_branch()?;
 
     let mut url_items = UrlItems::create(&git_config);
 
-    if args.len() == 1 {
+    if !opt.pulls && !opt.issues && !opt.files && !opt.tree {
         gather(&git_branch, url_items)
-    } else if args.len() == 2 {
+    } else {
         let current = git_branch.current;
 
-        let out = match args[1].as_str() {
-            "p" => url_items.add("pulls", "pulls").get_raw(),
-            "i" => url_items.add("issues", "issues").get_raw(),
-            "f" => url_items.add(format!("files - {current}"), format!("tree/{current}")).get_raw(),
-            "t" => url_items.add(format!("find - {current}"), format!("find/{current}")).get_raw(),
-            _ => "echo no such option".to_string(),
-        };
-        stdout(out)
-    } else {
-        stdout("echo invalid args")
+        if opt.pulls {
+            open(url_items.add("pulls", "pulls").get_raw())
+        } else if opt.issues {
+            open(url_items.add("issues", "issues").get_raw())
+        } else if opt.files {
+            open(url_items.add(format!("files - {current}"), format!("tree/{current}")).get_raw())
+        } else {
+            open(url_items.add(format!("find - {current}"), format!("find/{current}")).get_raw())
+        }
     }
+}
+
+fn open(url: String) -> anyhow::Result<()> {
+    run_command(format!("open {url}"))
 }
 
 fn gather(branch: &GitBranch, mut url_items: UrlItems) -> anyhow::Result<()> {
@@ -50,8 +69,13 @@ fn gather(branch: &GitBranch, mut url_items: UrlItems) -> anyhow::Result<()> {
     gather_blob(&mut url_items, &branch.current, branch.base.as_deref())?;
 
     match launch(|terminal| runner::run(terminal, url_items.get_items())) {
-        Ok(items) => stdout(items.iter().map(|item| item.get_raw()).join("\n")),
-        Err(e) => stdout(format!("echo {e}")),
+        Ok(items) => {
+            for item in items {
+                let _ = open(item.get_raw());
+            }
+            Ok(())
+        }
+        Err(e) => stderr(e),
     }
 }
 

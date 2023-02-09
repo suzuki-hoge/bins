@@ -61,7 +61,7 @@ mod tests {
 
     use crate::command::command_item::CommandItem;
     use crate::command::makefile::_parse_makefile;
-    
+
     use trim_margin::MarginTrimmable;
 
     fn setup(work_dir: &PathBuf) {

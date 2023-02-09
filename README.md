@@ -13,10 +13,8 @@ $ rustup install nightly
 - [bd: Development Starter](src/bin/tui/project/development_starter)
 #### git
 - [bgdf: Diff Filter](src/bin/tui/git/diff-filter)
-- [bgb: Git Branch Dispatcher](src/bin/tui/git/git_branch_dispatcher)
-- [bgs: Git Status Dispatcher](src/bin/tui/git/git_status_dispatcher)
-- [bgh: GitHub Launcher](src/bin/tui/git/github_launcher)
-- [bpr: GitHub Pull Request Launcher](src/bin/tui/git/github_pull_request_review_launcher)
+- [bgh: GitHub Launcher](src/bin/tui/git/git_hub_launcher)
+- [bpr: GitHub Pull Request Launcher](src/bin/tui/git/git_hub_pull_request_review_launcher)
 #### misc
 - [ba: Action Launcher](src/bin/tui/misc/action_launcher)
 - [bcl: Calendar](src/bin/tui/misc/calendar)

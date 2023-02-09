@@ -85,15 +85,15 @@ name = "git-status"
 path = "src/bin/cli/git/status/main.rs"
 
 [[bin]]
-name = "git-diff-filter"
+name = "diff-filter"
 path = "src/bin/tui/git/diff-filter/main.rs"
 
 [[bin]]
-name = "bgh"
-path = "src/bin/tui/git/github_launcher/main.rs"
+name = "git_hub_launcher"
+path = "src/bin/tui/git/git_hub_launcher/main.rs"
 
 [[bin]]
-name = "bf"
+name = "filter"
 path = "src/bin/tui/misc/filter/main.rs"
 
 [[bin]]

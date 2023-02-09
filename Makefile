@@ -13,15 +13,3 @@ fix:
 	@cargo clippy --fix --allow-dirty --allow-staged
 	@cargo test
 	@cargo run --bin document-gatherer
-
-# debug
-
-bf:
-	@cargo run --bin bf
-
-bb:
-	@cargo run --bin bb
-
-bgh:
-	@cargo run --bin bgh
-

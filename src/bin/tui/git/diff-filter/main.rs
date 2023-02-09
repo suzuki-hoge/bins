@@ -4,8 +4,9 @@ use itertools::Itertools;
 use regex::Regex;
 use structopt::StructOpt;
 
+use bins::libs::io::writer::stdout;
 use bins::libs::launcher::crossterm_launcher::launch;
-use bins::libs::process::command::{get_command_out_lines, print_command_out, run_command};
+use bins::libs::process::command::{get_command_out_lines, run_command};
 
 mod runner;
 mod ui;
@@ -19,17 +20,16 @@ struct Opt {
     all: bool,
 }
 
-#[tokio::main]
-async fn main() -> anyhow::Result<()> {
+fn main() -> anyhow::Result<()> {
     run_command("git config --global color.diff-filter always")?;
 
     let opt = Opt::from_args();
 
     let _ = match (opt.all, opt.staged) {
-        (true, true) => print_command_out("git diff --staged".to_string()).await,
-        (true, false) => print_command_out("git diff".to_string()).await,
-        (false, true) => print_command_out(format!("git diff --staged {}", select_status_lines(true)?)).await,
-        (false, false) => print_command_out(format!("git diff {}", select_status_lines(false)?)).await,
+        (true, true) => stdout("git diff --staged".to_string()),
+        (true, false) => stdout("git diff".to_string()),
+        (false, true) => stdout(format!("git diff --staged {}", select_status_lines(true)?)),
+        (false, false) => stdout(format!("git diff {}", select_status_lines(false)?)),
     };
 
     run_command("git config --global color.diff-filter auto")

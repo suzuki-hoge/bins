@@ -7,6 +7,7 @@ edition = "2021"
 
 [dependencies]
 anyhow = "1.0.68"
+chrono = "0.4.23"
 crossterm = "0.26.0"
 futures = "0.3.26"
 itertools = "0.10.5"
@@ -23,6 +24,9 @@ tokio = {version = "1.25.0", features = ["full"]}
 tokio-util = {version = "0.7.4", features = ["full"]}
 trim-margin = "0.1.0"
 tui = "0.19.0"
+
+[dev-dependencies]
+rstest = "0.16.0"
 
 [[bin]]
 name = "git-add"
@@ -91,6 +95,10 @@ path = "src/bin/tui/git/diff-filter/main.rs"
 [[bin]]
 name = "git_hub_launcher"
 path = "src/bin/tui/git/git_hub_launcher/main.rs"
+
+[[bin]]
+name = "calendar"
+path = "src/bin/tui/misc/calendar/main.rs"
 
 [[bin]]
 name = "filter"

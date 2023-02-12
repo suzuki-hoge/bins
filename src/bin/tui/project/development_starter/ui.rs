@@ -3,13 +3,14 @@ use std::fs::File;
 use bins::libs::app::multi_fix_app::CursorMode::{Edit, Filter};
 use itertools::Itertools;
 use tui::backend::CrosstermBackend;
-use tui::layout::{Alignment, Constraint, Direction, Layout, Rect};
-use tui::style::{Color, Style};
+use tui::layout::{Constraint, Direction, Layout, Rect};
+
 use tui::text::Spans;
 use tui::widgets::{Block, BorderType, Borders, List, ListItem, Paragraph};
 use tui::Frame;
 
 use bins::libs::app::multi_fix_app::MultiFixApp;
+use bins::libs::ui::paragraph::{create_guide, create_message_paragraph};
 use bins::libs::ui::spans::{pane1_highlight_spans, pane2_highlight_spans};
 
 use crate::project_config::ProjectItem;
@@ -23,8 +24,8 @@ pub fn get_height(frame: &Frame<CrosstermBackend<File>>) -> u16 {
 pub fn draw(
     frame: &mut Frame<CrosstermBackend<File>>,
     app: &mut MultiFixApp<ProjectItem>,
-    guide: &str,
-    message: Result<&str, &str>,
+    guide: Vec<anyhow::Result<String, String>>,
+    message: anyhow::Result<&str, &str>,
 ) {
     // layout
 
@@ -86,17 +87,19 @@ pub fn draw(
 
     let guide_area = Layout::default()
         .direction(Direction::Horizontal)
-        .constraints([Constraint::Percentage(70), Constraint::Percentage(30)])
+        .constraints([
+            Constraint::Length(1),
+            Constraint::Length(box_area[0].width - 2),
+            Constraint::Length(1),
+            Constraint::Length(1),
+            Constraint::Length(box_area[1].width - 2),
+            Constraint::Length(1),
+        ])
         .split(layout[2]);
 
-    let p = Paragraph::new(guide);
-    frame.render_widget(p, guide_area[0]);
+    frame.render_widget(create_guide(guide), guide_area[1]);
 
-    let p = match message {
-        Ok(s) => Paragraph::new(s).style(Style::default().fg(Color::Green)).alignment(Alignment::Right),
-        Err(s) => Paragraph::new(s).style(Style::default().fg(Color::Red)).alignment(Alignment::Right),
-    };
-    frame.render_widget(p, guide_area[1]);
+    frame.render_widget(create_message_paragraph(message), guide_area[4]);
 }
 
 fn mk_layout(frame: &Frame<CrosstermBackend<File>>) -> Vec<Rect> {

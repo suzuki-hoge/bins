@@ -1,29 +1,37 @@
 extern crate bins;
 
-// use structopt::StructOpt;
-
 use bins::libs::io::writer::{stderr, stdout};
 use bins::libs::launcher::crossterm_launcher::launch;
 
+use crate::project_config::ProjectItem;
+use crate::runner::Actions;
 
 mod project_config;
 mod runner;
 mod ui;
 
-// #[derive(StructOpt)]
-// struct Opt {
-//     #[structopt(short = "g", long = "--generate", help = "generate empty config")]
-//     generate: bool,
-//
-//     #[structopt(name = "command_name", help = "run specified command instantly")]
-//     name: Option<String>,
-// }
-
 fn main() -> anyhow::Result<()> {
-    // let opt = Opt::from_args();
-
     match launch(runner::run) {
-        Ok(_items) => stdout("foo"),
+        Ok((items, actions)) => eval(items[0].clone(), actions),
         Err(e) => stderr(e),
     }
+}
+
+fn eval(item: ProjectItem, action: Actions) -> anyhow::Result<()> {
+    let mut commands = vec![];
+    if action.cd {
+        commands.push(format!("cd {}", item.origin.work_dir_path));
+    }
+    if action.edit {
+        commands.push(format!("open -n -a 'IntelliJ IDEA.app' --args {}", item.origin.work_dir_path));
+    }
+    if action.github && item.origin.git_exists {
+        commands.push(format!("cd {}", item.origin.work_dir_path));
+        commands.push("bgh".to_string());
+    }
+    if action.up && item.origin.up_exists {
+        commands.push(format!("cd {}", item.origin.work_dir_path));
+        commands.push("bb u".to_string());
+    }
+    stdout(commands.join("; "))
 }

@@ -16,8 +16,11 @@ mod ui;
 
 #[derive(StructOpt)]
 struct Opt {
-    #[structopt(short = "g", long = "--generate", help = "generate empty config")]
+    #[structopt(short = "g", long = "--generate", conflicts_with_all(& ["edit"]), help = "generate empty config")]
     generate: bool,
+
+    #[structopt(short = "e", long = "--edit", conflicts_with_all(& ["generate"]), help = "generate empty config")]
+    edit: bool,
 
     #[structopt(name = "command_name", help = "run specified command instantly")]
     name: Option<String>,
@@ -26,10 +29,11 @@ struct Opt {
 fn main() -> anyhow::Result<()> {
     let opt = Opt::from_args();
 
-    match (opt.generate, opt.name) {
-        (true, _) => generate(),
-        (false, Some(name)) => run_instantly(name),
-        (false, None) => launch_selector(),
+    match (opt.generate, opt.edit, opt.name) {
+        (true, _, _) => generate(),
+        (_, true, _) => edit(),
+        (false, false, Some(name)) => run_instantly(name),
+        (false, false, None) => launch_selector(),
     }
 }
 
@@ -57,4 +61,8 @@ fn generate() -> anyhow::Result<()> {
     } else {
         stderr("already generated")
     }
+}
+
+fn edit() -> anyhow::Result<()> {
+    stdout(format!("vi {}", parse_project_config()?.config_path))
 }

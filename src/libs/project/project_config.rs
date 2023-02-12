@@ -10,12 +10,24 @@ use crate::libs::io::writer::{delete_file, write_serializable};
 
 #[derive(Eq, PartialEq, Clone, Debug)]
 pub struct ProjectConfig {
-    config_path: String,
-    work_dir_exists: bool,
+    pub config_path: String,
+    pub work_dir_path: String,
+    pub config_file_exists: bool,
+    pub work_dir_exists: bool,
+    pub git_exists: bool,
+    pub up_exists: bool,
     pub project: Project,
 }
 
 impl ProjectConfig {
+    pub fn new(config_path: String, config_file_exists: bool, project: Project) -> Self {
+        let work_dir_path = config_path.split('/').rev().collect_vec()[0].replace(".yaml", "").replace('.', "/");
+        let work_dir_exists = Path::new(&work_dir_path).exists();
+        let git_exists = Path::new(&work_dir_path).join(".git").exists();
+        let up_exists = project.build_commands.iter().any(|build_command| build_command.label == "u");
+        Self { config_path, work_dir_path, config_file_exists, work_dir_exists, git_exists, up_exists, project }
+    }
+
     pub fn name(&self) -> String {
         self.config_path.to_string().split('.').rev().collect_vec()[1].to_string()
     }
@@ -60,7 +72,7 @@ impl ProjectConfig {
     }
 
     pub fn generate(&mut self) -> bool {
-        if self.work_dir_exists {
+        if self.config_file_exists {
             false
         } else {
             let _ = write_serializable(Path::new(&self.config_path), &self.project);
@@ -116,8 +128,8 @@ fn _parse_project_config(bins_dir: &Path, work_dir: &Path) -> anyhow::Result<Pro
     let config_path = yaml_path.display().to_string();
 
     match read_deserializable(&yaml_path) {
-        Ok(yaml) => Ok(ProjectConfig { config_path, work_dir_exists: true, project: yaml }),
-        Err(_) => Ok(ProjectConfig { config_path, work_dir_exists: false, project: Project::empty() }),
+        Ok(yaml) => Ok(ProjectConfig::new(config_path, true, yaml)),
+        Err(_) => Ok(ProjectConfig::new(config_path, false, Project::empty())),
     }
 }
 

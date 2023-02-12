@@ -33,14 +33,6 @@ where
     }
 }
 
-#[derive(Eq, PartialEq)]
-pub enum CommandMode {
-    Active,
-    Inactive,
-}
-
-pub const CHANGE_COMMAND_MODE_KEYS: [Key; 1] = [Key::Esc];
-
 pub const CURSOR_MODE_CHANGE_KEYS: [Key; 1] = [Key::Char('\t')];
 
 pub fn change_cursor_mode<Item>(app: &mut MultiFixApp<Item>, key: Key) -> bool

@@ -1,8 +1,9 @@
-use crate::libs::item::display_item::DisplayItem;
-use crate::libs::matcher::string_matcher::CheckedString;
 use itertools::Itertools;
 use tui::style::{Color, Modifier, Style};
 use tui::text::{Span, Spans};
+
+use crate::libs::item::display_item::DisplayItem;
+use crate::libs::matcher::string_matcher::CheckedString;
 
 pub fn pane1_highlight_spans<Item>(cs: CheckedString<Item>, is_active: bool, max_width: u16) -> Vec<Spans<'static>>
 where

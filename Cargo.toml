@@ -109,6 +109,10 @@ name = "build_tool_launcher"
 path = "src/bin/tui/project/build_tool_launcher/main.rs"
 
 [[bin]]
+name = "development_starter"
+path = "src/bin/tui/project/development_starter/main.rs"
+
+[[bin]]
 name = "document-gatherer"
 path = "src/bin/document_gatherer.rs"
 

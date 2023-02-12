@@ -1,12 +1,14 @@
 use std::env::current_dir;
+use std::fs::read_dir;
 use std::path::{Path, PathBuf};
 
-use crate::libs::io::reader::read_deserializable;
-use crate::libs::io::writer::write_serializable;
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 
-#[derive(Clone)]
+use crate::libs::io::reader::read_deserializable;
+use crate::libs::io::writer::{delete_file, write_serializable};
+
+#[derive(Eq, PartialEq, Clone, Debug)]
 pub struct ProjectConfig {
     config_path: String,
     work_dir_exists: bool,
@@ -14,6 +16,10 @@ pub struct ProjectConfig {
 }
 
 impl ProjectConfig {
+    pub fn name(&self) -> String {
+        self.config_path.to_string().split('.').rev().collect_vec()[1].to_string()
+    }
+
     pub fn update_tags(&mut self, tags: Vec<String>) {
         self.project.tags = tags;
 
@@ -61,6 +67,10 @@ impl ProjectConfig {
             true
         }
     }
+
+    pub fn delete(&self) {
+        let _ = delete_file(Path::new(&self.config_path));
+    }
 }
 
 #[derive(Serialize, Deserialize, Eq, PartialEq, Ord, PartialOrd, Clone, Debug)]
@@ -79,6 +89,17 @@ impl Project {
 pub struct BuildCommand {
     pub label: String,
     pub lines: Vec<String>,
+}
+
+pub fn parse_project_configs() -> anyhow::Result<Vec<ProjectConfig>> {
+    let bins_dir = PathBuf::from(std::env::var("HOME")?);
+    let mut project_configs = vec![];
+    for e in read_dir(&bins_dir.join(".bins-project-config"))? {
+        let path = e.unwrap().path();
+        let work_dir = path.file_name().unwrap().to_str().unwrap().replace(".yaml", "").replace('.', "/");
+        project_configs.push(_parse_project_config(&bins_dir, &PathBuf::from(work_dir))?)
+    }
+    Ok(project_configs)
 }
 
 pub fn parse_project_config() -> anyhow::Result<ProjectConfig> {
@@ -107,9 +128,10 @@ mod tests {
     use std::io::Write;
     use std::path::{Path, PathBuf};
 
-    use crate::libs::project::project_config::{BuildCommand, Project, _parse_project_config};
     use itertools::Itertools;
     use trim_margin::MarginTrimmable;
+
+    use crate::libs::project::project_config::{BuildCommand, Project, _parse_project_config};
 
     fn setup(bins_dir: &Path) {
         let raw = r#"

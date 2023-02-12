@@ -25,3 +25,8 @@ pub fn write_serializable<T: ?Sized + Serialize>(path: &Path, t: &T) -> anyhow::
     serde_yaml::to_writer(file, t)?;
     Ok(())
 }
+
+pub fn delete_file(path: &Path) -> anyhow::Result<()> {
+    let _ = remove_file(path);
+    Ok(())
+}

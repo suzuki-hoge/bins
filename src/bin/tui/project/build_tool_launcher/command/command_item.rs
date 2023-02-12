@@ -9,11 +9,11 @@ pub struct CommandItem {
 
 impl CommandItem {
     pub fn new(label: String, lines: Vec<String>) -> Self {
-        CommandItem { label, lines, is_editable: false }
+        Self { label, lines, is_editable: false }
     }
 
     pub fn new_editable(label: String, lines: Vec<String>) -> Self {
-        CommandItem { label, lines, is_editable: true }
+        Self { label, lines, is_editable: true }
     }
 
     pub fn get_runnable(&self) -> String {

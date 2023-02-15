@@ -7,6 +7,8 @@ pub fn get_command_items(project_config: &ProjectConfig) -> Vec<CommandItem> {
         .project
         .build_commands
         .iter()
-        .map(|build_command| CommandItem::new_editable(build_command.label.clone(), build_command.lines.clone()))
+        .map(|build_command| {
+            CommandItem::new_editable(format!("bb {}", build_command.label.clone()), build_command.lines.clone())
+        })
         .collect_vec()
 }

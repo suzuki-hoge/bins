@@ -12,8 +12,10 @@ crossterm = "0.26.0"
 futures = "0.3.26"
 itertools = "0.10.5"
 question = "0.2.2"
+pad = "0.1.6"
 rayon = "1.6.1"
 regex = "1.7.1"
+reqwest = { version = "0.11.14", features = ["json"] }
 serde = { version = "1.0.152", features = ["derive"] }
 serde_json = "1.0.91"
 serde_yaml = "0.9.17"
@@ -95,6 +97,10 @@ path = "src/bin/tui/git/diff-filter/main.rs"
 [[bin]]
 name = "git_hub_launcher"
 path = "src/bin/tui/git/git_hub_launcher/main.rs"
+
+[[bin]]
+name = "git_hub_pull_request_review_launcher"
+path = "src/bin/tui/git/git_hub_pull_request_review_launcher/main.rs"
 
 [[bin]]
 name = "calendar"

@@ -1,5 +1,6 @@
-use crate::libs::item::display_item::DisplayItem;
 use itertools::Itertools;
+
+use crate::libs::item::display_item::DisplayItem;
 
 type Start = usize;
 type End = usize;
@@ -68,9 +69,7 @@ where
             .map(|&(start, end, highlight)| (self.pane1_string[start..end].to_string(), highlight))
             .collect_vec();
 
-        if self.pane1_string_len < max_width {
-            string_parts.push((" ".repeat(max_width - self.pane1_string_len), false));
-        }
+        string_parts.push((" ".repeat(max_width * 2), false));
 
         string_parts
     }
@@ -212,8 +211,9 @@ pub enum MatchMode {
 
 #[cfg(test)]
 mod tests {
-    use crate::libs::matcher::string_matcher::CheckedString;
     use itertools::Itertools;
+
+    use crate::libs::matcher::string_matcher::CheckedString;
 
     fn init(s: &str) -> CheckedString<String> {
         CheckedString::init(s.to_string())

@@ -12,6 +12,7 @@ mod ui;
 
 fn main() -> anyhow::Result<()> {
     match launch(runner::run) {
+        Ok((items, _)) if items.is_empty() => Ok(()),
         Ok((items, actions)) => eval(items[0].clone(), actions),
         Err(e) => stderr(e),
     }

@@ -16,9 +16,7 @@ $ rustup install nightly
 - [bgh: GitHub Launcher](src/bin/tui/git/git_hub_launcher)
 - [bpr: GitHub Pull Request Launcher](src/bin/tui/git/git_hub_pull_request_review_launcher)
 #### misc
-- [ba: Action Launcher](src/bin/tui/misc/action_launcher)
 - [bcl: Calendar](src/bin/tui/misc/calendar)
-- [bee: Expression Evaluator](src/bin/tui/misc/expression_evaluator)
 - [bf: Filter](src/bin/tui/misc/filter)
 - [bhc: Http Client](src/bin/tui/misc/http_client)
 ### cli

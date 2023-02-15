@@ -75,7 +75,7 @@ pub fn run(
                 let new_label = app.filter_input_app.get().join("");
                 let new_lines = vec![];
 
-                if Regex::new(r"^[a-z]+$").unwrap().is_match(&new_label) {
+                if Regex::new(r"^[a-z0-9_-]+$").unwrap().is_match(&new_label) {
                     project_config.upsert_build_command(new_label, new_lines);
 
                     is_item_changed = true;

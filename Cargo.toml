@@ -91,6 +91,10 @@ name = "git-status"
 path = "src/bin/cli/git/status/main.rs"
 
 [[bin]]
+name = "finder"
+path = "src/bin/cli/misc/finder/main.rs"
+
+[[bin]]
 name = "diff-filter"
 path = "src/bin/tui/git/diff-filter/main.rs"
 

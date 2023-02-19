@@ -71,7 +71,7 @@ pub async fn fetch_pull_requests(git_config: &GitConfig) -> anyhow::Result<Vec<P
 fn get_query(git_config: &GitConfig) -> String {
     "query {
       repository(owner: \"{owner}\", name: \"{repo}\") {
-        pullRequests(last: 20) {
+        pullRequests(last: 50, states: OPEN) {
           nodes {
             number
             author {

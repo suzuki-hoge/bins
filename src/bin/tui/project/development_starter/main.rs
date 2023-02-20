@@ -28,7 +28,7 @@ fn eval(item: ProjectItem, action: Actions) -> anyhow::Result<()> {
     }
     if action.github && item.origin.git_exists {
         commands.push(format!("cd {}", item.origin.work_dir_path));
-        commands.push("bgh".to_string());
+        commands.push("gwb".to_string());
     }
     if action.up && item.origin.up_exists {
         commands.push(format!("cd {}", item.origin.work_dir_path));

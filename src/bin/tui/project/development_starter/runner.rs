@@ -30,7 +30,7 @@ pub struct Actions {
 
 impl Actions {
     pub fn init() -> Self {
-        Self { cd: true, edit: false, github: false, up: false }
+        Self { cd: false, edit: false, github: false, up: false }
     }
 }
 

@@ -109,7 +109,9 @@ pub fn parse_project_configs() -> anyhow::Result<Vec<ProjectConfig>> {
     for e in read_dir(&bins_dir.join(".bins-project-config"))? {
         let path = e.unwrap().path();
         let work_dir = path.file_name().unwrap().to_str().unwrap().replace(".yaml", "").replace('.', "/");
-        project_configs.push(_parse_project_config(&bins_dir, &PathBuf::from(work_dir))?)
+        if !work_dir.ends_with("DS_Store") {
+            project_configs.push(_parse_project_config(&bins_dir, &PathBuf::from(work_dir))?);
+        }
     }
     Ok(project_configs)
 }

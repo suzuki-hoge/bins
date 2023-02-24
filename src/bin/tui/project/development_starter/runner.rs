@@ -92,7 +92,7 @@ pub fn run(terminal: &mut Terminal<CrosstermBackend<File>>) -> anyhow::Result<(V
             // up
             key if key == Key::Char('U') && app.cursor_mode == Filter => {
                 if let Some(item) = app.scrolling_select_app.get_active_item() {
-                    if item.origin.git_exists {
+                    if item.origin.up_exists {
                         actions.up = !actions.up
                     } else {
                         message = Err("up not found")

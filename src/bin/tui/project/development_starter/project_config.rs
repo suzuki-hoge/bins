@@ -31,10 +31,13 @@ impl DisplayItem for ProjectItem {
 }
 
 pub fn get_project_items(project_configs: Vec<ProjectConfig>) -> Vec<ProjectItem> {
-    project_configs
+    let mut items = project_configs
         .iter()
         .map(|project_config| {
             ProjectItem::new(project_config.name(), project_config.project.tags.clone(), project_config.clone())
         })
-        .collect_vec()
+        .collect_vec();
+
+    items.sort_by_key(|item| item.label.clone());
+    items
 }

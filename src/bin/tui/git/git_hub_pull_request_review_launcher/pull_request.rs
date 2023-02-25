@@ -1,6 +1,7 @@
+use pad::PadStr;
+
 use bins::libs::git::config::GitConfig;
 use bins::libs::item::display_item::DisplayItem;
-use pad::PadStr;
 
 #[derive(Eq, PartialEq, Clone, Debug)]
 pub struct PullRequest {
@@ -17,12 +18,9 @@ pub struct PullRequest {
 
 impl PullRequest {
     pub fn new(
-        number: u64,
-        max_number: u64,
-        author: String,
-        max_author_length: usize,
-        branch: String,
-        max_branch_length: usize,
+        (number, max_number): (u64, u64),
+        (author, max_author_length): (String, usize),
+        (branch, max_branch_length): (String, usize),
         title: String,
         requesting_reviewers: Vec<String>,
         commented_reviewers: Vec<String>,
@@ -95,24 +93,18 @@ mod tests {
     #[test]
     fn new() {
         let sut1 = PullRequest::new(
-            1,
-            42,
-            "suzuki-hoge".to_string(),
-            11,
-            "feature/auth".to_string(),
-            20,
+            (1, 42),
+            ("suzuki-hoge".to_string(), 11),
+            ("feature/auth".to_string(), 20),
             "bla bla bla".to_string(),
             vec![],
             vec![],
         );
 
         let sut2 = PullRequest::new(
-            42,
-            42,
-            "john".to_string(),
-            11,
-            "feature/csv-download".to_string(),
-            20,
+            (42, 42),
+            ("john".to_string(), 11),
+            ("feature/csv-download".to_string(), 20),
             "lorem ipsum".to_string(),
             vec![],
             vec![],

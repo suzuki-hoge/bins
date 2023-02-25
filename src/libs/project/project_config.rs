@@ -35,7 +35,7 @@ impl ProjectConfig {
     pub fn update_tags(&mut self, tags: Vec<String>) {
         self.project.tags = tags;
 
-        let _ = write_serializable(Path::new(&self.config_path), &self.project);
+        let _ = write_serializable(&self.config_path, &self.project);
     }
 
     pub fn get_build_command_lines(&self, label: String) -> Option<Vec<String>> {
@@ -68,20 +68,20 @@ impl ProjectConfig {
             self.project.build_commands.push(BuildCommand { label, lines });
         }
 
-        let _ = write_serializable(Path::new(&self.config_path), &self.project);
+        let _ = write_serializable(&self.config_path, &self.project);
     }
 
     pub fn generate(&mut self) -> bool {
         if self.config_file_exists {
             false
         } else {
-            let _ = write_serializable(Path::new(&self.config_path), &self.project);
+            let _ = write_serializable(&self.config_path, &self.project);
             true
         }
     }
 
     pub fn delete(&self) {
-        let _ = delete_file(Path::new(&self.config_path));
+        let _ = delete_file(&self.config_path);
     }
 }
 
@@ -110,22 +110,25 @@ pub fn parse_project_configs() -> anyhow::Result<Vec<ProjectConfig>> {
         let path = e.unwrap().path();
         let work_dir = path.file_name().unwrap().to_str().unwrap().replace(".yaml", "").replace('.', "/");
         if !work_dir.ends_with("DS_Store") {
-            project_configs.push(_parse_project_config(&bins_dir, &PathBuf::from(work_dir))?);
+            project_configs.push(_parse_project_config(&bins_dir, work_dir)?);
         }
     }
     Ok(project_configs)
 }
 
 pub fn parse_project_config() -> anyhow::Result<ProjectConfig> {
-    let bins_dir = PathBuf::from(std::env::var("HOME")?);
+    let bins_dir = std::env::var("HOME")?;
     let work_dir = current_dir()?;
 
-    _parse_project_config(&bins_dir, &work_dir)
+    _parse_project_config(bins_dir, work_dir)
 }
 
-fn _parse_project_config(bins_dir: &Path, work_dir: &Path) -> anyhow::Result<ProjectConfig> {
-    let work_dir_dot = work_dir.display().to_string().replace('/', ".");
-    let yaml_path = bins_dir.join(".bins-project-config").join(format!("{work_dir_dot}.yaml"));
+fn _parse_project_config<P1: AsRef<Path>, P2: AsRef<Path>>(
+    bins_dir: P1,
+    work_dir: P2,
+) -> anyhow::Result<ProjectConfig> {
+    let work_dir_dot = work_dir.as_ref().display().to_string().replace('/', ".");
+    let yaml_path = bins_dir.as_ref().join(".bins-project-config").join(format!("{work_dir_dot}.yaml"));
 
     let config_path = yaml_path.display().to_string();
 
@@ -140,14 +143,14 @@ mod tests {
     use std::fs;
     use std::fs::File;
     use std::io::Write;
-    use std::path::{Path, PathBuf};
+    use std::path::Path;
 
     use itertools::Itertools;
     use trim_margin::MarginTrimmable;
 
     use crate::libs::project::project_config::{BuildCommand, Project, _parse_project_config};
 
-    fn setup(bins_dir: &Path) {
+    fn setup<P: AsRef<Path>>(bins_dir: P) {
         let raw = r#"
             |tags: [react, next]
             |build_commands:
@@ -159,6 +162,7 @@ mod tests {
         .trim_margin()
         .unwrap();
 
+        let bins_dir = bins_dir.as_ref();
         let _ = fs::create_dir_all(bins_dir);
         let _ = fs::create_dir_all(bins_dir.join(".bins-project-config"));
         let _ = File::create(bins_dir.join(".bins-project-config").join(".path.front.yaml"))
@@ -166,7 +170,7 @@ mod tests {
             .write_all(raw.as_bytes());
     }
 
-    fn cleanup(bins_dir: &PathBuf) {
+    fn cleanup(bins_dir: &str) {
         let _ = fs::remove_dir_all(bins_dir);
     }
 
@@ -184,15 +188,15 @@ mod tests {
     fn found() {
         // setup
 
-        let bins_dir = PathBuf::from("target/build-tool-launcher/test-pj/project-config-found");
+        let bins_dir = "target/build-tool-launcher/test-pj/project-config-found";
 
-        setup(&bins_dir);
+        setup(bins_dir);
 
-        let work_dir = PathBuf::from("/path/front");
+        let work_dir = "/path/front";
 
         // read
 
-        let mut sut = _parse_project_config(&bins_dir, &work_dir).unwrap();
+        let mut sut = _parse_project_config(bins_dir, work_dir).unwrap();
 
         // assert
 
@@ -220,16 +224,16 @@ mod tests {
 
         // clean
 
-        cleanup(&bins_dir);
+        cleanup(bins_dir);
     }
 
     #[test]
     fn notfound() {
-        let bins_dir = PathBuf::from("target/build-tool-launcher/test-pj/project-config-notfound");
+        let bins_dir = "target/build-tool-launcher/test-pj/project-config-notfound";
 
-        let work_dir = PathBuf::from("/path/front");
+        let work_dir = "/path/front";
 
-        let sut = _parse_project_config(&bins_dir, &work_dir).unwrap();
+        let sut = _parse_project_config(bins_dir, work_dir).unwrap();
 
         let project = exp(vec![], vec![]);
         assert_eq!(sut.project, project);

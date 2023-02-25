@@ -31,7 +31,7 @@ impl Actions {
     }
 }
 
-pub fn run<'a>(
+pub fn run(
     terminal: &mut Terminal<CrosstermBackend<File>>,
     pull_requests: Vec<PullRequest>,
     username: &String,
@@ -39,11 +39,11 @@ pub fn run<'a>(
     let height = get_height(&terminal.get_frame());
     let mut current_tab = 1;
 
-    let mut app = create_app(height, current_tab, &pull_requests, username);
+    let mut app = create_app(height, current_tab, pull_requests.clone(), username);
 
     let mut actions = Actions::init();
 
-    terminal.draw(|frame| draw(frame, current_tab, &mut app, get_guide(&actions)))?;
+    terminal.draw(|frame| draw(frame, current_tab, &app, get_guide(&actions)))?;
 
     for key in get_tty()?.keys() {
         match key.unwrap() {
@@ -54,11 +54,11 @@ pub fn run<'a>(
             // change tab
             Key::Char('\t') => {
                 current_tab = next_tab(current_tab);
-                app = create_app(height, current_tab, &pull_requests, username);
+                app = create_app(height, current_tab, pull_requests.clone(), username);
             }
             Key::BackTab => {
                 current_tab = prev_tab(current_tab);
-                app = create_app(height, current_tab, &pull_requests, username);
+                app = create_app(height, current_tab, pull_requests.clone(), username);
             }
 
             // actions
@@ -75,7 +75,7 @@ pub fn run<'a>(
             key => edit(&mut app, key),
         }
 
-        terminal.draw(|frame| draw(frame, current_tab, &mut app, get_guide(&actions)))?;
+        terminal.draw(|frame| draw(frame, current_tab, &app, get_guide(&actions)))?;
     }
 
     unreachable!();
@@ -84,14 +84,14 @@ pub fn run<'a>(
 fn create_app(
     height: u16,
     current_tab: usize,
-    pull_requests: &[PullRequest],
+    pull_requests: Vec<PullRequest>,
     username: &String,
 ) -> MultiFixApp<PullRequest> {
     let items = match current_tab {
-        1 => pull_requests.to_owned(),
-        2 => pull_requests.to_owned().into_iter().filter(|pr| pr.is_own(username)).collect(),
-        3 => pull_requests.to_owned().into_iter().filter(|pr| pr.is_not_reviewed(username)).collect(),
-        4 => pull_requests.to_owned().into_iter().filter(|pr| pr.is_reviewed(username)).collect(),
+        1 => pull_requests.into_iter().collect_vec(),
+        2 => pull_requests.into_iter().filter(|pr| pr.is_own(username)).collect_vec(),
+        3 => pull_requests.into_iter().filter(|pr| pr.is_not_reviewed(username)).collect_vec(),
+        4 => pull_requests.into_iter().filter(|pr| pr.is_reviewed(username)).collect_vec(),
         _ => unreachable!(),
     };
     MultiFixApp::init(items, height, MatchMode::PANE1)

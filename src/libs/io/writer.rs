@@ -18,7 +18,8 @@ pub fn stderr<T: Display>(value: T) -> anyhow::Result<()> {
     Ok(())
 }
 
-pub fn write_serializable<T: ?Sized + Serialize>(path: &Path, t: &T) -> anyhow::Result<()> {
+pub fn write_serializable<P: AsRef<Path>, T: ?Sized + Serialize>(path: P, t: &T) -> anyhow::Result<()> {
+    let path = path.as_ref();
     let _ = remove_file(path);
     create_dir_all(path.parent().unwrap())?;
     let file = OpenOptions::new().write(true).create(true).open(path).unwrap();
@@ -26,7 +27,7 @@ pub fn write_serializable<T: ?Sized + Serialize>(path: &Path, t: &T) -> anyhow::
     Ok(())
 }
 
-pub fn delete_file(path: &Path) -> anyhow::Result<()> {
+pub fn delete_file<P: AsRef<Path>>(path: P) -> anyhow::Result<()> {
     let _ = remove_file(path);
     Ok(())
 }

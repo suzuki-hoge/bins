@@ -37,7 +37,7 @@ fn get_piped_stdin() -> anyhow::Result<Vec<String>> {
     }
 }
 
-pub fn read_deserializable<T: DeserializeOwned>(path: &Path) -> anyhow::Result<T> {
+pub fn read_deserializable<P: AsRef<Path>, T: DeserializeOwned>(path: P) -> anyhow::Result<T> {
     let file = File::open(path).context("no such file")?;
     let reader = BufReader::new(file);
     serde_yaml::from_reader(reader).context("yaml parse error")

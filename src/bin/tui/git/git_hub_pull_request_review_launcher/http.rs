@@ -42,12 +42,9 @@ pub async fn fetch_pull_requests(git_config: &GitConfig) -> anyhow::Result<Vec<P
         .iter()
         .map(|pull_request_node| {
             PullRequest::new(
-                pull_request_node.number,
-                max_number,
-                pull_request_node.author.login.to_string(),
-                max_author_length,
-                pull_request_node.head_ref_name.to_string(),
-                max_branch_length,
+                (pull_request_node.number, max_number),
+                (pull_request_node.author.login.to_string(), max_author_length),
+                (pull_request_node.head_ref_name.to_string(), max_branch_length),
                 pull_request_node.title.to_string(),
                 pull_request_node
                     .review_requests

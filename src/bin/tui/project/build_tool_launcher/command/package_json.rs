@@ -1,12 +1,14 @@
-use crate::command::command_item::CommandItem;
-use crate::command::package_json::Tool::{Npm, Yarn};
-use bins::libs::io::reader::read_deserializable;
-use itertools::Itertools;
-use serde::Deserialize;
 use std::collections::HashMap;
 use std::env::current_dir;
-
 use std::path::Path;
+
+use itertools::Itertools;
+use serde::Deserialize;
+
+use bins::libs::io::reader::read_deserializable;
+
+use crate::command::command_item::CommandItem;
+use crate::command::package_json::Tool::{Npm, Yarn};
 
 #[derive(Deserialize, Debug)]
 struct PackageJson {
@@ -38,19 +40,19 @@ impl Tool {
 pub fn parse_package_json() -> anyhow::Result<Vec<CommandItem>> {
     let work_dir = current_dir()?;
 
-    _parse_package_json(&work_dir)
+    _parse_package_json(work_dir)
 }
 
-fn _parse_package_json(work_dir: &Path) -> anyhow::Result<Vec<CommandItem>> {
-    match read_deserializable(&work_dir.join("package.json")) {
+fn _parse_package_json<P: AsRef<Path>>(work_dir: P) -> anyhow::Result<Vec<CommandItem>> {
+    match read_deserializable(work_dir.as_ref().join("package.json")) {
         Ok(json) => Ok(create_command_items(json, find_tool(work_dir))),
         Err(_) => Ok(vec![]),
     }
 }
 
-fn find_tool(work_dir: &Path) -> Tool {
-    let npm = work_dir.join(Npm.get_lock_file_name()).exists();
-    let yarn = work_dir.join(Yarn.get_lock_file_name()).exists();
+fn find_tool<P: AsRef<Path>>(work_dir: P) -> Tool {
+    let npm = work_dir.as_ref().join(Npm.get_lock_file_name()).exists();
+    let yarn = work_dir.as_ref().join(Yarn.get_lock_file_name()).exists();
 
     match (npm, yarn) {
         (_, true) => Yarn,
@@ -70,16 +72,16 @@ fn create_command_items(json: PackageJson, tool: Tool) -> Vec<CommandItem> {
 mod tests {
     use std::fs;
     use std::fs::File;
-
     use std::io::Write;
-    use std::path::{Path, PathBuf};
+    use std::path::Path;
+
+    use trim_margin::MarginTrimmable;
 
     use crate::command::command_item::CommandItem;
     use crate::command::package_json::Tool::{Npm, Yarn};
     use crate::command::package_json::{Tool, _parse_package_json};
-    use trim_margin::MarginTrimmable;
 
-    fn setup(work_dir: &Path, tool: Tool) {
+    fn setup<P: AsRef<Path>>(work_dir: P, tool: Tool) {
         let raw = r#"
             |{
             |  "name": "foo",
@@ -94,22 +96,23 @@ mod tests {
         .trim_margin()
         .unwrap();
 
+        let work_dir = work_dir.as_ref();
         let _ = fs::create_dir_all(work_dir);
         let _ = File::create(work_dir.join("package.json")).unwrap().write_all(raw.as_bytes());
         let _ = File::create(work_dir.join(tool.get_lock_file_name()));
     }
 
-    fn cleanup(work_dir: &PathBuf) {
+    fn cleanup(work_dir: &str) {
         let _ = fs::remove_dir_all(work_dir);
     }
 
     #[test]
     fn found_npm() {
-        let work_dir = PathBuf::from("target/build-tool-launcher/test-pj/npm-found");
+        let work_dir = "target/build-tool-launcher/test-pj/npm-found";
 
-        setup(&work_dir, Npm);
+        setup(work_dir, Npm);
 
-        let act = _parse_package_json(&work_dir).unwrap();
+        let act = _parse_package_json(work_dir).unwrap();
         let commands = vec![
             CommandItem::new("npm run build".to_string(), vec!["next build && next export".to_string()]),
             CommandItem::new("npm run dev".to_string(), vec!["next dev".to_string()]),
@@ -118,16 +121,16 @@ mod tests {
 
         assert_eq!(act, commands);
 
-        cleanup(&work_dir);
+        cleanup(work_dir);
     }
 
     #[test]
     fn found_yarn() {
-        let work_dir = PathBuf::from("target/build-tool-launcher/test-pj/yarn-found");
+        let work_dir = "target/build-tool-launcher/test-pj/yarn-found";
 
-        setup(&work_dir, Yarn);
+        setup(work_dir, Yarn);
 
-        let act = _parse_package_json(&work_dir).unwrap();
+        let act = _parse_package_json(work_dir).unwrap();
         let commands = vec![
             CommandItem::new("yarn build".to_string(), vec!["next build && next export".to_string()]),
             CommandItem::new("yarn dev".to_string(), vec!["next dev".to_string()]),
@@ -136,14 +139,14 @@ mod tests {
 
         assert_eq!(act, commands);
 
-        cleanup(&work_dir);
+        cleanup(work_dir);
     }
 
     #[test]
     fn notfound() {
-        let work_dir = PathBuf::from("target/build-tool-launcher/test-pj/package-json-notfound");
+        let work_dir = "target/build-tool-launcher/test-pj/package-json-notfound";
 
-        let act = _parse_package_json(&work_dir).unwrap();
+        let act = _parse_package_json(work_dir).unwrap();
 
         assert_eq!(act, vec![]);
     }

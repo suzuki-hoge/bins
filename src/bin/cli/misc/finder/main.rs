@@ -30,7 +30,7 @@ enum Target {
 fn main() -> anyhow::Result<()> {
     let opt = Opt::from_args();
 
-    let path = opt.path.map(|s| PathBuf::from(s)).unwrap_or(current_dir()?);
+    let path = opt.path.map(PathBuf::from).unwrap_or(current_dir()?);
     let root_len = path.display().to_string().len();
     let target = match (opt.file, opt.directory) {
         (true, false) => File,

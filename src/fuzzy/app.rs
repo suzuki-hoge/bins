@@ -6,13 +6,12 @@ use termion::get_tty;
 use termion::input::TermRead;
 use tui::{backend::CrosstermBackend, Terminal};
 
+use crate::fuzzy::command::{Command, CommandType};
+use crate::fuzzy::item::Item;
+use crate::fuzzy::state::State;
+use crate::fuzzy::view::View;
 
-use crate::fuzzy::command::command::{Command, CommandType};
-use crate::fuzzy::item::item::Item;
-use crate::fuzzy::state::state::State;
-use crate::fuzzy::view::view::View;
-
-pub fn process<I: Item>(view: View, mut state: State<I>, command_types: &[CommandType]) -> anyhow::Result<()> {
+pub fn process<V: View, I: Item>(view: V, mut state: State<I>, command_types: &[CommandType]) -> anyhow::Result<()> {
     enable_raw_mode()?;
     let mut tty = get_tty()?;
     execute!(tty, EnterAlternateScreen)?;

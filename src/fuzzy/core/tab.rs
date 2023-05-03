@@ -1,9 +1,9 @@
 pub struct TabNames {
-    pub names: Vec<String>,
+    pub names: Vec<&'static str>,
 }
 
 impl TabNames {
-    pub fn new(names: Vec<String>) -> Self {
+    pub fn new(names: Vec<&'static str>) -> Self {
         Self { names }
     }
 
@@ -46,7 +46,7 @@ mod tests {
 
     #[test]
     fn test() {
-        let tab_names = TabNames::new(vec![String::from("Tab1"), String::from("Tab2"), String::from("Tab3")]);
+        let tab_names = TabNames::new(vec!["Tab1", "Tab2", "Tab3"]);
         let mut tab = Tab::new(&tab_names);
 
         assert_eq!(tab.current, 0);

@@ -4,7 +4,7 @@ pub struct Guide {
 }
 
 impl Guide {
-    pub fn new(labels: Vec<String>) -> Self {
+    pub fn new(labels: Vec<&'static str>) -> Self {
         Self { labels: labels.into_iter().map(Label::new).collect() }
     }
 }
@@ -12,11 +12,11 @@ impl Guide {
 #[derive(Debug)]
 pub struct Label {
     pub c: char,
-    pub value: String,
+    pub value: &'static str,
 }
 
 impl Label {
-    fn new(value: String) -> Self {
+    fn new(value: &'static str) -> Self {
         Self { c: value.chars().next().unwrap(), value }
     }
 }

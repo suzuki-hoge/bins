@@ -2,11 +2,12 @@ use crate::fuzzy::command::Command;
 use crate::fuzzy::command::Command::*;
 use crate::fuzzy::core::guide::Guide;
 use crate::fuzzy::core::item::Item;
-use crate::fuzzy::core::tab::Tab;
+use crate::fuzzy::core::tab::{Tab, TabNames};
 use crate::fuzzy::state::guide_state::GuideState;
 use crate::fuzzy::state::list_state::ListState;
 use crate::fuzzy::state::prompt_state::PromptState;
 use crate::fuzzy::state::tab_state::TabState;
+use std::borrow::Borrow;
 
 pub mod guide_state;
 pub mod list_state;
@@ -17,37 +18,53 @@ pub mod tab_state;
 pub struct State<I: Item> {
     pub prompt_state: PromptState,
     pub list_state: ListState<I>,
-    pub tab_state: TabState,
-    pub guide_state: GuideState,
+    pub tab_state: Option<TabState>,
+    pub guide_state: Option<GuideState>,
 }
 
 impl<I: Item> State<I> {
-    pub fn new(items: Vec<I>, tab: Tab, guide: Guide) -> Self {
-        let mut slf = Self {
+    pub fn new(items: Vec<I>) -> Self {
+        Self {
             prompt_state: PromptState::init(),
             list_state: ListState::new(items),
-            tab_state: TabState::new(tab),
-            guide_state: GuideState::new(guide.labels),
-        };
-        slf.list_state.rematch(&slf.prompt_state.input, &slf.tab_state.tab);
-        slf
+            tab_state: None,
+            guide_state: None,
+        }
+    }
+
+    pub fn tab(mut self, tab_names: &TabNames) -> Self {
+        self.tab_state = Some(TabState::new(Tab::new(tab_names)));
+        self
+    }
+
+    pub fn guide(mut self, guide: Guide) -> Self {
+        self.guide_state = Some(GuideState::new(guide.labels));
+        self
+    }
+
+    pub fn rematch(&mut self) {
+        if let Some(tab_state) = self.tab_state.borrow() {
+            self.list_state.rematch(&self.prompt_state.input, Some(&tab_state.tab));
+        } else {
+            self.list_state.rematch(&self.prompt_state.input, None);
+        }
     }
 
     pub fn dispatch(&mut self, command: Command) -> bool {
         match command {
             InsertCommand { c } => {
                 self.prompt_state.insert(c);
-                self.list_state.rematch(&self.prompt_state.input, &self.tab_state.tab);
+                self.rematch();
                 false
             }
             RemoveCommand => {
                 self.prompt_state.remove();
-                self.list_state.rematch(&self.prompt_state.input, &self.tab_state.tab);
+                self.rematch();
                 false
             }
             CutCommand => {
                 self.prompt_state.cut();
-                self.list_state.rematch(&self.prompt_state.input, &self.tab_state.tab);
+                self.rematch();
                 false
             }
             RightMoveCommand => {
@@ -75,15 +92,21 @@ impl<I: Item> State<I> {
                 false
             }
             NextTabCommand => {
-                self.tab_state.tab.next();
+                if let Some(tab_state) = self.tab_state.as_mut() {
+                    tab_state.tab.next();
+                }
                 false
             }
             PrevTabCommand => {
-                self.tab_state.tab.prev();
+                if let Some(tab_state) = self.tab_state.as_mut() {
+                    tab_state.tab.prev();
+                }
                 false
             }
             GuideCommand { c } => {
-                self.guide_state.toggle(self.list_state.get_active_item(), c);
+                if let Some(guide_state) = self.guide_state.as_mut() {
+                    guide_state.toggle(self.list_state.get_active_item(), c);
+                }
                 false
             }
             QuitCommand => true,

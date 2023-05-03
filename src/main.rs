@@ -1,3 +1,4 @@
+use tui::layout::{Constraint, Direction};
 use tui::style::{Color, Style};
 use tui::text::Span;
 use tui::widgets::ListItem;
@@ -6,9 +7,9 @@ use bins::fuzzy::app::process;
 use bins::fuzzy::command::CommandType::{GuideSwitch, HorizontalMove, Input, TabSwitch, VerticalMove};
 use bins::fuzzy::core::guide::Guide;
 use bins::fuzzy::core::item::Item;
-use bins::fuzzy::core::tab::{Tab, TabNames};
+use bins::fuzzy::core::tab::TabNames;
 use bins::fuzzy::state::State;
-use bins::fuzzy::view::TabView;
+use bins::fuzzy::view::PanesView;
 
 struct FooItem {
     line: String,
@@ -25,7 +26,6 @@ impl Item for FooItem {
         self.line.to_string()
     }
 
-    // 'static を返せば？ create_title 参照
     fn get_preview(&self) -> Vec<String> {
         vec![
             String::from("  function foo() {"),
@@ -35,8 +35,7 @@ impl Item for FooItem {
         ]
     }
 
-    fn custom_preview_style<S: Into<String>>(&self, s: S) -> ListItem {
-        let s = s.into();
+    fn custom_preview_style(&self, s: String) -> ListItem {
         if s.starts_with('+') {
             ListItem::new(Span::styled(s, Style::default().fg(Color::Green)))
         } else if s.starts_with('-') {
@@ -48,15 +47,19 @@ impl Item for FooItem {
 }
 
 fn main() -> anyhow::Result<()> {
-    // let view = SimpleView::init();
-    // let view = PanesView::new(Direction::Horizontal, Constraint::Percentage(30));
-    let tab_names = TabNames::new(vec![String::from("Tab1"), String::from("Tab2"), String::from("Tab3")]);
     let items = vec![FooItem::new("command"), FooItem::new("core"), FooItem::new("state"), FooItem::new("view")];
-    let guide = Guide::new(vec!["Edit".to_string(), "Run".to_string()]);
-    let state = State::new(items, Tab::new(&tab_names), guide);
-    let view = TabView::new(tab_names);
+    let tab_names = TabNames::new(vec!["Tab1", "Tab2", "Tab3"]);
+    let guide = Guide::new(vec!["Edit", "Run"]);
+
     let command_types = [Input, HorizontalMove, VerticalMove, TabSwitch, GuideSwitch];
 
+    let state = State::new(items).tab(&tab_names).guide(guide);
+
+    // let view = TabView::new(tab_names);
+    // let view = SimpleView::init();
+    let view = PanesView::new(Direction::Horizontal, Constraint::Percentage(30));
+
     process(view, state, &command_types)?;
+
     Ok(())
 }

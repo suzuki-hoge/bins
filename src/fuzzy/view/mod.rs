@@ -45,26 +45,29 @@ impl View for SimpleView {
 }
 
 pub struct PanesView {
-    direction: Direction,
-    constraint: Constraint,
+    sub_direction: Direction,
+    sub_constraint: Constraint,
 }
 
 impl PanesView {
-    pub fn new(direction: Direction, constraint: Constraint) -> Self {
-        Self { direction, constraint }
+    pub fn new(sub_direction: Direction, sub_constraint: Constraint) -> Self {
+        Self { sub_direction, sub_constraint }
     }
 }
 
 impl View for PanesView {
     fn render<I: Item>(&self, frame: &mut Frame<CrosstermBackend<File>>, state: &State<I>) {
-        let layout = Layout::default()
-            .direction(Direction::Vertical)
-            .constraints([Constraint::Length(1), Constraint::Min(1)])
-            .split(frame.size());
+        let constraints = if state.guide_state.is_none() {
+            vec![Constraint::Length(1), Constraint::Min(1)]
+        } else {
+            vec![Constraint::Length(1), Constraint::Min(1), Constraint::Length(1)]
+        };
+
+        let layout = Layout::default().direction(Direction::Vertical).constraints(constraints).split(frame.size());
 
         let sub_layout = Layout::default()
-            .direction(self.direction.clone())
-            .constraints([self.constraint, Constraint::Min(1)])
+            .direction(self.sub_direction.clone())
+            .constraints([self.sub_constraint, Constraint::Min(1)])
             .split(layout[1]);
 
         render_prompt(frame, layout[0], &state.prompt_state);
@@ -72,6 +75,10 @@ impl View for PanesView {
         render_list(frame, sub_layout[0], &state.list_state);
 
         render_preview(frame, sub_layout[1], &state.list_state);
+
+        if state.guide_state.is_some() {
+            render_guide(frame, layout[2], state.guide_state.as_ref().unwrap());
+        }
     }
 }
 
@@ -87,17 +94,22 @@ impl TabView {
 
 impl View for TabView {
     fn render<I: Item>(&self, frame: &mut Frame<CrosstermBackend<File>>, state: &State<I>) {
-        let layout = Layout::default()
-            .direction(Direction::Vertical)
-            .constraints([Constraint::Length(1), Constraint::Length(3), Constraint::Min(1), Constraint::Length(1)])
-            .split(frame.size());
+        let constraints = if state.guide_state.is_none() {
+            vec![Constraint::Length(1), Constraint::Length(3), Constraint::Min(1)]
+        } else {
+            vec![Constraint::Length(1), Constraint::Length(3), Constraint::Min(1), Constraint::Length(1)]
+        };
+
+        let layout = Layout::default().direction(Direction::Vertical).constraints(constraints).split(frame.size());
 
         render_prompt(frame, layout[0], &state.prompt_state);
 
-        render_tabs(frame, layout[1], &self.tab_names, &state.tab_state);
+        render_tabs(frame, layout[1], &self.tab_names, state.tab_state.as_ref().unwrap());
 
         render_list(frame, layout[2], &state.list_state);
 
-        render_guide(frame, layout[3], &state.guide_state);
+        if state.guide_state.is_some() {
+            render_guide(frame, layout[3], state.guide_state.as_ref().unwrap());
+        }
     }
 }

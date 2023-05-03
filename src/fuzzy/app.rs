@@ -18,6 +18,7 @@ pub fn process<V: View, I: Item>(view: V, mut state: State<I>, command_types: &[
     let backend = CrosstermBackend::new(tty);
     let mut terminal = Terminal::new(backend)?;
 
+    state.rematch();
     terminal.draw(|frame| view.render(frame, &state))?;
 
     for key in get_tty()?.keys() {

@@ -30,13 +30,15 @@ impl<I: Item> ListState<I> {
         }
     }
 
-    pub fn rematch(&mut self, input: &String, tab: &Tab) {
+    pub fn rematch(&mut self, input: &String, tab: Option<&Tab>) {
         self.active_line_number = 0;
         self.matched_indices = self
             .items
             .iter()
             .enumerate()
-            .filter(|(_i, item)| self.is_match(&item.get_line(), input) && item.tab_filter(tab))
+            .filter(|(_i, item)| {
+                self.is_match(&item.get_line(), input) && tab.map(|t| item.tab_filter(t)).unwrap_or(true)
+            })
             .map(|(i, _)| i)
             .collect();
     }

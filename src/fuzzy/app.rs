@@ -7,7 +7,7 @@ use termion::input::TermRead;
 use tui::{backend::CrosstermBackend, Terminal};
 
 use crate::fuzzy::command::{Command, CommandType};
-use crate::fuzzy::item::Item;
+use crate::fuzzy::core::item::Item;
 use crate::fuzzy::state::State;
 use crate::fuzzy::view::View;
 

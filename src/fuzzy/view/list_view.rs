@@ -6,10 +6,11 @@ use tui::layout::Rect;
 use tui::widgets::{Block, BorderType, Borders, List, ListItem};
 use tui::Frame;
 
-use crate::fuzzy::item::Item;
-use crate::fuzzy::state::items_state::ItemsState;
+use crate::fuzzy::core::item::Item;
 
-pub fn render_items<I: Item>(frame: &mut Frame<CrosstermBackend<File>>, rect: Rect, state: &ItemsState<I>) {
+use crate::fuzzy::state::list_state::ListState;
+
+pub fn render_list<I: Item>(frame: &mut Frame<CrosstermBackend<File>>, rect: Rect, state: &ListState<I>) {
     let list_items = state.get_matched_lines().into_iter().map(ListItem::new).collect_vec();
 
     let block = Block::default().borders(Borders::ALL).border_type(BorderType::Rounded);

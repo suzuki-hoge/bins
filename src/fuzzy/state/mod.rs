@@ -1,38 +1,48 @@
-pub mod items_state;
-pub mod prompt_state;
-
 use crate::fuzzy::command::Command;
 use crate::fuzzy::command::Command::*;
-use crate::fuzzy::item::Item;
-use crate::fuzzy::state::items_state::ItemsState;
+use crate::fuzzy::core::item::Item;
+use crate::fuzzy::core::tab::Tab;
+use crate::fuzzy::state::list_state::ListState;
 use crate::fuzzy::state::prompt_state::PromptState;
+use crate::fuzzy::state::tab_state::TabState;
+
+pub mod list_state;
+pub mod prompt_state;
+pub mod tab_state;
 
 #[derive(Debug)]
 pub struct State<I: Item> {
     pub prompt_state: PromptState,
-    pub items_state: ItemsState<I>,
+    pub list_state: ListState<I>,
+    pub tab_state: TabState,
 }
 
 impl<I: Item> State<I> {
-    pub fn new(items: Vec<I>) -> Self {
-        Self { prompt_state: PromptState::init(), items_state: ItemsState::new(items) }
+    pub fn new(items: Vec<I>, tab: Tab) -> Self {
+        let mut slf = Self {
+            prompt_state: PromptState::init(),
+            list_state: ListState::new(items),
+            tab_state: TabState::new(tab),
+        };
+        slf.list_state.rematch(&slf.prompt_state.input, &slf.tab_state.tab);
+        slf
     }
 
     pub fn dispatch(&mut self, command: Command) -> bool {
         match command {
             InsertCommand { c } => {
                 self.prompt_state.insert(c);
-                self.items_state.update_filer(&self.prompt_state.input);
+                self.list_state.rematch(&self.prompt_state.input, &self.tab_state.tab);
                 false
             }
             RemoveCommand => {
                 self.prompt_state.remove();
-                self.items_state.update_filer(&self.prompt_state.input);
+                self.list_state.rematch(&self.prompt_state.input, &self.tab_state.tab);
                 false
             }
             CutCommand => {
                 self.prompt_state.cut();
-                self.items_state.update_filer(&self.prompt_state.input);
+                self.list_state.rematch(&self.prompt_state.input, &self.tab_state.tab);
                 false
             }
             RightMoveCommand => {
@@ -52,11 +62,19 @@ impl<I: Item> State<I> {
                 false
             }
             UpMoveCommand => {
-                self.items_state.up();
+                self.list_state.up();
                 false
             }
             DownMoveCommand => {
-                self.items_state.down();
+                self.list_state.down();
+                false
+            }
+            NextTabCommand => {
+                self.tab_state.tab.next();
+                false
+            }
+            PrevTabCommand => {
+                self.tab_state.tab.prev();
                 false
             }
             QuitCommand => true,

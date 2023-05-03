@@ -1,10 +1,10 @@
 use termion::event::Key;
 
 use crate::fuzzy::command::Command::{
-    CutCommand, DownMoveCommand, EndMoveCommand, IgnoreCommand, InsertCommand, QuitCommand, RemoveCommand,
-    RightMoveCommand, SelectCommand, TopMoveCommand, UnselectCommand, UpMoveCommand,
+    CutCommand, DownMoveCommand, EndMoveCommand, IgnoreCommand, InsertCommand, NextTabCommand, PrevTabCommand,
+    QuitCommand, RemoveCommand, RightMoveCommand, SelectCommand, TopMoveCommand, UnselectCommand, UpMoveCommand,
 };
-use crate::fuzzy::command::CommandType::{HorizontalMove, Input, MultiSelect, VerticalMove};
+use crate::fuzzy::command::CommandType::{HorizontalMove, Input, MultiSelect, TabSwitch, VerticalMove};
 
 #[derive(Eq, PartialEq)]
 pub enum CommandType {
@@ -12,8 +12,10 @@ pub enum CommandType {
     HorizontalMove,
     VerticalMove,
     MultiSelect,
+    TabSwitch,
 }
 
+#[derive(Debug)]
 pub enum Command {
     InsertCommand { c: char },
     RemoveCommand,
@@ -29,6 +31,9 @@ pub enum Command {
 
     SelectCommand,
     UnselectCommand,
+
+    NextTabCommand,
+    PrevTabCommand,
 
     QuitCommand,
 
@@ -54,6 +59,9 @@ impl Command {
 
             Key::Char('\t') if types.contains(&MultiSelect) => SelectCommand,
             Key::BackTab if types.contains(&MultiSelect) => UnselectCommand,
+
+            Key::Char('\t') if types.contains(&TabSwitch) => NextTabCommand,
+            Key::BackTab if types.contains(&TabSwitch) => PrevTabCommand,
 
             Key::Ctrl('c') => QuitCommand,
 

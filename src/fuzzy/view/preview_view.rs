@@ -7,10 +7,10 @@ use tui::layout::Rect;
 use tui::widgets::{Block, BorderType, Borders, List, ListItem};
 use tui::Frame;
 
-use crate::fuzzy::item::Item;
-use crate::fuzzy::state::items_state::ItemsState;
+use crate::fuzzy::core::item::Item;
+use crate::fuzzy::state::list_state::ListState;
 
-pub fn render_preview<I: Item>(frame: &mut Frame<CrosstermBackend<File>>, rect: Rect, state: &ItemsState<I>) {
+pub fn render_preview<I: Item>(frame: &mut Frame<CrosstermBackend<File>>, rect: Rect, state: &ListState<I>) {
     let item = state.get_active_item();
 
     let list_items: Vec<ListItem> = item.get_preview().into_iter().map(|s| item.custom_preview_style(s)).collect_vec();

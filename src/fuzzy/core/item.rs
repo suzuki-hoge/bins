@@ -1,3 +1,4 @@
+use crate::fuzzy::core::tab::Tab;
 use tui::widgets::ListItem;
 
 pub trait Item {
@@ -9,7 +10,7 @@ pub trait Item {
         ListItem::new(s.into())
     }
 
-    fn get_tab_names() -> Vec<String>;
-
-    fn shift_tab(&mut self);
+    fn tab_filter(&self, _tab: &Tab) -> bool {
+        true
+    }
 }

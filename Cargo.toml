@@ -5,10 +5,8 @@ edition = "2021"
 
 [dependencies]
 anyhow = "1.0.68"
-crossterm = "0.26.0"
+crossterm = "0.25.0"
 itertools = "0.10.5"
-rayon = "1.6.1"
-regex = "1.7.1"
 termion = "2.0.1"
 tui = "0.19.0"
 

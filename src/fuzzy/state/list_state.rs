@@ -41,7 +41,7 @@ impl<I: Item> ListState<I> {
             .collect();
     }
 
-    pub fn get_matched_lines(&self, page_size:u16) -> Vec<String> {
+    pub fn get_matched_lines(&self, _page_size: u16) -> Vec<String> {
         self.matched_indices
             .iter()
             .enumerate()

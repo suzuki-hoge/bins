@@ -7,11 +7,13 @@ use tui::Frame;
 use crate::fuzzy::core::item::Item;
 use crate::fuzzy::core::tab::TabNames;
 use crate::fuzzy::state::State;
+use crate::fuzzy::view::guide_view::render_guide;
 use crate::fuzzy::view::list_view::render_list;
 use crate::fuzzy::view::preview_view::render_preview;
 use crate::fuzzy::view::prompt_view::render_prompt;
 use crate::fuzzy::view::tab_view::render_tabs;
 
+mod guide_view;
 mod list_view;
 mod preview_view;
 mod prompt_view;
@@ -87,7 +89,7 @@ impl View for TabView {
     fn render<I: Item>(&self, frame: &mut Frame<CrosstermBackend<File>>, state: &State<I>) {
         let layout = Layout::default()
             .direction(Direction::Vertical)
-            .constraints([Constraint::Length(1), Constraint::Length(3), Constraint::Min(1)])
+            .constraints([Constraint::Length(1), Constraint::Length(3), Constraint::Min(1), Constraint::Length(1)])
             .split(frame.size());
 
         render_prompt(frame, layout[0], &state.prompt_state);
@@ -95,5 +97,7 @@ impl View for TabView {
         render_tabs(frame, layout[1], &self.tab_names, &state.tab_state);
 
         render_list(frame, layout[2], &state.list_state);
+
+        render_guide(frame, layout[3], &state.guide_state);
     }
 }

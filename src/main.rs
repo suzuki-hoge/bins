@@ -3,7 +3,8 @@ use tui::text::Span;
 use tui::widgets::ListItem;
 
 use bins::fuzzy::app::process;
-use bins::fuzzy::command::CommandType::{HorizontalMove, Input, TabSwitch, VerticalMove};
+use bins::fuzzy::command::CommandType::{GuideSwitch, HorizontalMove, Input, TabSwitch, VerticalMove};
+use bins::fuzzy::core::guide::Guide;
 use bins::fuzzy::core::item::Item;
 use bins::fuzzy::core::tab::{Tab, TabNames};
 use bins::fuzzy::state::State;
@@ -44,17 +45,6 @@ impl Item for FooItem {
             ListItem::new(Span::from(s))
         }
     }
-
-    fn tab_filter(&self, _tab: &Tab) -> bool {
-        true
-        // if tab.current == 0 {
-        //     self.line.contains('c')
-        // } else if tab.current == 1 {
-        //     self.line.contains('i')
-        // } else {
-        //     self.line.contains('s')
-        // }
-    }
 }
 
 fn main() -> anyhow::Result<()> {
@@ -62,9 +52,10 @@ fn main() -> anyhow::Result<()> {
     // let view = PanesView::new(Direction::Horizontal, Constraint::Percentage(30));
     let tab_names = TabNames::new(vec![String::from("Tab1"), String::from("Tab2"), String::from("Tab3")]);
     let items = vec![FooItem::new("command"), FooItem::new("core"), FooItem::new("state"), FooItem::new("view")];
-    let state = State::new(items, Tab::new(&tab_names));
+    let guide = Guide::new(vec!["Edit".to_string(), "Run".to_string()]);
+    let state = State::new(items, Tab::new(&tab_names), guide);
     let view = TabView::new(tab_names);
-    let command_types = [Input, HorizontalMove, VerticalMove, TabSwitch];
+    let command_types = [Input, HorizontalMove, VerticalMove, TabSwitch, GuideSwitch];
 
     process(view, state, &command_types)?;
     Ok(())

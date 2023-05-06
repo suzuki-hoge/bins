@@ -47,7 +47,7 @@ pub enum Command {
 impl Command {
     pub fn create(key: Key, types: &[CommandType]) -> Self {
         match key {
-            Key::Char(c) if types.contains(&Input) && c.is_ascii_lowercase() => InsertCommand { c },
+            Key::Char(c) if types.contains(&Input) && !c.is_ascii_uppercase() => InsertCommand { c },
             Key::Backspace if types.contains(&Input) => RemoveCommand,
             Key::Ctrl('k') if types.contains(&Input) => CutCommand,
 

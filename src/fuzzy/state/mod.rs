@@ -105,7 +105,9 @@ impl<I: Item> State<I> {
             }
             GuideCommand { c } => {
                 if let Some(guide_state) = self.guide_state.as_mut() {
-                    guide_state.toggle(self.list_state.get_active_item(), c);
+                    if let Some(item) = self.list_state.get_active_item() {
+                        guide_state.toggle(item, c);
+                    }
                 }
                 false
             }

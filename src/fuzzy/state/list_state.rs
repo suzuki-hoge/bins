@@ -1,16 +1,18 @@
 use crate::fuzzy::core::item::Item;
 use crate::fuzzy::core::tab::Tab;
+use crate::fuzzy::matcher::Matcher;
 
 #[derive(Debug)]
 pub struct ListState<I: Item> {
     items: Vec<I>,
+    matcher: Matcher,
     active_line_number: usize,
     matched_indices: Vec<usize>,
 }
 
 impl<I: Item> ListState<I> {
     pub fn new(items: Vec<I>) -> Self {
-        Self { items, active_line_number: 0, matched_indices: vec![] }
+        Self { items, matcher: Matcher::new(""), active_line_number: 0, matched_indices: vec![] }
     }
 
     pub fn up(&mut self) {
@@ -21,23 +23,17 @@ impl<I: Item> ListState<I> {
         self.active_line_number += 1;
     }
 
-    // tmp
-    fn is_match(&self, line: &String, input: &String) -> bool {
-        if line.is_empty() {
-            true
-        } else {
-            line.contains(input)
-        }
-    }
+    pub fn rematch(&mut self, input: &str, tab: Option<&Tab>) {
+        self.matcher = Matcher::new(input);
 
-    pub fn rematch(&mut self, input: &String, tab: Option<&Tab>) {
         self.active_line_number = 0;
+
         self.matched_indices = self
             .items
             .iter()
             .enumerate()
-            .filter(|(_i, item)| {
-                self.is_match(&item.get_line(), input) && tab.map(|t| item.tab_filter(t)).unwrap_or(true)
+            .filter(|(_, item)| {
+                self.matcher.is_match(&item.get_line()) && tab.map(|t| item.tab_filter(t)).unwrap_or(true)
             })
             .map(|(i, _)| i)
             .collect();
@@ -47,10 +43,10 @@ impl<I: Item> ListState<I> {
         self.matched_indices
             .iter()
             .enumerate()
-            .map(|(i, &index)| {
+            .map(|(line_number, &index)| {
                 format!(
                     "{} {}: {}",
-                    if i == self.active_line_number { "*" } else { " " },
+                    if line_number == self.active_line_number { "*" } else { " " },
                     index,
                     self.items[index].get_line()
                 )
@@ -58,7 +54,21 @@ impl<I: Item> ListState<I> {
             .collect()
     }
 
-    pub fn get_active_item(&self) -> &I {
-        &self.items[self.matched_indices[self.active_line_number]]
+    pub fn get_matched_line_parts(&self) -> Vec<(bool, Vec<(String, bool)>)> {
+        self.matched_indices
+            .iter()
+            .enumerate()
+            .map(|(line_number, &index)| {
+                (line_number == self.active_line_number, self.matcher.get_matched_parts(&self.items[index].get_line()))
+            })
+            .collect()
+    }
+
+    pub fn get_active_item(&self) -> Option<&I> {
+        if self.active_line_number < self.matched_indices.len() {
+            Some(&self.items[self.matched_indices[self.active_line_number]])
+        } else {
+            None
+        }
     }
 }

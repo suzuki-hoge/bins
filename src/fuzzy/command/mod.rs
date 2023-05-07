@@ -1,9 +1,9 @@
 use termion::event::Key;
 
 use crate::fuzzy::command::Command::{
-    CutCommand, DownMoveCommand, EndMoveCommand, GuideCommand, IgnoreCommand, InsertCommand, NextTabCommand,
-    PrevTabCommand, QuitCommand, RemoveCommand, RightMoveCommand, SelectCommand, TopMoveCommand, UnselectCommand,
-    UpMoveCommand,
+    CutCommand, DownMoveCommand, EndMoveCommand, FixCommand, GuideCommand, IgnoreCommand, InsertCommand,
+    NextTabCommand, PrevTabCommand, QuitCommand, RemoveCommand, RightMoveCommand, SelectCommand, TopMoveCommand,
+    UnselectCommand, UpMoveCommand,
 };
 use crate::fuzzy::command::CommandType::{GuideSwitch, HorizontalMove, Input, MultiSelect, TabSwitch, VerticalMove};
 
@@ -39,6 +39,8 @@ pub enum Command {
 
     GuideCommand { c: char },
 
+    FixCommand,
+
     QuitCommand,
 
     IgnoreCommand,
@@ -47,7 +49,9 @@ pub enum Command {
 impl Command {
     pub fn create(key: Key, types: &[CommandType]) -> Self {
         match key {
-            Key::Char(c) if types.contains(&Input) && !c.is_ascii_uppercase() && c != '\t' => InsertCommand { c },
+            Key::Char(c) if types.contains(&Input) && !c.is_ascii_uppercase() && c != '\t' && c != '\n' => {
+                InsertCommand { c }
+            }
             Key::Backspace if types.contains(&Input) => RemoveCommand,
             Key::Ctrl('k') if types.contains(&Input) => CutCommand,
 
@@ -70,6 +74,8 @@ impl Command {
             Key::BackTab if types.contains(&TabSwitch) => PrevTabCommand,
 
             Key::Char(c) if types.contains(&GuideSwitch) && c.is_ascii_uppercase() => GuideCommand { c },
+
+            Key::Char('\n') => FixCommand,
 
             Key::Ctrl('c') => QuitCommand,
 

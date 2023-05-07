@@ -12,6 +12,7 @@ use bins::fuzzy::core::tab::{Tab, TabNames};
 use bins::fuzzy::state::State;
 use bins::fuzzy::view::{PanesView, SimpleView, TabView};
 
+#[derive(Clone, Debug)]
 struct FooItem {
     line: String,
 }
@@ -70,20 +71,20 @@ fn main() -> anyhow::Result<()> {
 
     let guide = Guide::new(vec!["edit", "run"]);
 
-    match arg {
+    let x = match arg {
         "s" => {
             let view = SimpleView::init();
             let state = State::new(items).guide(guide);
             let command_types = [Input, HorizontalMove, VerticalMove, MultiSelect];
 
-            process(view, state, &command_types)?;
+            process(view, state, &command_types)?
         }
         "p" => {
             let view = PanesView::new(Direction::Horizontal, Constraint::Percentage(30));
             let state = State::new(items).guide(guide);
             let command_types = [Input, HorizontalMove, VerticalMove, MultiSelect, GuideSwitch];
 
-            process(view, state, &command_types)?;
+            process(view, state, &command_types)?
         }
         "t" => {
             let tab_names = TabNames::new(vec!["All", "Filter-1", "Filter-2"]);
@@ -91,10 +92,12 @@ fn main() -> anyhow::Result<()> {
             let view = TabView::new(tab_names);
             let command_types = [Input, HorizontalMove, VerticalMove, TabSwitch, GuideSwitch];
 
-            process(view, state, &command_types)?;
+            process(view, state, &command_types)?
         }
         _ => panic!(),
     };
+
+    dbg!(x);
 
     Ok(())
 }

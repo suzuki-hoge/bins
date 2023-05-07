@@ -1,8 +1,9 @@
 use crate::fuzzy::core::guide::Label;
 use crate::fuzzy::core::tab::Tab;
+use std::fmt::Debug;
 use tui::widgets::ListItem;
 
-pub trait Item {
+pub trait Item: Clone + Debug {
     fn get_line(&self) -> String;
 
     fn get_preview(&self) -> Vec<String>;

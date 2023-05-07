@@ -18,6 +18,10 @@ impl GuideState {
             }
         }
     }
+
+    pub fn get_active_chars(&self) -> Vec<char> {
+        self.labels.iter().filter(|(_, b)| *b).map(|(label, _)| label.c).collect()
+    }
 }
 
 #[cfg(test)]
@@ -26,6 +30,7 @@ mod tests {
     use crate::fuzzy::core::item::Item;
     use crate::fuzzy::state::guide_state::GuideState;
 
+    #[derive(Clone, Debug)]
     struct TestItem {
         value: usize,
     }

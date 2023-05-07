@@ -1,6 +1,8 @@
 use crate::fuzzy::core::item::Item;
 use crate::fuzzy::core::tab::Tab;
 use crate::fuzzy::matcher::Matcher;
+use itertools::Itertools;
+use std::collections::HashSet;
 
 #[derive(Debug)]
 pub struct ListState<I: Item> {
@@ -8,11 +10,18 @@ pub struct ListState<I: Item> {
     matcher: Matcher,
     active_line_number: usize,
     matched_indices: Vec<usize>,
+    selected_indices: HashSet<usize>,
 }
 
 impl<I: Item> ListState<I> {
     pub fn new(items: Vec<I>) -> Self {
-        Self { items, matcher: Matcher::new(""), active_line_number: 0, matched_indices: vec![] }
+        Self {
+            items,
+            matcher: Matcher::new(""),
+            active_line_number: 0,
+            matched_indices: vec![],
+            selected_indices: HashSet::new(),
+        }
     }
 
     pub fn up(&mut self) {
@@ -29,6 +38,14 @@ impl<I: Item> ListState<I> {
         } else {
             self.active_line_number += 1;
         }
+    }
+
+    pub fn select(&mut self) {
+        self.selected_indices.insert(self.active_line_number);
+    }
+
+    pub fn unselect(&mut self) {
+        self.selected_indices.remove(&self.active_line_number);
     }
 
     pub fn get_active_item(&self) -> Option<&I> {
@@ -66,6 +83,12 @@ impl<I: Item> ListState<I> {
                 (line_number == self.active_line_number, self.matcher.get_matched_parts(&self.items[index].get_line()))
             })
             .collect()
+    }
+
+    pub fn get_selected_items(&self) -> Vec<I> {
+        let mut indices = self.selected_indices.iter().collect_vec();
+        indices.sort();
+        indices.into_iter().map(|&index| self.items[index].clone()).collect()
     }
 }
 

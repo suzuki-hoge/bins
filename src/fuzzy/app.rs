@@ -11,7 +11,11 @@ use crate::fuzzy::core::item::Item;
 use crate::fuzzy::state::State;
 use crate::fuzzy::view::View;
 
-pub fn process<V: View, I: Item>(view: V, mut state: State<I>, command_types: &[CommandType]) -> anyhow::Result<()> {
+pub fn process<V: View, I: Item>(
+    view: V,
+    mut state: State<I>,
+    command_types: &[CommandType],
+) -> anyhow::Result<(Vec<I>, Vec<char>)> {
     enable_raw_mode()?;
     let mut tty = get_tty()?;
     execute!(tty, EnterAlternateScreen)?;
@@ -34,5 +38,5 @@ pub fn process<V: View, I: Item>(view: V, mut state: State<I>, command_types: &[
     execute!(terminal.backend_mut(), LeaveAlternateScreen)?;
     terminal.show_cursor()?;
 
-    Ok(())
+    Ok(state.get_result())
 }

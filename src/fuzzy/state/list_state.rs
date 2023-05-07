@@ -16,11 +16,27 @@ impl<I: Item> ListState<I> {
     }
 
     pub fn up(&mut self) {
-        self.active_line_number -= 1;
+        if self.active_line_number == 0 {
+            self.active_line_number = self.matched_indices.len() - 1;
+        } else {
+            self.active_line_number -= 1;
+        }
     }
 
     pub fn down(&mut self) {
-        self.active_line_number += 1;
+        if self.active_line_number == self.matched_indices.len() - 1 {
+            self.active_line_number = 0;
+        } else {
+            self.active_line_number += 1;
+        }
+    }
+
+    pub fn get_active_item(&self) -> Option<&I> {
+        if self.active_line_number < self.matched_indices.len() {
+            Some(&self.items[self.matched_indices[self.active_line_number]])
+        } else {
+            None
+        }
     }
 
     pub fn rematch(&mut self, input: &str, tab: Option<&Tab>) {
@@ -39,36 +55,40 @@ impl<I: Item> ListState<I> {
             .collect();
     }
 
-    pub fn get_matched_lines(&self, _page_size: u16) -> Vec<String> {
-        self.matched_indices
-            .iter()
-            .enumerate()
-            .map(|(line_number, &index)| {
-                format!(
-                    "{} {}: {}",
-                    if line_number == self.active_line_number { "*" } else { " " },
-                    index,
-                    self.items[index].get_line()
-                )
-            })
-            .collect()
-    }
+    pub fn get_matched_line_parts(&self, page_size: u16) -> Vec<(bool, Vec<(String, bool)>)> {
+        let range = range(self.active_line_number, page_size);
 
-    pub fn get_matched_line_parts(&self) -> Vec<(bool, Vec<(String, bool)>)> {
         self.matched_indices
             .iter()
             .enumerate()
+            .filter(|(line_number, _)| range.0 <= *line_number && *line_number <= range.1)
             .map(|(line_number, &index)| {
                 (line_number == self.active_line_number, self.matcher.get_matched_parts(&self.items[index].get_line()))
             })
             .collect()
     }
+}
 
-    pub fn get_active_item(&self) -> Option<&I> {
-        if self.active_line_number < self.matched_indices.len() {
-            Some(&self.items[self.matched_indices[self.active_line_number]])
-        } else {
-            None
-        }
+fn range(line_number: usize, page_size: u16) -> (usize, usize) {
+    let page_size = page_size as usize;
+    let s = line_number / page_size * page_size;
+    (s, s + page_size - 1)
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::fuzzy::state::list_state::range;
+
+    #[test]
+    fn range_test() {
+        assert_eq!(range(0, 4), (0, 3));
+        assert_eq!(range(1, 4), (0, 3));
+        assert_eq!(range(2, 4), (0, 3));
+        assert_eq!(range(3, 4), (0, 3));
+
+        assert_eq!(range(4, 4), (4, 7));
+        assert_eq!(range(5, 4), (4, 7));
+        assert_eq!(range(6, 4), (4, 7));
+        assert_eq!(range(7, 4), (4, 7));
     }
 }

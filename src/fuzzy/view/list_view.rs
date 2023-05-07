@@ -13,7 +13,7 @@ use crate::fuzzy::state::list_state::ListState;
 
 pub fn render_list<I: Item>(frame: &mut Frame<CrosstermBackend<File>>, rect: Rect, state: &ListState<I>) {
     let list_items = state
-        .get_matched_line_parts()
+        .get_matched_line_parts(rect.height - 2) // top border & bottom border
         .into_iter()
         .map(|(is_active_line, mut parts)| {
             parts.push((" ".repeat(200), false));

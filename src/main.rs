@@ -48,7 +48,12 @@ impl Item for FooItem {
 
 fn main() -> anyhow::Result<()> {
     // todo: capsule
-    let items = vec![FooItem::new("command"), FooItem::new("core"), FooItem::new("state"), FooItem::new("view")];
+    let items = vec!["command", "core", "state", "view"]
+        .repeat(30)
+        .into_iter()
+        .enumerate()
+        .map(|(i, s)| FooItem::new(&format!("{s} {i}")))
+        .collect();
     let tab_names = TabNames::new(vec!["Tab1", "Tab2", "Tab3"]);
     let guide = Guide::new(vec!["Edit", "Run"]);
 

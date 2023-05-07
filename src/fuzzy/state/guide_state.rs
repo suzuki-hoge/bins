@@ -40,9 +40,9 @@ mod tests {
         }
 
         fn can_activate_guide_label(&self, label: &Label) -> bool {
-            match (self.value, label.value) {
+            match (self.value, label.c) {
                 (1, _) => true,
-                (2, "Edit") => true,
+                (2, 'E') => true,
                 (_, _) => false,
             }
         }

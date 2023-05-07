@@ -17,6 +17,6 @@ pub struct Label {
 
 impl Label {
     fn new(value: &'static str) -> Self {
-        Self { c: value.chars().next().unwrap(), value }
+        Self { c: value.chars().next().unwrap().to_ascii_uppercase(), value }
     }
 }

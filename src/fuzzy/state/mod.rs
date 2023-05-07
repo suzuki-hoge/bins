@@ -94,12 +94,14 @@ impl<I: Item> State<I> {
             NextTabCommand => {
                 if let Some(tab_state) = self.tab_state.as_mut() {
                     tab_state.tab.next();
+                    self.rematch();
                 }
                 false
             }
             PrevTabCommand => {
                 if let Some(tab_state) = self.tab_state.as_mut() {
                     tab_state.tab.prev();
+                    self.rematch();
                 }
                 false
             }

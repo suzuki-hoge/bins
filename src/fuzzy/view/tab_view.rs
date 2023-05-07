@@ -17,7 +17,11 @@ pub fn render_tabs(frame: &mut Frame<CrosstermBackend<File>>, rect: Rect, tab_na
     let block = Block::default().borders(Borders::ALL).border_type(BorderType::Rounded);
 
     let paragraph = Paragraph::new(Spans::from(
-        tab_names.names.iter().enumerate().map(|(i, name)| create_span(i, name, &state.tab)).collect_vec(),
+        Itertools::intersperse(
+            tab_names.names.iter().enumerate().map(|(i, name)| create_span(i, name, &state.tab)),
+            create_gap_span(),
+        )
+        .collect_vec(),
     ))
     .block(block);
 
@@ -30,4 +34,8 @@ fn create_span(i: usize, name: &str, tab: &Tab) -> Span<'static> {
     } else {
         Span::styled(name.to_owned(), Style::default().fg(Color::Rgb(190, 190, 190)).add_modifier(Modifier::BOLD))
     }
+}
+
+fn create_gap_span() -> Span<'static> {
+    Span::raw(" | ")
 }

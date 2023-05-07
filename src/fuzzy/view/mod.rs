@@ -77,7 +77,11 @@ impl View for PanesView {
         render_preview(frame, sub_layout[1], &state.list_state);
 
         if state.guide_state.is_some() {
-            render_guide(frame, layout[2], state.guide_state.as_ref().unwrap());
+            let guide_area = Layout::default()
+                .direction(Direction::Horizontal)
+                .constraints([Constraint::Length(1), Constraint::Min(1)])
+                .split(layout[2]);
+            render_guide(frame, guide_area[1], state.guide_state.as_ref().unwrap());
         }
     }
 }

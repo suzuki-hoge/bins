@@ -3,7 +3,7 @@ use std::fs::File;
 use itertools::Itertools;
 use tui::backend::CrosstermBackend;
 use tui::layout::Rect;
-use tui::style::{Color, Style};
+use tui::style::{Color, Modifier, Style};
 use tui::text::{Span, Spans};
 use tui::widgets::{Block, BorderType, Borders, List, ListItem};
 use tui::Frame;
@@ -38,9 +38,13 @@ pub fn render_list<I: Item>(frame: &mut Frame<CrosstermBackend<File>>, rect: Rec
 
 fn get_style(is_active_line: bool, is_matched: bool) -> Style {
     match (is_active_line, is_matched) {
-        (true, true) => Style::default().fg(Color::Red).bg(Color::Cyan),
+        (true, true) => {
+            Style::default().fg(Color::Red).bg(Color::Cyan).add_modifier(Modifier::BOLD | Modifier::UNDERLINED)
+        }
+        (false, true) => {
+            Style::default().fg(Color::Red).bg(Color::White).add_modifier(Modifier::BOLD | Modifier::UNDERLINED)
+        }
         (true, false) => Style::default().fg(Color::Black).bg(Color::Cyan),
-        (false, true) => Style::default().fg(Color::Red).bg(Color::White),
         (false, false) => Style::default().fg(Color::Black).bg(Color::White),
     }
 }

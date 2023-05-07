@@ -81,7 +81,6 @@ impl<I: Item> State<I> {
             DownMoveCommand => self.list_state.down(),
 
             SelectCommand => self.list_state.select(),
-            UnselectCommand => self.list_state.unselect(),
 
             NextTabCommand => {
                 if let Some(tab_state) = self.tab_state.as_mut() {

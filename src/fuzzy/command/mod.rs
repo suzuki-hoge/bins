@@ -3,7 +3,7 @@ use termion::event::Key;
 use crate::fuzzy::command::Command::{
     CutCommand, DownMoveCommand, EndMoveCommand, FixCommand, GuideCommand, IgnoreCommand, InsertCommand,
     NextTabCommand, PrevTabCommand, QuitCommand, RemoveCommand, RightMoveCommand, SelectCommand, TopMoveCommand,
-    UnselectCommand, UpMoveCommand,
+    UpMoveCommand,
 };
 use crate::fuzzy::command::CommandType::{GuideSwitch, HorizontalMove, Input, MultiSelect, TabSwitch, VerticalMove};
 
@@ -32,7 +32,6 @@ pub enum Command {
     DownMoveCommand,
 
     SelectCommand,
-    UnselectCommand,
 
     NextTabCommand,
     PrevTabCommand,
@@ -66,7 +65,6 @@ impl Command {
             Key::Ctrl('n') if types.contains(&VerticalMove) => DownMoveCommand,
 
             Key::Char('\t') if types.contains(&MultiSelect) => SelectCommand,
-            Key::BackTab if types.contains(&MultiSelect) => UnselectCommand,
 
             Key::Char('\t') if types.contains(&TabSwitch) => NextTabCommand,
             Key::BackTab if types.contains(&TabSwitch) => PrevTabCommand,

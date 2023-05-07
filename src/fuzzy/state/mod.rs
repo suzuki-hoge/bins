@@ -50,7 +50,7 @@ impl<I: Item> State<I> {
         }
     }
 
-    pub fn get_result(self) -> (Vec<I>, Vec<char>) {
+    pub fn get_result(&self) -> (Vec<I>, Vec<char>) {
         let items = self.list_state.get_selected_items();
         let chars = self.guide_state.as_ref().map(|state| state.get_active_chars()).unwrap_or(vec![]);
         (items, chars)
@@ -58,44 +58,44 @@ impl<I: Item> State<I> {
 
     pub fn dispatch(&mut self, command: Command) -> bool {
         match command {
-            InsertCommand { c } => {
+            Insert { c } => {
                 self.prompt_state.insert(c);
                 self.rematch();
             }
-            RemoveCommand => {
+            Remove => {
                 self.prompt_state.remove();
                 self.rematch();
             }
-            CutCommand => {
+            Cut => {
                 self.prompt_state.cut();
                 self.rematch();
             }
 
-            RightMoveCommand => self.prompt_state.right(),
-            LeftMoveCommand => self.prompt_state.left(),
+            MoveRight => self.prompt_state.right(),
+            MoveLeft => self.prompt_state.left(),
 
-            TopMoveCommand => self.prompt_state.top(),
-            EndMoveCommand => self.prompt_state.end(),
+            MoveTop => self.prompt_state.top(),
+            MoveEnd => self.prompt_state.end(),
 
-            UpMoveCommand => self.list_state.up(),
-            DownMoveCommand => self.list_state.down(),
+            MoveUp => self.list_state.up(),
+            MoveDown => self.list_state.down(),
 
-            SelectCommand => self.list_state.select(),
+            Select => self.list_state.select(),
 
-            NextTabCommand => {
+            NextTab => {
                 if let Some(tab_state) = self.tab_state.as_mut() {
                     tab_state.tab.next();
                     self.rematch();
                 }
             }
-            PrevTabCommand => {
+            PrevTab => {
                 if let Some(tab_state) = self.tab_state.as_mut() {
                     tab_state.tab.prev();
                     self.rematch();
                 }
             }
 
-            GuideCommand { c } => {
+            SwitchGuide { c } => {
                 if let Some(guide_state) = self.guide_state.as_mut() {
                     if let Some(item) = self.list_state.get_active_item() {
                         guide_state.toggle(item, c);
@@ -103,13 +103,13 @@ impl<I: Item> State<I> {
                 }
             }
 
-            FixCommand => self.list_state.select(),
+            Fix => self.list_state.fix(),
 
-            QuitCommand => {}
+            Quit => {}
 
             _ => {}
         };
 
-        matches!(command, FixCommand | QuitCommand)
+        matches!(command, Fix | Quit)
     }
 }

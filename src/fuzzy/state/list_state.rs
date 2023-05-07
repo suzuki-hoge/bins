@@ -59,6 +59,11 @@ impl<I: Item> ListState<I> {
         }
     }
 
+    pub fn fix(&mut self) {
+        let id = self.matched_ids[self.active_line_number];
+        self.selected_ids.insert(id);
+    }
+
     pub fn get_active_item(&self) -> Option<&I> {
         if self.active_line_number < self.matched_ids.len() {
             Some(&self.items[self.matched_ids[self.active_line_number]])

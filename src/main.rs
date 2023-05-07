@@ -4,13 +4,10 @@ use tui::style::{Color, Style};
 use tui::text::Span;
 use tui::widgets::ListItem;
 
-use bins::fuzzy::app::process;
-use bins::fuzzy::command::CommandType::{GuideSwitch, HorizontalMove, Input, MultiSelect, TabSwitch, VerticalMove};
-use bins::fuzzy::core::guide::Guide;
 use bins::fuzzy::core::item::Item;
-use bins::fuzzy::core::tab::{Tab, TabNames};
-use bins::fuzzy::state::State;
-use bins::fuzzy::view::{PanesView, SimpleView, TabView};
+use bins::fuzzy::core::tab::Tab;
+
+use bins::fuzzy::FuzzyBuilder;
 
 #[derive(Clone, Debug)]
 struct FooItem {
@@ -61,38 +58,21 @@ fn main() -> anyhow::Result<()> {
     let args: Vec<String> = env::args().collect();
     let arg: &str = args[1].as_ref();
 
-    // todo: capsule
     let items = vec!["command", "core", "state", "view"]
-        .repeat(30)
+        .repeat(10000)
         .into_iter()
         .enumerate()
         .map(|(i, s)| FooItem::new(&format!("{s} {i}")))
         .collect();
 
-    let guide = Guide::new(vec!["edit", "run"]);
-
     let x = match arg {
-        "s" => {
-            let view = SimpleView::init();
-            let state = State::new(items).guide(guide);
-            let command_types = [Input, HorizontalMove, VerticalMove, MultiSelect];
-
-            process(view, state, &command_types)?
-        }
-        "p" => {
-            let view = PanesView::new(Direction::Horizontal, Constraint::Percentage(30));
-            let state = State::new(items).guide(guide);
-            let command_types = [Input, HorizontalMove, VerticalMove, MultiSelect, GuideSwitch];
-
-            process(view, state, &command_types)?
-        }
+        "s" => FuzzyBuilder::simple(items).build().run()?,
+        "p" => FuzzyBuilder::pane(items, Direction::Horizontal, Constraint::Percentage(30))
+            .guide(vec!["edit", "run"])
+            .build()
+            .run()?,
         "t" => {
-            let tab_names = TabNames::new(vec!["All", "Filter-1", "Filter-2"]);
-            let state = State::new(items).tab(&tab_names).guide(guide);
-            let view = TabView::new(tab_names);
-            let command_types = [Input, HorizontalMove, VerticalMove, TabSwitch, GuideSwitch];
-
-            process(view, state, &command_types)?
+            FuzzyBuilder::tab(items, vec!["All", "Filter-1", "Filter-2"]).guide(vec!["edit", "run"]).build().run()?
         }
         _ => panic!(),
     };
@@ -100,4 +80,7 @@ fn main() -> anyhow::Result<()> {
     dbg!(x);
 
     Ok(())
+
+    // todo: match preview
+    // todo: use ref
 }

@@ -1,9 +1,8 @@
 use termion::event::Key;
 
 use crate::fuzzy::command::Command::{
-    CutCommand, DownMoveCommand, EndMoveCommand, FixCommand, GuideCommand, IgnoreCommand, InsertCommand,
-    NextTabCommand, PrevTabCommand, QuitCommand, RemoveCommand, RightMoveCommand, SelectCommand, TopMoveCommand,
-    UpMoveCommand,
+    Cut, Fix, Ignore, Insert, MoveDown, MoveEnd, MoveRight, MoveTop, MoveUp, NextTab, PrevTab, Quit, Remove, Select,
+    SwitchGuide,
 };
 use crate::fuzzy::command::CommandType::{GuideSwitch, HorizontalMove, Input, MultiSelect, TabSwitch, VerticalMove};
 
@@ -19,65 +18,63 @@ pub enum CommandType {
 
 #[derive(Debug)]
 pub enum Command {
-    InsertCommand { c: char },
-    RemoveCommand,
-    CutCommand,
+    Insert { c: char },
+    Remove,
+    Cut,
 
-    LeftMoveCommand,
-    RightMoveCommand,
-    TopMoveCommand,
-    EndMoveCommand,
+    MoveLeft,
+    MoveRight,
+    MoveTop,
+    MoveEnd,
 
-    UpMoveCommand,
-    DownMoveCommand,
+    MoveUp,
+    MoveDown,
 
-    SelectCommand,
+    Select,
 
-    NextTabCommand,
-    PrevTabCommand,
+    NextTab,
+    PrevTab,
 
-    GuideCommand { c: char },
+    SwitchGuide { c: char },
 
-    FixCommand,
+    Fix,
 
-    QuitCommand,
+    Quit,
 
-    IgnoreCommand,
+    Ignore,
 }
 
 impl Command {
     pub fn create(key: Key, types: &[CommandType]) -> Self {
         match key {
-            Key::Char(c) if types.contains(&Input) && !c.is_ascii_uppercase() && c != '\t' && c != '\n' => {
-                InsertCommand { c }
-            }
-            Key::Backspace if types.contains(&Input) => RemoveCommand,
-            Key::Ctrl('k') if types.contains(&Input) => CutCommand,
+            Key::Char(c) if types.contains(&Input) && !c.is_ascii_uppercase() && c != '\t' && c != '\n' => Insert { c },
+            Key::Backspace if types.contains(&Input) => Remove,
+            Key::Ctrl('k') if types.contains(&Input) => Cut,
 
-            Key::Left if types.contains(&HorizontalMove) => RightMoveCommand,
-            Key::Right if types.contains(&HorizontalMove) => RightMoveCommand,
-            Key::Ctrl('a') if types.contains(&HorizontalMove) => TopMoveCommand,
-            Key::Ctrl('e') if types.contains(&HorizontalMove) => EndMoveCommand,
+            Key::Left if types.contains(&HorizontalMove) => MoveRight,
+            Key::Right if types.contains(&HorizontalMove) => MoveRight,
+            Key::Ctrl('a') if types.contains(&HorizontalMove) => MoveTop,
+            Key::Ctrl('e') if types.contains(&HorizontalMove) => MoveEnd,
 
-            Key::Up if types.contains(&VerticalMove) => UpMoveCommand,
-            Key::Down if types.contains(&VerticalMove) => DownMoveCommand,
-            Key::Ctrl('p') if types.contains(&VerticalMove) => UpMoveCommand,
-            Key::Ctrl('n') if types.contains(&VerticalMove) => DownMoveCommand,
+            Key::Up if types.contains(&VerticalMove) => MoveUp,
+            Key::Down if types.contains(&VerticalMove) => MoveDown,
+            Key::Ctrl('p') if types.contains(&VerticalMove) => MoveUp,
+            Key::Ctrl('n') if types.contains(&VerticalMove) => MoveDown,
 
-            Key::Char('\t') if types.contains(&MultiSelect) => SelectCommand,
+            Key::Char('\t') if types.contains(&MultiSelect) => Select,
 
-            Key::Char('\t') if types.contains(&TabSwitch) => NextTabCommand,
-            Key::BackTab if types.contains(&TabSwitch) => PrevTabCommand,
+            Key::Char('\t') if types.contains(&TabSwitch) => NextTab,
+            Key::BackTab if types.contains(&TabSwitch) => PrevTab,
 
-            Key::BackTab if types.contains(&TabSwitch) => PrevTabCommand,
+            Key::BackTab if types.contains(&TabSwitch) => PrevTab,
 
-            Key::Char(c) if types.contains(&GuideSwitch) && c.is_ascii_uppercase() => GuideCommand { c },
+            Key::Char(c) if types.contains(&GuideSwitch) && c.is_ascii_uppercase() => SwitchGuide { c },
 
-            Key::Char('\n') => FixCommand,
+            Key::Char('\n') => Fix,
 
-            Key::Ctrl('c') => QuitCommand,
+            Key::Ctrl('c') => Quit,
 
-            _ => IgnoreCommand,
+            _ => Ignore,
         }
     }
 }

@@ -8,10 +8,13 @@ use tui::backend::CrosstermBackend;
 use tui::layout::{Constraint, Direction};
 use tui::Terminal;
 
-use crate::fuzzy::command::CommandType::{GuideSwitch, HorizontalMove, Input, MultiSelect, TabSwitch, VerticalMove};
+use crate::fuzzy::command::CommandType::{
+    GuideSwitch, HorizontalMove, ListFilter, MultiSelect, PreviewFilter, TabSwitch, VerticalMove,
+};
 use crate::fuzzy::command::{Command, CommandType};
 use crate::fuzzy::core::guide::Guide;
 use crate::fuzzy::core::item::Item;
+use crate::fuzzy::core::style::{CustomPreviewStyle, DefaultPreviewStyle};
 use crate::fuzzy::core::tab::TabNames;
 use crate::fuzzy::state::State;
 use crate::fuzzy::view::{PanesView, SimpleView, TabView, View};
@@ -47,7 +50,7 @@ impl<I: Item> Simple<I> {
     pub fn build(self) -> Runner<I, SimpleView> {
         let state = State::new(self.items);
         let view = SimpleView::init();
-        let command_types = vec![Input, HorizontalMove, VerticalMove, MultiSelect];
+        let command_types = vec![ListFilter, HorizontalMove, VerticalMove, MultiSelect];
         Runner { state, view, command_types }
     }
 }
@@ -59,35 +62,69 @@ pub struct Pane<I: Item> {
 }
 
 impl<I: Item> Pane<I> {
-    pub fn guide(self, labels: Vec<&'static str>) -> GuidePane<I> {
+    pub fn default_preview(self) -> PreviewPane<I, DefaultPreviewStyle> {
+        PreviewPane {
+            items: self.items,
+            direction: self.direction,
+            constraint: self.constraint,
+            custom_preview_style: DefaultPreviewStyle {},
+            filter_command: PreviewFilter,
+        }
+    }
+
+    pub fn custom_preview<S: CustomPreviewStyle>(self, custom_preview_style: S) -> PreviewPane<I, S> {
+        PreviewPane {
+            items: self.items,
+            direction: self.direction,
+            constraint: self.constraint,
+            custom_preview_style,
+            filter_command: ListFilter,
+        }
+    }
+}
+
+pub struct PreviewPane<I: Item, S: CustomPreviewStyle> {
+    items: Vec<I>,
+    direction: Direction,
+    constraint: Constraint,
+    custom_preview_style: S,
+    filter_command: CommandType,
+}
+
+impl<I: Item, S: CustomPreviewStyle> PreviewPane<I, S> {
+    pub fn guide(self, labels: Vec<&'static str>) -> GuidePane<I, S> {
         GuidePane {
             items: self.items,
             direction: self.direction,
             constraint: self.constraint,
+            custom_preview_style: self.custom_preview_style,
+            filter_command: self.filter_command,
             guide: Guide::new(labels),
         }
     }
 
-    pub fn build(self) -> Runner<I, PanesView> {
+    pub fn build(self) -> Runner<I, PanesView<S>> {
         let state = State::new(self.items);
-        let view = PanesView::new(self.direction, self.constraint);
-        let command_types = vec![Input, HorizontalMove, VerticalMove, MultiSelect];
+        let view = PanesView::new(self.direction, self.constraint, self.custom_preview_style);
+        let command_types = vec![self.filter_command, HorizontalMove, VerticalMove, MultiSelect];
         Runner { state, view, command_types }
     }
 }
 
-pub struct GuidePane<I: Item> {
+pub struct GuidePane<I: Item, S: CustomPreviewStyle> {
     items: Vec<I>,
     direction: Direction,
     constraint: Constraint,
+    custom_preview_style: S,
+    filter_command: CommandType,
     guide: Guide,
 }
 
-impl<I: Item> GuidePane<I> {
-    pub fn build(self) -> Runner<I, PanesView> {
+impl<I: Item, S: CustomPreviewStyle> GuidePane<I, S> {
+    pub fn build(self) -> Runner<I, PanesView<S>> {
         let state = State::new(self.items).guide(self.guide);
-        let view = PanesView::new(self.direction, self.constraint);
-        let command_types = vec![Input, HorizontalMove, VerticalMove, MultiSelect, GuideSwitch];
+        let view = PanesView::new(self.direction, self.constraint, self.custom_preview_style);
+        let command_types = vec![self.filter_command, HorizontalMove, VerticalMove, MultiSelect, GuideSwitch];
         Runner { state, view, command_types }
     }
 }
@@ -105,7 +142,7 @@ impl<I: Item> Tab<I> {
     pub fn build(self) -> Runner<I, TabView> {
         let state = State::new(self.items).tab(&self.tab_names);
         let view = TabView::new(self.tab_names);
-        let command_types = vec![Input, HorizontalMove, VerticalMove, TabSwitch];
+        let command_types = vec![ListFilter, HorizontalMove, VerticalMove, TabSwitch];
         Runner { state, view, command_types }
     }
 }
@@ -120,7 +157,7 @@ impl<I: Item> GuideTab<I> {
     pub fn build(self) -> Runner<I, TabView> {
         let state = State::new(self.items).tab(&self.tab_names).guide(self.guide);
         let view = TabView::new(self.tab_names);
-        let command_types = vec![Input, HorizontalMove, VerticalMove, TabSwitch, GuideSwitch];
+        let command_types = vec![ListFilter, HorizontalMove, VerticalMove, TabSwitch, GuideSwitch];
         Runner { state, view, command_types }
     }
 }
@@ -139,7 +176,7 @@ impl<I: Item, V: View> Runner<I, V> {
         let backend = CrosstermBackend::new(tty);
         let mut terminal = Terminal::new(backend)?;
 
-        self.state.rematch();
+        self.state.rematch(false);
         terminal.draw(|frame| self.view.render(frame, &self.state))?;
 
         for key in get_tty()?.keys() {

@@ -120,5 +120,7 @@ mod tests {
             Matcher::new("a a a").get_matched_parts(line),
             vec![x("/FOO/B"), o("a"), x("r/"), o("a"), x("pp/m"), o("a"), x("in.rs"),]
         );
+
+        assert_eq!(Matcher::new("struct").get_matched_parts(line), vec![x("/FOO/Bar/app/main.rs")]);
     }
 }

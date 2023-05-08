@@ -4,11 +4,14 @@ use crate::fuzzy::command::Command::{
     Cut, Fix, Ignore, Insert, MoveDown, MoveEnd, MoveRight, MoveTop, MoveUp, NextTab, PrevTab, Quit, Remove, Select,
     SwitchGuide,
 };
-use crate::fuzzy::command::CommandType::{GuideSwitch, HorizontalMove, Input, MultiSelect, TabSwitch, VerticalMove};
+use crate::fuzzy::command::CommandType::{
+    GuideSwitch, HorizontalMove, ListFilter, MultiSelect, PreviewFilter, TabSwitch, VerticalMove,
+};
 
 #[derive(Eq, PartialEq)]
 pub enum CommandType {
-    Input,
+    ListFilter,
+    PreviewFilter,
     HorizontalMove,
     VerticalMove,
     MultiSelect,
@@ -18,9 +21,9 @@ pub enum CommandType {
 
 #[derive(Debug)]
 pub enum Command {
-    Insert { c: char },
-    Remove,
-    Cut,
+    Insert { c: char, preview: bool },
+    Remove { preview: bool },
+    Cut { preview: bool },
 
     MoveLeft,
     MoveRight,
@@ -47,9 +50,17 @@ pub enum Command {
 impl Command {
     pub fn create(key: Key, types: &[CommandType]) -> Self {
         match key {
-            Key::Char(c) if types.contains(&Input) && !c.is_ascii_uppercase() && c != '\t' && c != '\n' => Insert { c },
-            Key::Backspace if types.contains(&Input) => Remove,
-            Key::Ctrl('k') if types.contains(&Input) => Cut,
+            Key::Char(c) if types.contains(&ListFilter) && !c.is_ascii_uppercase() && c != '\t' && c != '\n' => {
+                Insert { c, preview: false }
+            }
+            Key::Backspace if types.contains(&ListFilter) => Remove { preview: false },
+            Key::Ctrl('k') if types.contains(&ListFilter) => Cut { preview: false },
+
+            Key::Char(c) if types.contains(&PreviewFilter) && !c.is_ascii_uppercase() && c != '\t' && c != '\n' => {
+                Insert { c, preview: true }
+            }
+            Key::Backspace if types.contains(&PreviewFilter) => Remove { preview: true },
+            Key::Ctrl('k') if types.contains(&PreviewFilter) => Cut { preview: true },
 
             Key::Left if types.contains(&HorizontalMove) => MoveRight,
             Key::Right if types.contains(&HorizontalMove) => MoveRight,

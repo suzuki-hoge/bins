@@ -5,6 +5,7 @@ use tui::layout::{Constraint, Direction, Layout};
 use tui::Frame;
 
 use crate::fuzzy::core::item::Item;
+use crate::fuzzy::core::style::CustomPreviewStyle;
 use crate::fuzzy::core::tab::TabNames;
 use crate::fuzzy::state::State;
 use crate::fuzzy::view::guide_view::render_guide;
@@ -44,18 +45,19 @@ impl View for SimpleView {
     }
 }
 
-pub struct PanesView {
+pub struct PanesView<S: CustomPreviewStyle> {
     sub_direction: Direction,
     sub_constraint: Constraint,
+    custom_preview_style: S,
 }
 
-impl PanesView {
-    pub fn new(sub_direction: Direction, sub_constraint: Constraint) -> Self {
-        Self { sub_direction, sub_constraint }
+impl<S: CustomPreviewStyle> PanesView<S> {
+    pub fn new(sub_direction: Direction, sub_constraint: Constraint, custom_preview_style: S) -> Self {
+        Self { sub_direction, sub_constraint, custom_preview_style }
     }
 }
 
-impl View for PanesView {
+impl<S: CustomPreviewStyle> View for PanesView<S> {
     fn render<I: Item>(&self, frame: &mut Frame<CrosstermBackend<File>>, state: &State<I>) {
         let constraints = if state.guide_state.is_none() {
             vec![Constraint::Length(1), Constraint::Min(1)]
@@ -74,7 +76,7 @@ impl View for PanesView {
 
         render_list(frame, sub_layout[0], &state.list_state);
 
-        render_preview(frame, sub_layout[1], &state.list_state);
+        render_preview(frame, sub_layout[1], &state.list_state, &self.custom_preview_style);
 
         if state.guide_state.is_some() {
             let guide_area = Layout::default()

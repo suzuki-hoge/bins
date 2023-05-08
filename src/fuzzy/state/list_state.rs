@@ -72,7 +72,7 @@ impl<I: Item> ListState<I> {
         }
     }
 
-    pub fn rematch(&mut self, input: &str, tab: Option<&Tab>) {
+    pub fn rematch(&mut self, input: &str, preview: bool, tab: Option<&Tab>) {
         self.matcher = Matcher::new(input);
 
         self.active_line_number = 0;
@@ -82,7 +82,13 @@ impl<I: Item> ListState<I> {
             .iter()
             .enumerate()
             .filter(|(_, item)| {
-                self.matcher.is_match(&item.get_line()) && tab.map(|t| item.tab_filter(t)).unwrap_or(true)
+                let tab_matched = tab.map(|t| item.tab_filter(t)).unwrap_or(true);
+                let item_matched = if preview {
+                    self.matcher.is_match(&item.get_line()) || self.matcher.is_match(&item.get_preview().join("\n"))
+                } else {
+                    self.matcher.is_match(&item.get_line())
+                };
+                item_matched && tab_matched
             })
             .map(|(id, _)| id)
             .collect();
@@ -108,6 +114,22 @@ impl<I: Item> ListState<I> {
                 (status, self.matcher.get_matched_parts(&self.items[id].get_line()))
             })
             .collect()
+    }
+
+    pub fn get_simple_preview(&self) -> Vec<String> {
+        if let Some(item) = self.get_active_item() {
+            item.get_preview()
+        } else {
+            vec![]
+        }
+    }
+
+    pub fn get_matched_preview_parts(&self) -> Vec<Vec<(String, bool)>> {
+        if let Some(item) = self.get_active_item() {
+            item.get_preview().iter().map(|line| self.matcher.get_matched_parts(line)).collect()
+        } else {
+            vec![]
+        }
     }
 
     pub fn get_selected_items(&self) -> Vec<I> {

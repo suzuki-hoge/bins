@@ -5,6 +5,7 @@ use tui::text::Span;
 use tui::widgets::ListItem;
 
 use bins::fuzzy::core::item::Item;
+use bins::fuzzy::core::style::CustomPreviewStyle;
 use bins::fuzzy::core::tab::Tab;
 
 use bins::fuzzy::FuzzyBuilder;
@@ -34,22 +35,26 @@ impl Item for FooItem {
         ]
     }
 
-    fn custom_preview_style(&self, s: String) -> ListItem {
-        if s.starts_with('+') {
-            ListItem::new(Span::styled(s, Style::default().fg(Color::Green)))
-        } else if s.starts_with('-') {
-            ListItem::new(Span::styled(s, Style::default().fg(Color::Red)))
-        } else {
-            ListItem::new(Span::from(s))
-        }
-    }
-
     fn tab_filter(&self, tab: &Tab) -> bool {
         match tab.current {
             0 => true,
             1 => self.line.contains('1'),
             2 => self.line.contains('2'),
             _ => panic!(),
+        }
+    }
+}
+
+struct Diff {}
+
+impl CustomPreviewStyle for Diff {
+    fn to_list_item(&self, s: String) -> ListItem {
+        if s.starts_with('+') {
+            ListItem::new(Span::styled(s, Style::default().fg(Color::Green)))
+        } else if s.starts_with('-') {
+            ListItem::new(Span::styled(s, Style::default().fg(Color::Red)))
+        } else {
+            ListItem::new(Span::from(s))
         }
     }
 }
@@ -67,10 +72,14 @@ fn main() -> anyhow::Result<()> {
 
     let x = match arg {
         "s" => FuzzyBuilder::simple(items).build().run()?,
-        "p" => FuzzyBuilder::pane(items, Direction::Horizontal, Constraint::Percentage(30))
-            .guide(vec!["edit", "run"])
-            .build()
-            .run()?,
+        "p" => {
+            FuzzyBuilder::pane(items, Direction::Horizontal, Constraint::Percentage(30))
+                // .custom_preview(Diff{})
+                .default_preview()
+                .guide(vec!["edit", "run"])
+                .build()
+                .run()?
+        }
         "t" => {
             FuzzyBuilder::tab(items, vec!["All", "Filter-1", "Filter-2"]).guide(vec!["edit", "run"]).build().run()?
         }
@@ -81,6 +90,6 @@ fn main() -> anyhow::Result<()> {
 
     Ok(())
 
-    // todo: match preview
+    // todo: rayon
     // todo: use ref
 }

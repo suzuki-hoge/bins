@@ -42,11 +42,11 @@ impl<I: Item> State<I> {
         self
     }
 
-    pub fn rematch(&mut self) {
+    pub fn rematch(&mut self, preview: bool) {
         if let Some(tab_state) = self.tab_state.borrow() {
-            self.list_state.rematch(&self.prompt_state.input, Some(&tab_state.tab));
+            self.list_state.rematch(&self.prompt_state.input, preview, Some(&tab_state.tab));
         } else {
-            self.list_state.rematch(&self.prompt_state.input, None);
+            self.list_state.rematch(&self.prompt_state.input, preview, None);
         }
     }
 
@@ -58,17 +58,17 @@ impl<I: Item> State<I> {
 
     pub fn dispatch(&mut self, command: Command) -> bool {
         match command {
-            Insert { c } => {
+            Insert { c, preview } => {
                 self.prompt_state.insert(c);
-                self.rematch();
+                self.rematch(preview);
             }
-            Remove => {
+            Remove { preview } => {
                 self.prompt_state.remove();
-                self.rematch();
+                self.rematch(preview);
             }
-            Cut => {
+            Cut { preview } => {
                 self.prompt_state.cut();
-                self.rematch();
+                self.rematch(preview);
             }
 
             MoveRight => self.prompt_state.right(),
@@ -85,13 +85,13 @@ impl<I: Item> State<I> {
             NextTab => {
                 if let Some(tab_state) = self.tab_state.as_mut() {
                     tab_state.tab.next();
-                    self.rematch();
+                    self.rematch(false);
                 }
             }
             PrevTab => {
                 if let Some(tab_state) = self.tab_state.as_mut() {
                     tab_state.tab.prev();
-                    self.rematch();
+                    self.rematch(false);
                 }
             }
 

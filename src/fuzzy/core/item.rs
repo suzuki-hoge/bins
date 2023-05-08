@@ -2,7 +2,7 @@ use crate::fuzzy::core::guide::Label;
 use crate::fuzzy::core::tab::Tab;
 use std::fmt::Debug;
 
-pub trait Item: Clone + Debug {
+pub trait Item: Sized + Send + Clone + Debug {
     fn get_line(&self) -> String;
 
     fn get_preview(&self) -> Vec<String>;

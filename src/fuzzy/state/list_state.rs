@@ -1,6 +1,7 @@
 use std::collections::HashSet;
 
 use itertools::Itertools;
+use rayon::prelude::*;
 
 use crate::fuzzy::core::item::Item;
 use crate::fuzzy::core::tab::Tab;
@@ -79,7 +80,8 @@ impl<I: Item> ListState<I> {
 
         self.matched_ids = self
             .items
-            .iter()
+            .clone()
+            .into_par_iter()
             .enumerate()
             .filter(|(_, item)| {
                 let tab_matched = tab.map(|t| item.tab_filter(t)).unwrap_or(true);

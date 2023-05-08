@@ -90,6 +90,5 @@ fn main() -> anyhow::Result<()> {
 
     Ok(())
 
-    // todo: rayon
     // todo: use ref
 }

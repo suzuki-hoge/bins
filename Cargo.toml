@@ -13,3 +13,7 @@ tui = "0.19.0"
 
 [dev-dependencies]
 rstest = "0.16.0"
+
+[[bin]]
+name = "filter"
+path = "src/bin/tui/misc/filter/main.rs"

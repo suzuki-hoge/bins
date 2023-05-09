@@ -89,6 +89,4 @@ fn main() -> anyhow::Result<()> {
     dbg!(x);
 
     Ok(())
-
-    // todo: use ref
 }

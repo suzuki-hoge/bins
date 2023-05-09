@@ -15,3 +15,13 @@ pub trait Item: Sized + Send + Clone + Debug {
         true
     }
 }
+
+impl Item for String {
+    fn get_line(&self) -> String {
+        self.to_string()
+    }
+
+    fn get_preview(&self) -> Vec<String> {
+        vec![]
+    }
+}

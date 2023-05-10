@@ -10,3 +10,8 @@ pub fn stdout<T: Display>(value: T) -> anyhow::Result<()> {
     }
     Ok(())
 }
+
+pub fn stderr<T: Display>(value: T) -> anyhow::Result<()> {
+    eprintln!("{value}");
+    Ok(())
+}

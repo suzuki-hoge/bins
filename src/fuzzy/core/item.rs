@@ -5,7 +5,9 @@ use std::fmt::Debug;
 pub trait Item: Sized + Send + Clone + Debug {
     fn get_line(&self) -> String;
 
-    fn get_preview(&self) -> Vec<String>;
+    fn get_preview(&self) -> Vec<String> {
+        vec![]
+    }
 
     fn tab_filter(&self, _: &Tab) -> bool {
         true

@@ -39,7 +39,7 @@ struct ProjectConfig {
     pub tags: Vec<String>,
 }
 
-#[derive(Eq, PartialEq, Clone, Debug)]
+#[derive(Clone, Debug)]
 pub struct CommandItem {
     pub work_dir: String,
     name: String,

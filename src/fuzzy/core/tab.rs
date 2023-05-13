@@ -1,10 +1,10 @@
 pub struct TabNames {
-    pub names: Vec<&'static str>,
+    pub names: Vec<String>,
 }
 
 impl TabNames {
-    pub fn new(names: Vec<&'static str>) -> Self {
-        Self { names }
+    pub fn new<S: Into<String>>(names: Vec<S>) -> Self {
+        Self { names: names.into_iter().map(|name| name.into()).collect() }
     }
 
     pub fn empty() -> Self {

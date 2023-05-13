@@ -37,7 +37,7 @@ impl FuzzyBuilder {
         Pane { items, direction, constraint }
     }
 
-    pub fn tab<I: Item>(items: Vec<I>, names: Vec<&'static str>) -> Tab<I> {
+    pub fn tab<I: Item, S: Into<String>>(items: Vec<I>, names: Vec<S>) -> Tab<I> {
         Tab { items, tab_names: TabNames::new(names) }
     }
 }

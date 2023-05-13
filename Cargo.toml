@@ -26,6 +26,10 @@ tui = "0.19.0"
 rstest = "0.17.0"
 
 [[bin]]
+name = "diff_viewer"
+path = "src/bin/tui/git/diff_viewer/main.rs"
+
+[[bin]]
 name = "git_hub_launcher"
 path = "src/bin/tui/git/git_hub_launcher/main.rs"
 

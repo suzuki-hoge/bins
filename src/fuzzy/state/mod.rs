@@ -20,6 +20,7 @@ pub struct State<I: Item> {
     pub list_state: ListState<I>,
     pub tab_state: Option<TabState>,
     pub guide_state: Option<GuideState>,
+    broken: bool,
 }
 
 impl<I: Item> State<I> {
@@ -29,6 +30,7 @@ impl<I: Item> State<I> {
             list_state: ListState::new(items),
             tab_state: None,
             guide_state: None,
+            broken: false,
         }
     }
 
@@ -51,9 +53,13 @@ impl<I: Item> State<I> {
     }
 
     pub fn get_result(&self) -> (Vec<I>, Vec<char>) {
-        let items = self.list_state.get_selected_items();
-        let chars = self.guide_state.as_ref().map(|state| state.get_active_chars()).unwrap_or(vec![]);
-        (items, chars)
+        if self.broken {
+            (vec![], vec![])
+        } else {
+            let items = self.list_state.get_selected_items();
+            let chars = self.guide_state.as_ref().map(|state| state.get_active_chars()).unwrap_or(vec![]);
+            (items, chars)
+        }
     }
 
     pub fn dispatch(&mut self, command: Command) -> bool {
@@ -105,7 +111,7 @@ impl<I: Item> State<I> {
 
             Fix => self.list_state.fix(),
 
-            Quit => {}
+            Quit => self.broken = true,
 
             _ => {}
         };

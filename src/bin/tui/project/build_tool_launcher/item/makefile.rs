@@ -1,4 +1,4 @@
-use crate::command::item::CommandItem;
+use crate::item::command_item::CommandItem;
 use anyhow::Context;
 use regex::Regex;
 use std::env::current_dir;
@@ -59,8 +59,8 @@ mod tests {
     use std::io::Write;
     use std::path::Path;
 
-    use crate::command::item::CommandItem;
-    use crate::command::makefile::_parse_makefile;
+    use crate::item::command_item::CommandItem;
+    use crate::item::makefile::_parse_makefile;
     use trim_margin::MarginTrimmable;
 
     fn setup<P: AsRef<Path>>(work_dir: P) {

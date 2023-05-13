@@ -6,8 +6,8 @@ use bins::io::file::read_deserializable;
 use itertools::Itertools;
 use serde::Deserialize;
 
-use crate::command::item::CommandItem;
-use crate::command::package_json::Tool::{Npm, Yarn};
+use crate::item::command_item::CommandItem;
+use crate::item::package_json::Tool::{Npm, Yarn};
 
 #[derive(Deserialize, Debug)]
 struct PackageJson {
@@ -74,9 +74,9 @@ mod tests {
     use std::io::Write;
     use std::path::Path;
 
-    use crate::command::item::CommandItem;
-    use crate::command::package_json::Tool::{Npm, Yarn};
-    use crate::command::package_json::{Tool, _parse_package_json};
+    use crate::item::command_item::CommandItem;
+    use crate::item::package_json::Tool::{Npm, Yarn};
+    use crate::item::package_json::{Tool, _parse_package_json};
     use trim_margin::MarginTrimmable;
 
     fn setup<P: AsRef<Path>>(work_dir: P, tool: Tool) {

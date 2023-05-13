@@ -7,16 +7,16 @@ use Direction::Horizontal;
 use bins::fuzzy::FuzzyBuilder;
 use bins::io::stdin::{stderr, stdout};
 
-use crate::command::{gather, generate_project_config, get_project_config, get_project_config_path};
+use crate::item::{gather, generate_project_config, get_project_config, get_project_config_path};
 
-mod command;
+mod item;
 
 #[derive(StructOpt)]
 struct Opt {
     #[structopt(short = "e", long = "--edit", help = "edit project config")]
     edit: bool,
 
-    #[structopt(name = "command_label", help = "run specified command instantly")]
+    #[structopt(name = "command_label", help = "run specified item instantly")]
     label: Option<String>,
 }
 
@@ -41,7 +41,7 @@ fn edit() -> anyhow::Result<()> {
 fn run(label: String) -> anyhow::Result<()> {
     match get_project_config().into_iter().find(|item| item.is_bb_match(&label)) {
         Some(item) => stdout(item.as_runnable()),
-        None => stderr("no such command"),
+        None => stderr("no such item"),
     }
 }
 

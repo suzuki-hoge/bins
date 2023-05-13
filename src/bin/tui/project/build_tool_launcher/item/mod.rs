@@ -1,12 +1,12 @@
-use crate::command::item::CommandItem;
-use crate::command::makefile::parse_makefile;
-use crate::command::package_json::parse_package_json;
-use crate::command::project_config::generate_project_config as generate;
-use crate::command::project_config::get_project_config_path as get_path;
-use crate::command::project_config::parse_project_config;
+use crate::item::command_item::CommandItem;
+use crate::item::makefile::parse_makefile;
+use crate::item::package_json::parse_package_json;
+use crate::item::project_config::generate_project_config as generate;
+use crate::item::project_config::get_project_config_path as get_path;
+use crate::item::project_config::parse_project_config;
 use std::path::PathBuf;
 
-mod item;
+mod command_item;
 mod makefile;
 mod package_json;
 mod project_config;

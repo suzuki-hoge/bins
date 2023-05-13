@@ -63,7 +63,7 @@ fn main() -> anyhow::Result<()> {
     let args: Vec<String> = env::args().collect();
     let arg: &str = args[1].as_ref();
 
-    let items = vec!["command", "core", "state", "view"]
+    let items = vec!["item", "core", "state", "view"]
         .repeat(10000)
         .into_iter()
         .enumerate()

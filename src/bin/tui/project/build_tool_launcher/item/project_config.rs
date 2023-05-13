@@ -1,4 +1,4 @@
-use crate::command::item::CommandItem;
+use crate::item::command_item::CommandItem;
 use bins::io::file::{read_deserializable, write_serializable};
 use serde::{Deserialize, Serialize};
 use std::env::current_dir;
@@ -41,13 +41,13 @@ pub fn generate_project_config() -> anyhow::Result<()> {
     write_serializable(get_project_config_path(), &project_config)
 }
 
-#[derive(Serialize, Deserialize, Eq, PartialEq, Clone, Debug)]
-pub struct ProjectConfig {
+#[derive(Serialize, Deserialize)]
+struct ProjectConfig {
     pub build_commands: Vec<BuildCommand>,
 }
 
-#[derive(Serialize, Deserialize, Eq, PartialEq, Clone, Debug)]
-pub struct BuildCommand {
+#[derive(Serialize, Deserialize)]
+struct BuildCommand {
     pub label: String,
     pub lines: Vec<String>,
 }
@@ -59,8 +59,8 @@ mod tests {
     use std::io::Write;
     use std::path::Path;
 
-    use crate::command::item::CommandItem;
-    use crate::command::project_config::_parse_project_config;
+    use crate::item::command_item::CommandItem;
+    use crate::item::project_config::_parse_project_config;
     use trim_margin::MarginTrimmable;
 
     fn setup<P: AsRef<Path>>(home_dir: P) {

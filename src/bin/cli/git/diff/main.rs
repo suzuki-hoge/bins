@@ -2,7 +2,6 @@ extern crate bins;
 
 use structopt::StructOpt;
 
-
 use bins::io::stdin::stdout;
 
 #[derive(StructOpt)]

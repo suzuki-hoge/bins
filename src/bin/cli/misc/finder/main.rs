@@ -2,10 +2,9 @@ use std::env::current_dir;
 use std::fs::read_dir;
 use std::path::{Path, PathBuf};
 
-use structopt::StructOpt;
-
 use crate::ignore::{get_ignores, Ignore};
 use crate::Target::{Directory, File};
+use structopt::StructOpt;
 
 mod ignore;
 

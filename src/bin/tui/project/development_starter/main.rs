@@ -1,38 +1,38 @@
-extern crate bins;
+use tui::layout::{Constraint, Direction};
+use Constraint::Percentage;
+use Direction::Horizontal;
 
-use bins::libs::io::writer::{stderr, stdout};
-use bins::libs::launcher::crossterm_launcher::launch;
+use bins::fuzzy::FuzzyBuilder;
+use bins::io::stdin::stdout;
 
-use crate::project_config::ProjectItem;
-use crate::runner::Actions;
+use crate::item::parse_project_configs;
 
-mod project_config;
-mod runner;
-mod ui;
+mod item;
 
 fn main() -> anyhow::Result<()> {
-    match launch(runner::run) {
-        Ok((items, _)) if items.is_empty() => Ok(()),
-        Ok((items, actions)) => eval(items[0].clone(), actions),
-        Err(e) => stderr(e),
-    }
-}
+    let items = parse_project_configs();
 
-fn eval(item: ProjectItem, action: Actions) -> anyhow::Result<()> {
+    let (items, guide) = FuzzyBuilder::pane(items, Horizontal, Percentage(30))
+        .default_preview()
+        .guide(vec!["cd", "edit", "git"], vec![0])
+        .build()
+        .run()?;
+
     let mut commands = vec![];
-    if action.cd {
-        commands.push(format!("cd {}", item.origin.work_dir_path));
+
+    for item in items {
+        if guide.contains(&'C') {
+            commands.push(format!("cd {}", item.work_dir))
+        }
+        if guide.contains(&'G') && item.is_git_hub_enabled() {
+            commands.push(format!("cd {}", item.work_dir));
+            commands.push("gwb".to_string());
+            commands.push("cd -".to_string());
+        }
+        if guide.contains(&'E') {
+            commands.push(format!("open -n -a 'IntelliJ IDEA.app' --args {}", item.work_dir));
+        }
     }
-    if action.edit {
-        commands.push(format!("open -n -a 'IntelliJ IDEA.app' --args {}", item.origin.work_dir_path));
-    }
-    if action.github && item.origin.git_exists {
-        commands.push(format!("cd {}", item.origin.work_dir_path));
-        commands.push("gwb".to_string());
-    }
-    if action.up && item.origin.up_exists {
-        commands.push(format!("cd {}", item.origin.work_dir_path));
-        commands.push("bb u".to_string());
-    }
+
     stdout(commands.join("; "))
 }

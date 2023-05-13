@@ -3,11 +3,10 @@ extern crate bins;
 use std::collections::HashMap;
 use std::string::ToString;
 
+use bins::io::command::get_command_out_lines;
+use bins::io::stdin::stdout;
 use itertools::Itertools;
 use structopt::StructOpt;
-
-use bins::libs::io::writer::stdout;
-use bins::libs::process::command::get_command_out_lines;
 
 #[derive(StructOpt)]
 struct Opt {

@@ -1,11 +1,10 @@
 extern crate bins;
 
+use bins::git::branch::get_git_branch;
+use bins::git::config::get_current_git_config;
+use bins::io::command::run_command;
+use bins::io::stdin::stdout;
 use structopt::StructOpt;
-
-use bins::libs::git::branch::get_git_branch;
-use bins::libs::git::config::get_git_config;
-use bins::libs::io::writer::stdout;
-use bins::libs::process::command::run_command;
 
 #[derive(StructOpt)]
 struct Opt {
@@ -16,7 +15,7 @@ struct Opt {
 fn main() -> anyhow::Result<()> {
     let opt = Opt::from_args();
 
-    let git_config = get_git_config()?;
+    let git_config = get_current_git_config().unwrap();
     let branch = get_git_branch()?;
 
     if let Some(base) = infer_base_branch(opt.destination, branch.base.as_deref()) {

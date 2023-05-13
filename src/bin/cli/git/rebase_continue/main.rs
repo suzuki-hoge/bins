@@ -2,7 +2,7 @@ extern crate bins;
 
 use structopt::StructOpt;
 
-use bins::libs::process::command::run_command;
+use bins::io::command::run_command;
 
 #[derive(StructOpt)]
 struct Opt {}

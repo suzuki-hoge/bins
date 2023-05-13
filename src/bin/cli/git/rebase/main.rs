@@ -1,11 +1,10 @@
 extern crate bins;
 
+use bins::git::branch::get_git_branch;
+use bins::io::command::print_command_out;
+use bins::io::stdin::stdout;
 use question::{Answer, Question};
 use structopt::StructOpt;
-
-use bins::libs::git::branch::get_git_branch;
-use bins::libs::io::writer::stdout;
-use bins::libs::process::command::print_command_out;
 
 #[derive(StructOpt)]
 struct Opt {}

@@ -1,18 +1,14 @@
-extern crate bins;
-
-use bins::libs::io::reader::get_piped_stdin_or_dummy;
+use crate::item::get_piped_stdin_or_dummy;
+use bins::fuzzy::FuzzyBuilder;
+use bins::io::stdin::stdout;
 use itertools::Itertools;
 
-use bins::libs::launcher::crossterm_launcher::launch;
-
-mod runner;
-mod ui;
-
-use bins::libs::io::writer::stdout;
+mod item;
 
 fn main() -> anyhow::Result<()> {
-    match launch(|terminal| runner::run(terminal, get_piped_stdin_or_dummy()?)) {
-        Ok(items) => stdout(items.iter().join("\n")),
-        Err(e) => stdout(format!("echo {e}")),
-    }
+    let items = get_piped_stdin_or_dummy()?;
+
+    let (items, _) = FuzzyBuilder::simple(items).build().run()?;
+
+    stdout(items.into_iter().join("\n"))
 }

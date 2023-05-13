@@ -1,68 +1,54 @@
-extern crate bins;
-
 use itertools::Itertools;
 use structopt::StructOpt;
+use tui::layout::{Constraint, Direction};
+use Constraint::Percentage;
+use Direction::Horizontal;
 
-use bins::libs::io::writer::{stderr, stdout};
-use bins::libs::launcher::crossterm_launcher::launch;
-use bins::libs::project::project_config::parse_project_config;
+use bins::fuzzy::FuzzyBuilder;
+use bins::io::stdin::{stderr, stdout};
 
-use crate::command::makefile::parse_makefile;
-use crate::command::package_json::parse_package_json;
+use crate::item::{gather, generate_project_config, get_project_config, get_project_config_path};
 
-mod command;
-mod runner;
-mod ui;
+mod item;
 
 #[derive(StructOpt)]
 struct Opt {
-    #[structopt(short = "g", long = "--generate", conflicts_with_all(& ["edit"]), help = "generate empty config")]
-    generate: bool,
-
-    #[structopt(short = "e", long = "--edit", conflicts_with_all(& ["generate"]), help = "generate empty config")]
+    #[structopt(short = "e", long = "--edit", help = "edit project config")]
     edit: bool,
 
-    #[structopt(name = "command_name", help = "run specified command instantly")]
-    name: Option<String>,
+    #[structopt(name = "command_label", help = "run specified item instantly")]
+    label: Option<String>,
 }
 
 fn main() -> anyhow::Result<()> {
     let opt = Opt::from_args();
 
-    match (opt.generate, opt.edit, opt.name) {
-        (true, _, _) => generate(),
-        (_, true, _) => edit(),
-        (false, false, Some(name)) => run_instantly(name),
-        (false, false, None) => launch_selector(),
-    }
-}
-
-fn launch_selector() -> anyhow::Result<()> {
-    let project_config = parse_project_config()?;
-
-    let command_items = vec![parse_makefile()?, parse_package_json()?].into_iter().flatten().collect_vec();
-
-    match launch(|terminal| runner::run(terminal, project_config.clone(), command_items.clone())) {
-        Ok(items) => stdout(items.iter().map(|item| item.get_runnable()).join("\n")),
-        Err(e) => stderr(e),
-    }
-}
-
-fn run_instantly(label: String) -> anyhow::Result<()> {
-    match parse_project_config()?.get_build_command_lines(label) {
-        Some(lines) => stdout(lines.join("\n")),
-        None => stderr("no such command"),
-    }
-}
-
-fn generate() -> anyhow::Result<()> {
-    if parse_project_config()?.generate() {
-        stdout("echo generated")
-    } else {
-        stderr("already generated")
+    match (opt.edit, opt.label) {
+        (true, _) => edit(),
+        (_, Some(label)) => run(label),
+        (_, None) => fuzzy(),
     }
 }
 
 fn edit() -> anyhow::Result<()> {
-    stdout(format!("vi {}", parse_project_config()?.config_path))
+    let path = get_project_config_path();
+    if !path.exists() {
+        generate_project_config()?
+    }
+    stdout(format!("vi {}", path.display()))
+}
+
+fn run(label: String) -> anyhow::Result<()> {
+    match get_project_config().into_iter().find(|item| item.is_bb_match(&label)) {
+        Some(item) => stdout(item.as_runnable()),
+        None => stderr("no such item"),
+    }
+}
+
+fn fuzzy() -> anyhow::Result<()> {
+    let items = gather();
+
+    let (items, _) = FuzzyBuilder::pane(items, Horizontal, Percentage(30)).default_preview().build().run()?;
+
+    stdout(items.into_iter().map(|item| item.as_runnable()).join("\n"))
 }

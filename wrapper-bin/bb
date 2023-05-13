@@ -1,7 +1,7 @@
 #!/bin/zsh
 
 build_dir=$(cd "$(dirname "${0}")" && git rev-parse --show-toplevel)/target/release
-bin="$build_dir/build_tool_launcher"
+bin="$build_dir/build-tool-launcher"
 
 if [ $# -eq 1 ]; then
   if [ "$1" = "-h" ]; then

@@ -1,8 +1,7 @@
 use std::path::PathBuf;
 
+use bins::io::file::read_deserializable;
 use serde::Deserialize;
-
-use bins::libs::io::reader::read_deserializable;
 
 #[derive(Deserialize, Debug)]
 pub struct Ignore {

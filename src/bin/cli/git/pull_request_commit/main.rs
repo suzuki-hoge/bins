@@ -1,10 +1,9 @@
 extern crate bins;
 
+use bins::git::config::get_current_git_config;
+use bins::io::command::{get_command_out_lines, run_command};
 use itertools::Itertools;
 use structopt::StructOpt;
-
-use bins::libs::git::config::get_git_config;
-use bins::libs::process::command::{get_command_out_lines, run_command};
 
 #[derive(StructOpt)]
 struct Opt {
@@ -17,7 +16,7 @@ struct Opt {
 fn main() -> anyhow::Result<()> {
     let opt = Opt::from_args();
 
-    let git_config = get_git_config()?;
+    let git_config = get_current_git_config().unwrap();
 
     let command = create_log_command(&opt.hash, &opt.base);
     let logs = get_command_out_lines(command)?;

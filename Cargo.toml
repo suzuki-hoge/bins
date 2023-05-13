@@ -3,16 +3,13 @@ name = "bins"
 version = "0.1.0"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
 anyhow = "1.0.68"
-chrono = "0.4.23"
 crossterm = "0.26.0"
 futures = "0.3.26"
 itertools = "0.10.5"
-question = "0.2.2"
 pad = "0.1.6"
+question = "0.2.2"
 rayon = "1.6.1"
 regex = "1.7.1"
 reqwest = { version = "0.11.14", features = ["json"] }
@@ -20,15 +17,14 @@ serde = { version = "1.0.152", features = ["derive"] }
 serde_json = "1.0.91"
 serde_yaml = "0.9.17"
 structopt = "0.3.26"
-termion = "2.0.1"
-thiserror = "1.0.38"
-tokio = {version = "1.25.0", features = ["full"]}
-tokio-util = {version = "0.7.4", features = ["full"]}
+termion = { version = "2.0.1", features = ["serde"] }
+tokio = { version = "1.25.0", features = ["macros", "process", "rt-multi-thread"] }
+tokio-util = { version = "0.7.4", features = ["codec"] }
 trim-margin = "0.1.0"
 tui = "0.19.0"
 
 [dev-dependencies]
-rstest = "0.16.0"
+rstest = "0.17.0"
 
 [[bin]]
 name = "git-add"
@@ -49,6 +45,10 @@ path = "src/bin/cli/git/clean/main.rs"
 [[bin]]
 name = "git-commit"
 path = "src/bin/cli/git/commit/main.rs"
+
+[[bin]]
+name = "git-diff"
+path = "src/bin/cli/git/diff/main.rs"
 
 [[bin]]
 name = "git-commit-amend"
@@ -95,34 +95,25 @@ name = "finder"
 path = "src/bin/cli/misc/finder/main.rs"
 
 [[bin]]
-name = "diff-filter"
-path = "src/bin/tui/git/diff-filter/main.rs"
+name = "diff-viewer"
+path = "src/bin/tui/git/diff_viewer/main.rs"
 
 [[bin]]
-name = "git_hub_launcher"
+name = "git-hub-launcher"
 path = "src/bin/tui/git/git_hub_launcher/main.rs"
 
 [[bin]]
-name = "git_hub_pull_request_review_launcher"
+name = "git-hub-pull-request-review-launcher"
 path = "src/bin/tui/git/git_hub_pull_request_review_launcher/main.rs"
-
-[[bin]]
-name = "calendar"
-path = "src/bin/tui/misc/calendar/main.rs"
 
 [[bin]]
 name = "filter"
 path = "src/bin/tui/misc/filter/main.rs"
 
 [[bin]]
-name = "build_tool_launcher"
+name = "build-tool-launcher"
 path = "src/bin/tui/project/build_tool_launcher/main.rs"
 
 [[bin]]
-name = "development_starter"
+name = "development-starter"
 path = "src/bin/tui/project/development_starter/main.rs"
-
-[[bin]]
-name = "document-gatherer"
-path = "src/bin/document_gatherer.rs"
-

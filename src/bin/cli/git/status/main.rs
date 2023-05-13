@@ -1,6 +1,5 @@
+use bins::io::command::{print_command_out, run_command};
 use structopt::StructOpt;
-
-use bins::libs::process::command::{print_command_out, run_command};
 
 #[derive(StructOpt)]
 struct Opt {}

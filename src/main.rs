@@ -76,13 +76,14 @@ fn main() -> anyhow::Result<()> {
             FuzzyBuilder::pane(items, Direction::Horizontal, Constraint::Percentage(30))
                 // .custom_preview(Diff{})
                 .default_preview()
-                .guide(vec!["edit", "run"])
+                .guide(vec!["edit", "run"], vec![0])
                 .build()
                 .run()?
         }
-        "t" => {
-            FuzzyBuilder::tab(items, vec!["All", "Filter-1", "Filter-2"]).guide(vec!["edit", "run"]).build().run()?
-        }
+        "t" => FuzzyBuilder::tab(items, vec!["All", "Filter-1", "Filter-2"])
+            .guide(vec!["edit", "run"], vec![0])
+            .build()
+            .run()?,
         _ => panic!(),
     };
 

@@ -38,7 +38,7 @@ impl<I: Item> State<I> {
     }
 
     pub fn guide(mut self, guide: Guide) -> Self {
-        self.guide_state = Some(GuideState::new(guide.labels));
+        self.guide_state = Some(GuideState::new(guide));
         self
     }
 

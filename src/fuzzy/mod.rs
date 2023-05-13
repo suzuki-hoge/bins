@@ -92,14 +92,14 @@ pub struct PreviewPane<I: Item, S: CustomPreviewStyle> {
 }
 
 impl<I: Item, S: CustomPreviewStyle> PreviewPane<I, S> {
-    pub fn guide(self, labels: Vec<&'static str>) -> GuidePane<I, S> {
+    pub fn guide(self, labels: Vec<&'static str>, actives: Vec<usize>) -> GuidePane<I, S> {
         GuidePane {
             items: self.items,
             direction: self.direction,
             constraint: self.constraint,
             custom_preview_style: self.custom_preview_style,
             filter_command: self.filter_command,
-            guide: Guide::new(labels),
+            guide: Guide::new(labels, actives),
         }
     }
 
@@ -135,8 +135,8 @@ pub struct Tab<I: Item> {
 }
 
 impl<I: Item> Tab<I> {
-    pub fn guide(self, labels: Vec<&'static str>) -> GuideTab<I> {
-        GuideTab { items: self.items, tab_names: self.tab_names, guide: Guide::new(labels) }
+    pub fn guide(self, labels: Vec<&'static str>, actives: Vec<usize>) -> GuideTab<I> {
+        GuideTab { items: self.items, tab_names: self.tab_names, guide: Guide::new(labels, actives) }
     }
 
     pub fn build(self) -> Runner<I, TabView> {

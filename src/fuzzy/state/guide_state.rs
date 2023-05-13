@@ -1,4 +1,4 @@
-use crate::fuzzy::core::guide::Label;
+use crate::fuzzy::core::guide::{Guide, Label};
 use crate::fuzzy::core::item::Item;
 
 #[derive(Debug)]
@@ -7,8 +7,15 @@ pub struct GuideState {
 }
 
 impl GuideState {
-    pub fn new(labels: Vec<Label>) -> Self {
-        Self { labels: labels.into_iter().map(|label| (label, false)).collect() }
+    pub fn new(guide: Guide) -> Self {
+        Self {
+            labels: guide
+                .labels
+                .into_iter()
+                .enumerate()
+                .map(|(i, label)| (label, guide.actives.contains(&i)))
+                .collect(),
+        }
     }
 
     pub fn toggle<I: Item>(&mut self, item: &I, c: char) {
@@ -57,7 +64,7 @@ mod tests {
     fn test_all_enabling() {
         let item = TestItem { value: 1 };
 
-        let mut sut = GuideState::new(Guide::new(vec!["Edit", "Run"]).labels);
+        let mut sut = GuideState::new(Guide::new(vec!["Edit", "Run"], vec![]));
 
         assert!(!sut.labels[0].1);
         assert!(!sut.labels[1].1);
@@ -87,7 +94,7 @@ mod tests {
     fn test_partial_enabling() {
         let item = TestItem { value: 2 };
 
-        let mut sut = GuideState::new(Guide::new(vec!["Edit", "Run"]).labels);
+        let mut sut = GuideState::new(Guide::new(vec!["Edit", "Run"], vec![]));
 
         assert!(!sut.labels[0].1);
         assert!(!sut.labels[1].1);
@@ -111,5 +118,13 @@ mod tests {
 
         assert!(!sut.labels[0].1);
         assert!(!sut.labels[1].1);
+    }
+
+    #[test]
+    fn test_actives() {
+        let sut = GuideState::new(Guide::new(vec!["Edit", "Run"], vec![1]));
+
+        assert!(!sut.labels[0].1);
+        assert!(sut.labels[1].1);
     }
 }

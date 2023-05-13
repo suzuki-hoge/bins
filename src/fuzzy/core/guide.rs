@@ -1,11 +1,12 @@
 #[derive(Debug)]
 pub struct Guide {
     pub labels: Vec<Label>,
+    pub actives: Vec<usize>,
 }
 
 impl Guide {
-    pub fn new(labels: Vec<&'static str>) -> Self {
-        Self { labels: labels.into_iter().map(Label::new).collect() }
+    pub fn new(labels: Vec<&'static str>, actives: Vec<usize>) -> Self {
+        Self { labels: labels.into_iter().map(Label::new).collect(), actives }
     }
 }
 

@@ -14,7 +14,7 @@ fn main() -> anyhow::Result<()> {
 
     let (items, guide) = FuzzyBuilder::pane(items, Horizontal, Percentage(30))
         .default_preview()
-        .guide(vec!["cd", "edit", "git"])
+        .guide(vec!["cd", "edit", "git"], vec![0])
         .build()
         .run()?;
 

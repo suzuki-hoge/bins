@@ -18,6 +18,9 @@ pub fn gather_urls(git_branch: &GitBranch) -> Vec<UrlItem> {
             ),
             UrlItem::from_def("issues", "/issues", &git_config, All),
             UrlItem::from_def("my issues", "/issues/assigned/@me", &git_config, All),
+            UrlItem::from_def("actions", "/actions", &git_config, All),
+            UrlItem::from_def("releases", "/releases", &git_config, All),
+            UrlItem::from_def("tags", "/tags", &git_config, All),
             UrlItem::from_def("wiki", "/wiki", &git_config, All),
         ];
         let mut current_def = vec![

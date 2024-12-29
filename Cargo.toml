@@ -4,27 +4,27 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-anyhow = "1.0.68"
-crossterm = "0.26.0"
-futures = "0.3.26"
-itertools = "0.10.5"
+anyhow = "1.0.95"
+crossterm = "0.28.1"
+futures = "0.3.31"
+itertools = "0.13.0"
 pad = "0.1.6"
 question = "0.2.2"
-rayon = "1.6.1"
-regex = "1.7.1"
-reqwest = { version = "0.11.14", features = ["json"] }
-serde = { version = "1.0.152", features = ["derive"] }
-serde_json = "1.0.91"
-serde_yaml = "0.9.17"
+rayon = "1.10.0"
+regex = "1.11.1"
+reqwest = { version = "0.12.11", features = ["json"] }
+serde = { version = "1.0.217", features = ["derive"] }
+serde_json = "1.0.134"
+serde_yaml = "0.9.33"
 structopt = "0.3.26"
-termion = { version = "2.0.1", features = ["serde"] }
-tokio = { version = "1.25.0", features = ["macros", "process", "rt-multi-thread"] }
-tokio-util = { version = "0.7.4", features = ["codec"] }
+termion = { version = "4.0.3", features = ["serde"] }
+tokio = { version = "1.42.0", features = ["macros", "process", "rt-multi-thread"] }
+tokio-util = { version = "0.7.13", features = ["codec"] }
 trim-margin = "0.1.0"
 tui = "0.19.0"
 
 [dev-dependencies]
-rstest = "0.17.0"
+rstest = "0.23.0"
 
 [[bin]]
 name = "git-add"

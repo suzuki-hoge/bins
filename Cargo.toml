@@ -28,32 +28,8 @@ tui = "0.19.0"
 rstest = "0.23.0"
 
 [[bin]]
-name = "git-add"
-path = "src/bin/cli/git/add/main.rs"
-
-[[bin]]
-name = "git-branch"
-path = "src/bin/cli/git/branch/main.rs"
-
-[[bin]]
 name = "git-checkout"
 path = "src/bin/cli/git/checkout/main.rs"
-
-[[bin]]
-name = "git-clean"
-path = "src/bin/cli/git/clean/main.rs"
-
-[[bin]]
-name = "git-commit"
-path = "src/bin/cli/git/commit/main.rs"
-
-[[bin]]
-name = "git-diff"
-path = "src/bin/cli/git/diff/main.rs"
-
-[[bin]]
-name = "git-commit-amend"
-path = "src/bin/cli/git/commit_amend/main.rs"
 
 [[bin]]
 name = "git-log"
@@ -80,24 +56,12 @@ name = "git-rebase"
 path = "src/bin/cli/git/rebase/main.rs"
 
 [[bin]]
-name = "git-rebase-continue"
-path = "src/bin/cli/git/rebase_continue/main.rs"
-
-[[bin]]
 name = "git-stash"
 path = "src/bin/cli/git/stash/main.rs"
 
 [[bin]]
-name = "git-status"
-path = "src/bin/cli/git/status/main.rs"
-
-[[bin]]
 name = "finder"
 path = "src/bin/cli/misc/finder/main.rs"
-
-[[bin]]
-name = "diff-viewer"
-path = "src/bin/tui/git/diff_viewer/main.rs"
 
 [[bin]]
 name = "git-hub-launcher"

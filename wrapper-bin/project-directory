@@ -1,7 +1,7 @@
 #!/bin/zsh
 
 build_dir=$(cd "$(dirname "${0}")" && git rev-parse --show-toplevel)/target/release
-bin="$build_dir/project-task"
+bin="$build_dir/project-directory"
 
 if [ $# -eq 1 ]; then
   if [ "$1" = "-h" ]; then
@@ -10,17 +10,13 @@ if [ $# -eq 1 ]; then
   fi
 fi
 
-editing=$(mktemp)
 out=$(mktemp)
-err=$(mktemp)
 
-$bin "$editing" "$out" "$err" "${@}" < /dev/tty > /dev/tty
+$bin "$out" "${@}" < /dev/tty > /dev/tty
 code=$?
 
 if [ $code -eq 0 ]; then
-  sh "$out"
-else
-  cat "$err"
+  source "$out"
 fi
 
-rm "$editing" "$out" "$err"
+rm "$out"

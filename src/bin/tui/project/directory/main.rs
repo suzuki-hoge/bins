@@ -1,10 +1,12 @@
+use std::path::Path;
+use std::process::ExitCode;
 use structopt::StructOpt;
 use tui::layout::{Constraint, Direction};
 use Constraint::Percentage;
 use Direction::Horizontal;
 
 use bins::fuzzy::FuzzyBuilder;
-use bins::io::stdin::stdout;
+use bins::io::exit::exit_ok;
 
 use crate::item::{get_config_path, parse_items};
 
@@ -12,24 +14,27 @@ mod item;
 
 #[derive(StructOpt)]
 struct Opt {
+    #[structopt(name = "out", help = "stdout file path")]
+    out: String,
+
     #[structopt(short = "e", long = "--edit", help = "edit config")]
     edit: bool,
 }
 
-fn main() -> anyhow::Result<()> {
+fn main() -> anyhow::Result<ExitCode> {
     let opt = Opt::from_args();
 
     match opt.edit {
-        true => edit(),
-        false => boot(),
+        true => edit(&opt.out),
+        false => fuzzy(&opt.out),
     }
 }
 
-fn edit() -> anyhow::Result<()> {
-    stdout(format!("vi {}", get_config_path().display()))
+fn edit<P: AsRef<Path>>(out: P) -> anyhow::Result<ExitCode> {
+    exit_ok(out, format!("vi {}", get_config_path().display()))
 }
 
-fn boot() -> anyhow::Result<()> {
+fn fuzzy<P: AsRef<Path>>(out: P) -> anyhow::Result<ExitCode> {
     let items = parse_items();
 
     let (items, guide) = FuzzyBuilder::pane(items, Horizontal, Percentage(30))
@@ -54,5 +59,5 @@ fn boot() -> anyhow::Result<()> {
         }
     }
 
-    stdout(commands.join("; "))
+    exit_ok(out, commands.join("; "))
 }

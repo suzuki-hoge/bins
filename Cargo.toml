@@ -6,6 +6,7 @@ edition = "2021"
 [dependencies]
 anyhow = "1.0.95"
 crossterm = "0.28.1"
+dialoguer = "0.11.0"
 futures = "0.3.31"
 itertools = "0.13.0"
 pad = "0.1.6"
@@ -117,3 +118,11 @@ path = "src/bin/tui/project/build_tool_launcher/main.rs"
 [[bin]]
 name = "development-starter"
 path = "src/bin/tui/project/development_starter/main.rs"
+
+[[bin]]
+name = "project-directory"
+path = "src/bin/tui/project/directory/main.rs"
+
+[[bin]]
+name = "project-task"
+path = "src/bin/tui/project/task/main.rs"

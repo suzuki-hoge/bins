@@ -1,0 +1,26 @@
+#!/bin/zsh
+
+build_dir=$(cd "$(dirname "${0}")" && git rev-parse --show-toplevel)/target/release
+bin="$build_dir/project-task"
+
+if [ $# -eq 1 ]; then
+  if [ "$1" = "-h" ]; then
+    eval "$bin -h"
+    exit 0
+  fi
+fi
+
+editing=$(mktemp)
+out=$(mktemp)
+err=$(mktemp)
+
+$bin "$editing" "$out" "$err" "${@}" < /dev/tty > /dev/tty
+code=$?
+
+if [ $code -eq 0 ]; then
+  sh "$out"
+else
+  cat "$err"
+fi
+
+rm "$editing" "$out" "$err"

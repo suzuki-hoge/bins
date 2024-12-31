@@ -46,10 +46,7 @@ fn _add_branch_memo<P1: AsRef<Path>, P2: AsRef<Path>>(
     let work_dir_dot = work_dir.as_ref().display().to_string().replace('/', ".");
     let yaml_path = bins_dir.as_ref().join(".bins-branch").join(format!("{work_dir_dot}.yaml"));
 
-    let mut memos = match read_deserializable(&yaml_path) {
-        Ok(memos) => memos,
-        Err(_) => vec![],
-    };
+    let mut memos = read_deserializable(&yaml_path).unwrap_or_else(|_| vec![]);
     memos.push(BranchMemo { base, current });
 
     write_serializable(&yaml_path, &memos)

@@ -136,7 +136,6 @@ mod tests {
         .trim_margin()
         .unwrap()
         .split('\n')
-        .into_iter()
         .map(|s| s.to_string())
         .collect_vec();
 

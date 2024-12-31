@@ -57,7 +57,7 @@ impl<I: Item> State<I> {
             (vec![], vec![])
         } else {
             let items = self.list_state.get_selected_items();
-            let chars = self.guide_state.as_ref().map(|state| state.get_active_chars()).unwrap_or(vec![]);
+            let chars = self.guide_state.as_ref().map(|state| state.get_active_chars()).unwrap_or_default();
             (items, chars)
         }
     }

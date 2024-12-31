@@ -16,6 +16,15 @@ alias gcma='git commit --amend --no-edit'
 alias gco='$build_dir/git-checkout'
 alias gcof='git branch | bf | cut -c3- | xargs git checkout'
 
+function gdf {
+  if [ "$1" = "-s" ]; then
+    shift
+    git diff --staged "$@"
+  else
+    git diff "$@"
+  fi
+}
+
 alias glg='$build_dir/git-log'
 
 alias gpl='$build_dir/git-pull'

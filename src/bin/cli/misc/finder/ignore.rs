@@ -1,6 +1,4 @@
-use std::path::PathBuf;
-
-use bins::io::file::read_deserializable;
+use bins::io::file::{get_bins_dir, read_deserializable};
 use serde::Deserialize;
 
 #[derive(Deserialize, Debug)]
@@ -9,8 +7,7 @@ pub struct Ignore {
 }
 
 pub fn get_ignores() -> anyhow::Result<Ignore> {
-    let bins_dir = PathBuf::from(std::env::var("HOME")?);
-    let yaml_path = bins_dir.join(".bins-finder-ignore.yaml");
+    let yaml_path = get_bins_dir().join("finder-ignore.yaml");
 
     read_deserializable(yaml_path)
 }

@@ -15,7 +15,7 @@ pub fn get_piped_stdin_or_dummy() -> anyhow::Result<Vec<String>> {
 
 fn dummy() -> anyhow::Result<Vec<String>> {
     let o = Command::new("ps").args(["aux"]).output()?;
-    Ok(String::from_utf8_lossy(&o.stdout).split('\n').into_iter().map(|s| s.to_string()).collect())
+    Ok(String::from_utf8_lossy(&o.stdout).split('\n').map(|s| s.to_string()).collect())
 }
 
 fn get_piped_stdin() -> anyhow::Result<Vec<String>> {

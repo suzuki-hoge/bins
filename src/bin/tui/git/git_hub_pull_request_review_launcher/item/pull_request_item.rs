@@ -128,7 +128,7 @@ mod tests {
             vec![],
         );
 
-        let act = vec![sut1.get_line(), sut2.get_line()].join("\n");
+        let act = [sut1.get_line(), sut2.get_line()].join("\n");
         let exp = "
             | #1    suzuki-hoge    feature/auth            bla bla bla
             |#42    john           feature/csv-download    lorem ipsum

@@ -41,7 +41,7 @@ pub fn render_preview<I: Item, S: CustomPreviewStyle>(
 
 fn get_style(is_matched: bool) -> Style {
     match is_matched {
-        true => Style::default().fg(Color::Red).bg(Color::White).add_modifier(Modifier::BOLD | Modifier::UNDERLINED),
-        false => Style::default().fg(Color::Black).bg(Color::White),
+        true => Style::default().fg(Color::Red).add_modifier(Modifier::BOLD | Modifier::UNDERLINED),
+        false => Style::default(),
     }
 }

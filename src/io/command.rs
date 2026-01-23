@@ -47,7 +47,7 @@ pub fn get_command_out_lines(s: impl Into<String>) -> anyhow::Result<Vec<String>
 
     if output.status.success() {
         let lines = if err.is_empty() { out } else { err }; // care stderr exists on success ( e.g. git checkout )
-        Ok(lines.trim_end().split('\n').into_iter().map(|s| s.to_string()).collect_vec())
+        Ok(lines.trim_end().split('\n').map(|s| s.to_string()).collect_vec())
     } else {
         Err(anyhow!(err))
     }

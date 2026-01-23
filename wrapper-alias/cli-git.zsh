@@ -1,19 +1,29 @@
 build_dir=$(cd "$(dirname "${0}")" && git rev-parse --show-toplevel)/target/release
 
-alias gad='$build_dir/git-add'
+alias gad='git add .'
 alias gadf='gstf git add'
 
+alias gbh='git branch'
 alias gbdf='git branch | bf | xargs git branch -D'
-alias gbh='$build_dir/git-branch'
 
-alias gcl='$build_dir/git-clean'
+alias gcl='git reset . && git checkout . && git clean -d -f'
 
-alias gcm='$build_dir/git-commit'
-
-alias gcma='$build_dir/git-commit-amend'
+function gcm {
+  git commit --message "$1"
+}
+alias gcma='git commit --amend --no-edit'
 
 alias gco='$build_dir/git-checkout'
 alias gcof='git branch | bf | cut -c3- | xargs git checkout'
+
+function gdf {
+  if [ "$1" = "-s" ]; then
+    shift
+    git diff --staged "$@"
+  else
+    git diff "$@"
+  fi
+}
 
 alias glg='$build_dir/git-log'
 
@@ -26,10 +36,10 @@ alias gprc='$build_dir/git-pull-request-commit'
 alias gps='$build_dir/git-push'
 
 alias grb='$build_dir/git-rebase'
-
-alias grbc='$build_dir/git-rebase-continue'
+alias grba='git rebase --abort'
+alias grbc='git rebase --continue'
 
 alias gsh='$build_dir/git-stash'
 
-alias gst='$build_dir/git-status'
+alias gst='git status --short --branch'
 alias gstf='git status --short | bf | cut -c4- | xargs'

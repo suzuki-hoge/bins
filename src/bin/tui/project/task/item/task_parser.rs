@@ -24,7 +24,7 @@ fn parse<P: AsRef<Path>>(path: P) -> Vec<ParsedItem> {
                 .include
                 .iter()
                 .flat_map(|include| {
-                    let path = get_bins_dir().join("commands").join(format!("{}.yml", include));
+                    let path = get_bins_dir().join("commands").join(format!("{include}.yml"));
                     parse(path)
                 })
                 .collect_vec();

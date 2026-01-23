@@ -29,7 +29,7 @@ impl ParsedItem {
         let mut replaced = self.lines.clone();
         for line in &mut replaced {
             for (arg_name, arg_value) in &args {
-                *line = line.replace(&format!("${}$", arg_name), arg_value);
+                *line = line.replace(&format!("${arg_name}$"), arg_value);
             }
         }
         replaced

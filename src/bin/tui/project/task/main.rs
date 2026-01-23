@@ -51,7 +51,7 @@ fn edit<P: AsRef<Path>>(out: P) -> anyhow::Result<ExitCode> {
 fn run<P: AsRef<Path>>(editing: P, out: P, err: P, label: String) -> anyhow::Result<ExitCode> {
     let items = TaskParser.get_items(&current_dir()?);
 
-    match items.into_iter().find(|item| item.label == format!("bb {}", label)) {
+    match items.into_iter().find(|item| item.label == format!("bb {label}")) {
         Some(item) => exec_item(editing, out, &item),
         None => exit_err(err, "no such item"),
     }
@@ -84,7 +84,7 @@ fn exec_item<P: AsRef<Path>>(editing: P, out: P, item: &ParsedItem) -> anyhow::R
         }
         CommandType::Copy => {
             let line = item.lines.first().unwrap();
-            exit_ok(out, format!("echo '{}' | tr -d '\\n' | pbcopy", line))
+            exit_ok(out, format!("echo '{line}' | tr -d '\\n' | pbcopy"))
         }
     }
 }

@@ -43,12 +43,10 @@ fn get_style(line_status: &LineStatus, is_matched: bool) -> Style {
         (Active, true) => {
             Style::default().fg(Color::Red).bg(Color::Cyan).add_modifier(Modifier::BOLD | Modifier::UNDERLINED)
         }
-        (Normal, true) => {
-            Style::default().fg(Color::Red).bg(Color::White).add_modifier(Modifier::BOLD | Modifier::UNDERLINED)
-        }
+        (Normal, true) => Style::default().fg(Color::Red).add_modifier(Modifier::BOLD | Modifier::UNDERLINED),
         (Active, false) => Style::default().fg(Color::Black).bg(Color::Cyan),
-        (Normal, false) => Style::default().fg(Color::Black).bg(Color::White),
-        (Selected, _) => Style::default().fg(Color::Rgb(190, 190, 190)).bg(Color::White),
+        (Normal, false) => Style::default(),
+        (Selected, _) => Style::default().fg(Color::Rgb(190, 190, 190)),
         (ActiveSelected, _) => Style::default().fg(Color::Rgb(190, 190, 190)).bg(Color::Cyan),
     }
 }
